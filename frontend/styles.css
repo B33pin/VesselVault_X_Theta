@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #f4f4f4;
+  padding: 50px;
+}
+
+#connect-button {
+  color: white;
+  background-color: red;
+}
+
+#connect-button.connected {
+  background-color: green;
+}
+
+#connect-button.connecting {
+  background-color: orange;
+}
+
+input {
+  margin: 10px;
+}
+
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
