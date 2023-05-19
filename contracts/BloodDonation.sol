@@ -104,16 +104,10 @@ function assignReceiver(uint256 pouchID) public {
 
     require(found, "Pouch ID does not exist");
 
-    // Check if the sender has enough tokens
-    require(balanceOf(msg.sender) >= SERVICE_FEE, "Insufficient funds for assigning receiver");
-
     BloodPouch storage pouch = _pouches[index];
     require(pouch.receiverID == address(0), "Pouch already has a receiver");
-
     pouch.receiverID = msg.sender;
 
-    // Transfer the service fee in tokens to the guardian who assigned the blood pouch
-    transfer(_pouches[index].gurdainID, SERVICE_FEE);
 }
 
 

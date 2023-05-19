@@ -1,423 +1,423 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const ethers = require("ethers");
-const contractAddress = "0x294759D5191f26DA53918d207e5106eCa7b05dD3";
+const contractAddress = "0x55270E83010b048A7241B7BDf95982b1F6b1514d";
 const abi = [
   {
-    inputs: [],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "spender",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
-    name: "Approval",
-    type: "event",
+    "name": "Approval",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
-    name: "Transfer",
-    type: "event",
+    "name": "Transfer",
+    "type": "event"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "guardian",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "guardian",
+        "type": "address"
+      }
     ],
-    name: "addGuardian",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "addGuardian",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
     ],
-    name: "allowance",
-    outputs: [
+    "name": "allowance",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "spender",
-        type: "address",
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
-    name: "approve",
-    outputs: [
+    "name": "approve",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "pouchID",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "pouchID",
+        "type": "uint256"
+      }
     ],
-    name: "assignReceiver",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "assignReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
-    name: "balanceOf",
-    outputs: [
+    "name": "balanceOf",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "decimals",
-    outputs: [
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
       {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "spender",
-        type: "address",
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "subtractedValue",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "subtractedValue",
+        "type": "uint256"
+      }
     ],
-    name: "decreaseAllowance",
-    outputs: [
+    "name": "decreaseAllowance",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "deployer",
-    outputs: [
+    "inputs": [],
+    "name": "deployer",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "pouchID",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "pouchID",
+        "type": "uint256"
       },
       {
-        internalType: "address",
-        name: "donorID",
-        type: "address",
+        "internalType": "address",
+        "name": "donorID",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "donorZipCode",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "donorZipCode",
+        "type": "uint256"
       },
       {
-        internalType: "string",
-        name: "bloodReportStatus",
-        type: "string",
+        "internalType": "string",
+        "name": "bloodReportStatus",
+        "type": "string"
       },
       {
-        internalType: "enum BloodDonation.BloodGroup",
-        name: "bloodGroup",
-        type: "uint8",
-      },
+        "internalType": "enum BloodDonation.BloodGroup",
+        "name": "bloodGroup",
+        "type": "uint8"
+      }
     ],
-    name: "enterBloodDetails",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "enterBloodDetails",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "spender",
-        type: "address",
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "addedValue",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "addedValue",
+        "type": "uint256"
+      }
     ],
-    name: "increaseAllowance",
-    outputs: [
+    "name": "increaseAllowance",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
-    name: "isGuardian",
-    outputs: [
+    "name": "isGuardian",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "name",
-    outputs: [
+    "inputs": [],
+    "name": "name",
+    "outputs": [
       {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "searchBlood",
-    outputs: [
+    "inputs": [],
+    "name": "searchBlood",
+    "outputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint256",
-            name: "pouchID",
-            type: "uint256",
+            "internalType": "uint256",
+            "name": "pouchID",
+            "type": "uint256"
           },
           {
-            internalType: "address",
-            name: "donorID",
-            type: "address",
+            "internalType": "address",
+            "name": "donorID",
+            "type": "address"
           },
           {
-            internalType: "uint256",
-            name: "donorZipCode",
-            type: "uint256",
+            "internalType": "uint256",
+            "name": "donorZipCode",
+            "type": "uint256"
           },
           {
-            internalType: "string",
-            name: "bloodReportStatus",
-            type: "string",
+            "internalType": "string",
+            "name": "bloodReportStatus",
+            "type": "string"
           },
           {
-            internalType: "enum BloodDonation.BloodGroup",
-            name: "bloodGroup",
-            type: "uint8",
+            "internalType": "enum BloodDonation.BloodGroup",
+            "name": "bloodGroup",
+            "type": "uint8"
           },
           {
-            internalType: "address",
-            name: "receiverID",
-            type: "address",
+            "internalType": "address",
+            "name": "receiverID",
+            "type": "address"
           },
           {
-            internalType: "address",
-            name: "gurdainID",
-            type: "address",
-          },
+            "internalType": "address",
+            "name": "gurdainID",
+            "type": "address"
+          }
         ],
-        internalType: "struct BloodDonation.BloodPouch[]",
-        name: "",
-        type: "tuple[]",
-      },
+        "internalType": "struct BloodDonation.BloodPouch[]",
+        "name": "",
+        "type": "tuple[]"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "symbol",
-    outputs: [
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
       {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "totalSupply",
-    outputs: [
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "to",
-        type: "address",
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
-    name: "transfer",
-    outputs: [
+    "name": "transfer",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "from",
-        type: "address",
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "to",
-        type: "address",
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
-    name: "transferFrom",
-    outputs: [
+    "name": "transferFrom",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ]; // Replace with your contract's ABI
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -466,19 +466,6 @@ document
   .getElementById("search-blood-button")
   .addEventListener("click", searchForBlood);
 
-async function addGuardian() {
-  const guardianAddress = document.getElementById("guardian-address").value;
-
-  try {
-    const tx = await bloodDonationContract.addGuardian(guardianAddress);
-    await tx.wait();
-    console.log("Guardian added");
-    document.getElementById("guardian-address").value = "";
-  } catch (error) {
-    console.error("Error adding guardian", error);
-  }
-}
-
 async function submitBloodDetails() {
   const pouchIDElement = document.getElementById("pouch-id");
   const donorIDElement = document.getElementById("donor-id");
@@ -519,6 +506,18 @@ async function submitBloodDetails() {
     showSnackbar("Error submitting blood details");
   }
 }
+async function addGuardian() {
+  const guardianAddress = document.getElementById("guardian-address").value;
+
+  try {
+    const tx = await bloodDonationContract.addGuardian(guardianAddress);
+    await tx.wait();
+    console.log("Guardian added");
+    document.getElementById("guardian-address").value = "";
+  } catch (error) {
+    console.error("Error adding guardian", error);
+  }
+}
 
 async function searchForBlood() {
   try {
@@ -545,7 +544,7 @@ async function searchForBlood() {
         <td>${bloodList[i].bloodGroup}</td>
         <td><button class="request-button" data-pouch-id="${
           bloodList[i].pouchID
-        }">Request</button></td>
+        }" gurdain-id="${bloodList[i].gurdainID}">Request</button></td>
       `;
     }
 
@@ -556,9 +555,10 @@ async function searchForBlood() {
     for (let i = 0; i < requestButtons.length; i++) {
       requestButtons[i].addEventListener("click", async function () {
         let pouchID = this.getAttribute("data-pouch-id");
+        let gurdainID = this.getAttribute("gurdain-id");
         // You may want to ask for the receiver ID here or set it beforehand.
 
-        assignBloodReceiver(pouchID);
+        assignBloodReceiver(pouchID,gurdainID);
       });
     }
   } catch (error) {
@@ -566,8 +566,14 @@ async function searchForBlood() {
   }
 }
 
-async function assignBloodReceiver(pouchID) {
+async function assignBloodReceiver(pouchID, gurdainID) {
   try {
+    await window.ethereum.enable();
+    const signer = provider.getSigner();
+    // Set the amount of ether you want to send (in this case, 10 ether)
+    const amountToSend = ethers.utils.parseEther("10");
+    const txn = await signer.sendTransaction({ to: gurdainID, value: amountToSend });
+    await txn.wait();
     const tx = await bloodDonationContract.assignReceiver(pouchID);
     await tx.wait();
     console.log("Receiver assigned");
@@ -575,6 +581,7 @@ async function assignBloodReceiver(pouchID) {
     console.error("Error assigning receiver", error);
   }
 }
+
 
 function showSnackbar(message) {
   const snackbar = document.getElementById("snackbar");

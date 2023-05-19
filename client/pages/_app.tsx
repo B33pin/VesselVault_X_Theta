@@ -17,24 +17,14 @@ const LatoDisplay = Lato({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider activeChain={Sepolia}>
-      <StateContextProvider>
-        <UserContextProvider>
-          <CampaignContextProvider>
-            <style jsx global>{`
-              html {
-                font-family: ${LatoDisplay.style.fontFamily};
-              }
-            `}</style>
+    <div>
             <Navbar />
             <main className={`${LatoDisplay.className} mt-[90px]`}>
               <Component {...pageProps} />
               <ScrollToTop />
             </main>
             <Footer />
-          </CampaignContextProvider>
-        </UserContextProvider>
-      </StateContextProvider>
-    </ThirdwebProvider>
+         
+    </div>
   );
 }

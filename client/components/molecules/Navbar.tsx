@@ -8,42 +8,16 @@ import Button from "../atomic/Button";
 import { useUserContext } from "@/context/user";
 import { HiUser } from "react-icons/hi";
 import { MediaRenderer } from "@thirdweb-dev/react";
+import { ethers } from "ethers";
+import { abi } from "@/utils";
 
 const Navbar = () => {
   const router = useRouter();
   const [isActive, setIsActive] = useState(false);
-  const { connect, address, disconnect } = useStateContext();
-  const { createUser } = useUserContext();
   const [isVisible, setIsVisible] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { user } = useUserContext();
 
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 20) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
 
-    window.addEventListener("scroll", toggleVisibility);
-
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
-
-  const createUserData = useCallback(
-    async (address: string) => {
-      address && createUser(address);
-    },
-    [createUser]
-  );
-
-  useEffect(() => {
-    if (address) {
-      createUserData(address);
-    }
-  }, [address, createUserData]);
 
   return (
     <header
@@ -106,76 +80,19 @@ const Navbar = () => {
           <div className="flex flex-row justify-end gap-5">
             <Button
               btnType="button"
-              title={address ? "Create Campaign" : "Connect Wallet"}
+              title={"Connect Wallet"}
               styles={
                 "hidden sm:block bg-red-600 hover:bg-red-500 rounded-full px-6 md:px-8 py-2 text-base"
               }
-              handleClick={() => {
-                if (address) router.push("/campaigns/create");
-                else connect();
+              handleClick={async () => {
+                console.log("HEllo")             
               }}
             />
 
-            {address && (
-              <div className="flex w-[50px] h-[50px] justify-center items-center cursor-pointer">
-                <div onClick={() => setShowProfileMenu(!showProfileMenu)}>
-                  {user.profile && (
-                    <MediaRenderer
-                      src={user.profile}
-                      alt={user.username}
-                      width={"48px"}
-                      height={"48px"}
-                      className="rounded-full object-contain border-2 border-red-600"
-                    />
-                  )}
-                  {!user.profile && (
-                    <div className="rounded-full object-contain border-2 border-red-600 p-1 bg-red-50">
-                      <HiUser size={26} />
-                    </div>
-                  )}
-                </div>
-                {showProfileMenu && (
-                  <ul
-                    className={`bg-white shadow absolute right-0 items-center top-14 p-2 w-full max-w-[200px]`}
-                  >
-                    <li className="relative p-2">
-                      <Link
-                        href={`/profile/view`}
-                        onClick={() => setShowProfileMenu(false)}
-                        className="font-bold uppercase transition duration-500 hover:text-red-600"
-                      >
-                        View Profile
-                      </Link>
-                    </li>
-                    <li className="relative p-2">
-                      <Link
-                        href={`/profile/edit`}
-                        onClick={() => setShowProfileMenu(false)}
-                        className="font-bold uppercase transition duration-500 hover:text-red-600"
-                      >
-                        Edit Profile
-                      </Link>
-                    </li>
-                    <li className="relative p-2">
-                      <div
-                        className="font-bold uppercase transition duration-500 hover:text-red-600"
-                        onClick={() => disconnect()}
-                      >
-                        Logout
-                      </div>
-                    </li>
-                  </ul>
-                )}
-              </div>
-            )}
+           
+          
           </div>
-          <button
-            className="p-2 bg-white shadow-md rounded block lg:hidden"
-            onClick={() => setIsActive(!isActive)}
-          >
-            {isActive && <FiX size={24} />}
-            {!isActive && <FiMenu size={24} />}
-          </button>
+         
         </nav>
       </div>
     </header>
