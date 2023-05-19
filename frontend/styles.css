@@ -12,13 +12,15 @@ body {
 
 #connect-button.connected {
   background-color: green;
+  color: white;
 }
 
 #connect-button.connecting {
   background-color: orange;
+  color: black;
 }
 
-input {
+input, select {
   margin: 10px;
 }
 
@@ -33,4 +35,95 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+
+#add-guardian-section, 
+#enter-blood-details-section, 
+#search-and-assign-section {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 20px 0;
+  display: none; /* Initially hide the sections */
+}
+
+#add-guardian-section {
+  border-color: blue;
+}
+
+#enter-blood-details-section {
+  border-color: green;
+}
+
+#search-and-assign-section {
+  border-color: red;
+}
+
+/* Styles for the table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Styles for the request button */
+button.request {
+  background-color: #008CBA; /* Blue */
+  color: white;
+}
+
+button.request:hover {
+  background-color: #007B9A;
+}
+
+#snackbar {
+  visibility: hidden; /* Hidden by default. */
+  min-width: 250px; 
+  margin-left: -125px; 
+  background-color: #333; 
+  color: #fff; 
+  text-align: center; 
+  border-radius: 2px; 
+  padding: 16px; 
+  position: fixed; 
+  z-index: 1; 
+  left: 50%; 
+  bottom: 30px; 
+  font-size: 17px;
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;} 
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
 }
