@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const ethers = require("ethers");
-const contractAddress = "0x55270E83010b048A7241B7BDf95982b1F6b1514d";
+const contractAddress = "0x683ba8076b72A271Fb3e4E9D7762D34a7e026936";
 const abi = [
   {
     "inputs": [],
@@ -128,7 +128,7 @@ const abi = [
     ],
     "name": "assignReceiver",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -572,15 +572,14 @@ async function assignBloodReceiver(pouchID, gurdainID) {
     const signer = provider.getSigner();
     // Set the amount of ether you want to send (in this case, 10 ether)
     const amountToSend = ethers.utils.parseEther("10");
-    const txn = await signer.sendTransaction({ to: gurdainID, value: amountToSend });
-    await txn.wait();
-    const tx = await bloodDonationContract.assignReceiver(pouchID);
+    const tx = await bloodDonationContract.connect(signer).assignReceiver(pouchID, { value: amountToSend });
     await tx.wait();
     console.log("Receiver assigned");
   } catch (error) {
     console.error("Error assigning receiver", error);
   }
 }
+
 
 
 function showSnackbar(message) {

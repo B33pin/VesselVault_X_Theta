@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const contractAddress = "0x55270E83010b048A7241B7BDf95982b1F6b1514d";
+const contractAddress = "0x683ba8076b72A271Fb3e4E9D7762D34a7e026936";
 const abi = [
   {
     "inputs": [],
@@ -127,7 +127,7 @@ const abi = [
     ],
     "name": "assignReceiver",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -571,15 +571,14 @@ async function assignBloodReceiver(pouchID, gurdainID) {
     const signer = provider.getSigner();
     // Set the amount of ether you want to send (in this case, 10 ether)
     const amountToSend = ethers.utils.parseEther("10");
-    const txn = await signer.sendTransaction({ to: gurdainID, value: amountToSend });
-    await txn.wait();
-    const tx = await bloodDonationContract.assignReceiver(pouchID);
+    const tx = await bloodDonationContract.connect(signer).assignReceiver(pouchID, { value: amountToSend });
     await tx.wait();
     console.log("Receiver assigned");
   } catch (error) {
     console.error("Error assigning receiver", error);
   }
 }
+
 
 
 function showSnackbar(message) {
@@ -589,4 +588,17 @@ function showSnackbar(message) {
   setTimeout(function () {
     snackbar.className = snackbar.className.replace("show", "");
   }, 3000);
+}
+
+async function fundCampaign() {
+  try {
+    await window.ethereum.enable();
+    const signer = provider.getSigner();
+    const amountToSend = ethers.utils.parseEther("10");
+    const tx = await bloodDonationContract.connect(signer).donateToCampaign(iD, { value: amountToSend });
+    await tx.wait();
+    console.log("Donated");
+  } catch (error) {
+    console.error("Error Donation", error);
+  }
 }
