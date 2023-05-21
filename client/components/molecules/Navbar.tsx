@@ -5,7 +5,6 @@ import { FiMenu, FiX } from "react-icons/fi";
 import Image from "next/image";
 import Button from "../atomic/Button";
 import { useUserContext } from "@/context/user";
-import { MediaRenderer } from "@thirdweb-dev/react";
 import { FaUser } from "react-icons/fa";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { CopyToClipboard } from "react-copy-to-clipboard";
@@ -13,6 +12,7 @@ import { shortAddress } from "@/utils";
 import { FiCopy } from "react-icons/fi";
 import { MdDone } from "react-icons/md";
 import { useDonationContext } from "@/context/donation";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 const Navbar = () => {
   const { connect, address, disconnect } = useStateContext();
@@ -25,6 +25,7 @@ const Navbar = () => {
   const { isGuardian } = useDonationContext();
   const profileRef = useRef<HTMLUListElement | null | any>();
   const menuRef = useRef<HTMLUListElement | null | any>();
+  const storage = new ThirdwebStorage();
 
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
@@ -182,12 +183,12 @@ const Navbar = () => {
                 <div className="flex w-[40px] h-[40px] justify-center items-center cursor-pointer">
                   <div onClick={() => setShowProfileMenu(!showProfileMenu)}>
                     {user.profile && (
-                      <MediaRenderer
-                        src={user.profile}
-                        alt={user.username}
-                        width={"40px"}
-                        height={"40px"}
-                        className="rounded-full object-contain border-2 border-red-600"
+                      <Image  
+                      width={40}
+                      height={40}
+                      className="rounded-full object-contain border-2 border-red-600"
+                      src={storage.resolveScheme(user.profile)}
+                      alt={user.username}
                       />
                     )}
                     {!user.profile && (

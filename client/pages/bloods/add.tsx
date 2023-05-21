@@ -28,7 +28,7 @@ const AddBloods = (props: Props) => {
     donarID: "",
     zipCode: "",
     bloodGroup: "",
-    bloodReportStatus: "",
+    bloodReportStatus: "Normal",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

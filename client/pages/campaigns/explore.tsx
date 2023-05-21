@@ -2,31 +2,29 @@ import { CampaignType } from "@/@types/CampaignType";
 import Loader from "@/components/atomic/Loader";
 import FundCard from "@/components/molecules/FundCard";
 import { useCampaignContext } from "@/context/campaign";
-import { useStateContext } from "@/context/state";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {};
 
 const Explore = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useStateContext();
   const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
-  const { contract, getCampaigns } = useCampaignContext();
+  const { getCampaigns } = useCampaignContext();
 
-  const fetchCampaigns = useCallback(async () => {
+  const fetchCampaigns = async () => {
     setIsLoading(true);
     const data = await getCampaigns();
     setCampaigns(data);
     setIsLoading(false);
-  }, [getCampaigns]);
+  };
 
   useEffect(() => {
-    if (contract) {
       fetchCampaigns();
-    }
-  }, [address, contract, fetchCampaigns]);
+  }, []);
+
+  console.log(campaigns)
 
   return (
     <div>
@@ -668,7 +666,7 @@ const Explore = (props: Props) => {
             <div className="mt-[20px]">
               {isLoading && <Loader />}
 
-              {!isLoading && campaigns.length === 0 && (
+              {!isLoading && campaigns && campaigns.length === 0 && (
                 <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
                   We apologize for the inconvenience, but currently, there are
                   no ongoing campaigns available for blood donation.

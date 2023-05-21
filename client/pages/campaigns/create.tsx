@@ -4,10 +4,10 @@ import { useRouter } from "next/router";
 import { useCampaignContext } from "@/context/campaign";
 import Loader from "@/components/atomic/TransactionLoader";
 import FormField from "@/components/atomic/FormField";
-import { useStorageUpload } from "@thirdweb-dev/react";
 import axios from "axios";
 import { slugify } from "@/utils";
 import Head from "next/head";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 type HandleFormFieldChange = (
   fieldName: string,
@@ -18,7 +18,7 @@ const CreateCampaign = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { createCampaign } = useCampaignContext();
-  const { mutateAsync: upload } = useStorageUpload();
+  const storage = new ThirdwebStorage();
 
   const [form, setForm] = useState({
     title: "",
@@ -41,50 +41,41 @@ const CreateCampaign = () => {
     setIsLoading(true);
 
     try {
-      const campaignImageIPfs = await upload({ data: [form.thumbnail] });
+      const campaignImageIPfs = await storage.upload(form.thumbnail);
+      
+      // const res = await axios({
+      //   url: "https://api.thetavideoapi.com/upload",
+      //   method: "POST",
+      //   headers: {
+      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+      //   },
+      // });
 
-      const res = await axios({
-        url: "https://api.thetavideoapi.com/upload",
-        method: "POST",
-        headers: {
-          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-        },
-      });
+      // // Video ID
+      // const res3 = await axios({
+      //   method: "POST",
+      //   url: "https://api.thetavideoapi.com/video",
+      //   headers: {
+      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+      //     "Content-Type": "application/json",
+      //   },
+      //   data: JSON.stringify({
+      //     source_upload_id: res.data.body.uploads[0].id,
+      //     playback_policy: "public",
+      //   }),
+      // });
 
-      const res2 = await axios({
-        url: res.data.body.uploads[0].presigned_url,
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/octet-stream",
-        },
-        data: form.video,
-      });
-
-      // Video ID
-      const res3 = await axios({
-        method: "POST",
-        url: "https://api.thetavideoapi.com/video",
-        headers: {
-          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-          "Content-Type": "application/json",
-        },
-        data: JSON.stringify({
-          source_upload_id: res.data.body.uploads[0].id,
-          playback_policy: "public",
-        }),
-      });
-
-      // Video Status
-      const res4 = await axios({
-        url: `https://api.thetavideoapi.com/video/${res3.data.body.videos[0].id}`,
-        method: "GET",
-        headers: {
-          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-        },
-      });
+      // // Video Status
+      // const res4 = await axios({
+      //   url: `https://api.thetavideoapi.com/video/${res3.data.body.videos[0].id}`,
+      //   method: "GET",
+      //   headers: {
+      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+      //   },
+      // });
 
       await createCampaign({
         title: form.title,
@@ -92,8 +83,8 @@ const CreateCampaign = () => {
         deadline: form.deadline,
         slug: slugify(form.title),
         target: ethers.utils.parseUnits(form.target, 18),
-        thumbnail: campaignImageIPfs[0],
-        video: res3.data.body.videos[0].id,
+        thumbnail: campaignImageIPfs,
+        video: campaignImageIPfs,
         id: "",
         owner: "",
         address: "",
@@ -101,7 +92,6 @@ const CreateCampaign = () => {
         donators: [],
         donations: [],
       });
-      router.push("/");
     } catch (error: any) {
       console.log(error.message);
     }

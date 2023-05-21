@@ -7,24 +7,16 @@ import {
   useEffect,
   useState,
 } from "react";
-import {
-  useAddress,
-  useContract,
-  useContractWrite,
-  useMetamask,
-} from "@thirdweb-dev/react";
 import { ethers } from "ethers";
+import { useStateContext } from "./state";
 
 type ContextProps = {
   children: React.ReactNode;
 };
 
 type DefaultValue = {
-  contract: any;
   addGuardianAddress: (address: string) => Promise<void>;
-  loadingAddGuardian: boolean;
   addUserBloodDetails: (bloodDetails: any) => Promise<any>;
-  loadingEnterBloodDetails: boolean;
   getSearchBloods: () => Promise<any>;
   getPouches: () => Promise<any>;
   isGuardian: boolean;
@@ -33,11 +25,8 @@ type DefaultValue = {
 };
 
 const contextDefaultValue: DefaultValue = {
-  contract: "",
   addGuardianAddress: (string) => Promise.resolve(),
-  loadingAddGuardian: false,
   addUserBloodDetails: (bloodDetails) => Promise.resolve(),
-  loadingEnterBloodDetails: false,
   getSearchBloods: () => Promise.resolve(),
   getPouches: () => Promise.resolve(),
   isGuardian: false,
@@ -50,25 +39,17 @@ const DonationContext = createContext(contextDefaultValue);
 export const DonationContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const { contract }: any = useContract(
-    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS
-  );
-  const { mutateAsync: addGuardian, isLoading: loadingAddGuardian } =
-    useContractWrite(contract, "addGuardian");
-  const { mutateAsync: addBloodDetails, isLoading: loadingEnterBloodDetails } =
-    useContractWrite(contract, "enterBloodDetails");
-  const address = useAddress();
-  const connect = useMetamask();
-  const [isGuardian, setIsGuardian] = useState(false);
-  const [isGuardianLoading, setIsGuardianLoading] = useState(true);
+  const {connectToContract, signer, address} = useStateContext()
+    const [isGuardian, setIsGuardian] = useState(false);
+    const [isGuardianLoading, setIsGuardianLoading] = useState(true);
 
   const addGuardianAddress = async (address: string) => {
     try {
-      const data = await addGuardian({
-        args: [address],
-      });
+      const contract = await connectToContract();
+      const response = await contract.addGuardian(address)
+      await response.wait();
 
-      console.log("guardian address added", data);
+      console.log("guardian address added");
     } catch (error) {
       alert(JSON.stringify(error));
       console.error("guardian address failed", error);
@@ -76,18 +57,18 @@ export const DonationContextProvider = ({
   };
 
   const addUserBloodDetails = async (bloodDetails: any) => {
+    console.log(bloodDetails)
     try {
-      const data = await addBloodDetails({
-        args: [
-          bloodDetails.pouchID,
-          bloodDetails.donarID,
-          bloodDetails.zipCode,
-          bloodDetails.bloodReportStatus,
-          bloodDetails.bloodGroup,
-        ],
-      });
+      const contract = await connectToContract();
+      const response = await contract.enterBloodDetails( 
+        bloodDetails.pouchID,
+        bloodDetails.donarID,
+        bloodDetails.zipCode,
+        bloodDetails.bloodReportStatus,
+        bloodDetails.bloodGroup,)
+      await response.wait();
 
-      console.log("Blood Details Added", data);
+      console.log("Blood Details Added");
     } catch (error: any) {
       alert(JSON.stringify(error));
       console.error("Blood Details failed", error.message);
@@ -95,7 +76,8 @@ export const DonationContextProvider = ({
   };
 
   const getPouches = async () => {
-    const pouches = await contract.call("getPouches");
+    const contract = await connectToContract();
+      const pouches = await contract.getPouches();
 
     const parsedPouches = pouches.map((blood: any) => {
       return {
@@ -113,7 +95,8 @@ export const DonationContextProvider = ({
   };
 
   const getSearchBloods = async () => {
-    const bloods = await contract.call("searchBlood");
+    const contract = await connectToContract();
+      const bloods = await contract.searchBlood();
 
     const parsedBloods = bloods.map((blood: any) => {
       return {
@@ -132,37 +115,37 @@ export const DonationContextProvider = ({
     pouchID: string,
     amount = "0.002"
   ): Promise<any> => {
-    const data = await contract.call("assignReceiver", [pouchID], {
+    const contract = await connectToContract();
+      const response = await contract.connect(signer).assignReceiver(pouchID, {
       value: ethers.utils.parseEther(amount),
     });
 
-    return data;
+    await response.wait();
+
+    console.log("Blood Assigned")
   };
 
-  const fetchIsGuardian = useCallback(
-    async (address: string) => {
-      const guardianStatus = await contract.call("isGuardian", [address]);
+  const fetchIsGuardian = useCallback(async (address: string) => {
+    const contract = await connectToContract();
+    const guardianStatus = await contract.isGuardian(address)
+      console.log(guardianStatus)
       setIsGuardian(guardianStatus);
-    },
-    [contract]
-  );
+    },[]);
+  
 
   useEffect(() => {
     setIsGuardianLoading(true);
-    if (address && contract) {
+    if (address) {
       fetchIsGuardian(address);
     }
     setIsGuardianLoading(false);
-  }, [address, contract, fetchIsGuardian, connect]);
+  }, [address, fetchIsGuardian]);
 
   return (
     <DonationContext.Provider
       value={{
-        contract,
         addGuardianAddress,
-        loadingAddGuardian,
         addUserBloodDetails,
-        loadingEnterBloodDetails,
         getSearchBloods,
         getPouches,
         isGuardian,

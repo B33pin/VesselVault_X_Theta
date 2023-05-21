@@ -1,14 +1,13 @@
 import { createContext, useContext } from "react";
-import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
 import { CampaignType } from "@/@types/CampaignType";
+import { useStateContext } from "./state";
 
 type ContextProps = {
   children: React.ReactNode;
 };
 
 type DefaultValue = {
-  contract: any;
   createCampaign: (form: CampaignType) => Promise<void>;
   getCampaigns: () => Promise<any>;
   getCampaign: (id: string) => Promise<any>;
@@ -20,7 +19,6 @@ type DefaultValue = {
 };
 
 const contextDefaultValue: DefaultValue = {
-  contract: "",
   createCampaign: (form) => Promise.resolve(),
   getCampaigns: () => Promise.resolve(),
   getCampaign: () => Promise.resolve(),
@@ -34,21 +32,13 @@ const CampaignContext = createContext(contextDefaultValue);
 export const CampaignContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const { contract }: any = useContract(
-    process.env.NEXT_PUBLIC_CONTRACT_ADDRESS
-  );
-  const { mutateAsync, isLoading } = useContractWrite(
-    contract,
-    "createCampaign"
-  );
-
-  const address = useAddress();
+  const {connectToContract,bloodDonationContract, address} = useStateContext()
 
   const publishCampaign = async (form: CampaignType) => {
     try {
-      const data = await mutateAsync({
-        args: [
-          address,
+      const contract = await connectToContract()
+      const response = await contract.createCampaign(
+        address,
           form.title, // title
           form.description, // description
           form.target, // target
@@ -56,10 +46,9 @@ export const CampaignContextProvider = ({
           form.thumbnail, // image
           form.video, // video
           form.slug, // slug
-        ],
-      });
-
-      console.log("contract call success", data);
+      )
+      await response.wait();
+      console.log("contract call success");
     } catch (error) {
       alert(JSON.stringify(error));
       console.error("contract call failure", error);
@@ -67,7 +56,8 @@ export const CampaignContextProvider = ({
   };
 
   const getCampaigns = async () => {
-    const campaigns = await contract.call("getAllCampaigns");
+    const contract = await connectToContract()
+    const campaigns = await contract.getAllCampaigns();
 
     const parsedCampaigns = campaigns.map((campaign: CampaignType) => ({
       id: campaign.id,
@@ -88,7 +78,7 @@ export const CampaignContextProvider = ({
   };
 
   const getCampaign = async (id: string): Promise<any> => {
-    const data = await contract.call("getCampaign", [id]);
+    const data = await bloodDonationContract.getCampaign(id);
     return data;
   };
 
@@ -103,7 +93,7 @@ export const CampaignContextProvider = ({
   };
 
   const donate = async (id: string, amount: string): Promise<any> => {
-    const data = await contract.call("donateToCampaign", [id], {
+    const data = await bloodDonationContract.donateToCampaign(id, {
       value: ethers.utils.parseEther(amount),
     });
 
@@ -113,7 +103,7 @@ export const CampaignContextProvider = ({
   const getDonations = async (
     id: string
   ): Promise<{ donator: string; donation: string }[]> => {
-    const donations = await contract.call("getCampaignDonators", [id]);
+    const donations = await bloodDonationContract.getCampaignDonators(id);
     const numberOfDonations = donations[0].length;
 
     const parsedDonations: { donator: string; donation: string }[] = [];
@@ -131,7 +121,6 @@ export const CampaignContextProvider = ({
   return (
     <CampaignContext.Provider
       value={{
-        contract,
         createCampaign: publishCampaign,
         getCampaigns,
         getCampaign,

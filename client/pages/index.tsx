@@ -10,26 +10,24 @@ import DisplayCampaigns from "@/components/organism/DisplayCampaigns";
 import Link from "next/link";
 import CreatorsList from "@/components/organism/CreatorsList";
 import RequestBloods from "@/components/organism/RequestBloods";
+import { CampaignType } from "@/@types/CampaignType";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useStateContext();
-  const [campaigns, setCampaigns] = useState([]);
+  const {address} = useStateContext()
+  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
+  const { getCampaigns } = useCampaignContext();
 
-  const { contract, getCampaigns } = useCampaignContext();
-
-  const fetchCampaigns = useCallback(async () => {
+  const fetchCampaigns = async () => {
     setIsLoading(true);
     const data = await getCampaigns();
     setCampaigns(data);
     setIsLoading(false);
-  }, [getCampaigns]);
+  };
 
   useEffect(() => {
-    if (address && contract) {
       fetchCampaigns();
-    }
-  }, [address, contract, fetchCampaigns]);
+  }, []);
 
   return (
     <>

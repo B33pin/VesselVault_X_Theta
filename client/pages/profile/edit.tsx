@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import FormField from "@/components/atomic/FormField";
 import Loader from "@/components/atomic/Loader";
 import { useUserContext } from "@/context/user";
-import { useStorageUpload } from "@thirdweb-dev/react";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import Head from "next/head";
 import Image from "next/image";
 import CoverImg from "@/assets/cover.webp";
 import { FaCheck, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { FiCopy } from "react-icons/fi";
 import { useStateContext } from "@/context/state";
-import { MediaRenderer } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { shortAddress } from "@/utils";
@@ -25,7 +24,7 @@ const EditProfile = () => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user, getUserData, updateProfile } = useUserContext();
-  const { mutateAsync: upload } = useStorageUpload();
+  const storage = new ThirdwebStorage();
   const { address } = useStateContext();
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [form, setForm] = useState({
@@ -62,8 +61,8 @@ const EditProfile = () => {
     setIsFormLoading(true);
 
     try {
-      const profilePhotoIPfs = await upload({ data: [form.profile] });
-      const coverPhotoIPfs = await upload({ data: [form.coverPhoto] });
+      const profilePhotoIPfs = await storage.upload(form.profile);
+      const coverPhotoIPfs = await storage.upload(form.coverPhoto);
 
       console.log(form);
 
@@ -73,8 +72,8 @@ const EditProfile = () => {
         bio: form.bio,
         email: form.email,
         country: form.country,
-        profile: profilePhotoIPfs[0],
-        coverPhoto: coverPhotoIPfs[0],
+        profile: profilePhotoIPfs,
+        coverPhoto: coverPhotoIPfs,
         occupation: form.occupation,
         zipCode: form.zipCode,
         facebookLink: form.facebookLink,
@@ -236,14 +235,13 @@ const EditProfile = () => {
         {isFormLoading && <Loader />}
         <div className="px-4 2xl:px-28">
           {!loading && address && user.coverPhoto && (
-            <MediaRenderer
-              width={"1920px"}
-              height={"400px"}
-              className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
-              src={user.coverPhoto}
-              alt={user.username}
-              style={{ objectFit: "cover" }}
-            />
+            <Image  
+            width={1920}
+            height={400}
+            className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
+            src={storage.resolveScheme(user.coverPhoto)}
+            alt={user.username}
+            style={{ objectFit: "cover" }} />
           )}
           {!loading && address && !user.coverPhoto && (
             <Image
@@ -259,16 +257,16 @@ const EditProfile = () => {
               <div className="flex lg:flex-nowrap items-start -mt-20">
                 <div className="hidden sm:block shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="card-creator-author flex w-20 lg:w-32 ml-auto mr-auto relative mb-5">
-                    {user.profile && (
-                      <MediaRenderer
-                        width={"8rem"}
-                        height={"8rem"}
-                        className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
-                        src={user.profile}
-                        alt={user.username}
-                        style={{ objectFit: "cover" }}
-                      />
-                    )}
+                  {user.profile && (
+                     <Image  
+                     width={100}
+                     height={100}
+                     className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
+                     src={storage.resolveScheme(user.profile)}
+                     alt={user.username}
+                     style={{ objectFit: "cover" }}
+                     />
+                   )}
                     {!user.profile && (
                       <Image
                         src={"/logo-large.png"}

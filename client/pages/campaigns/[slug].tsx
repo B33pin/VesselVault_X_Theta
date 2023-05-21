@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useCampaignContext } from "@/context/campaign";
 import Loader from "@/components/atomic/Loader";
 import TransactionLoader from "@/components/atomic/TransactionLoader";
-import { MediaRenderer } from "@thirdweb-dev/react";
 import Head from "next/head";
 import { CampaignType } from "@/@types/CampaignType";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
@@ -14,16 +13,20 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { FiCopy } from "react-icons/fi";
 import { MdDone } from "react-icons/md";
 import FormField from "@/components/atomic/FormField";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { useStateContext } from "@/context/state";
 
 const CampaignDetails = () => {
   const router = useRouter();
   const slug: any = router.query.slug || "";
   const [copied, setCopied] = useState(false);
-  const { donate, getDonations, getCampaign, contract } = useCampaignContext();
+  const {address} = useStateContext()
+  const { donate, getDonations, getCampaign } = useCampaignContext();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTransaction, setLoadingTransaction] = useState(false);
   const [amount, setAmount] = useState("");
   const [checked, setChecked] = useState(false);
+  const storage = new ThirdwebStorage();
   const [donators, setDonators] = useState<
     { donator: string; donation: string }[]
   >([]);
@@ -56,11 +59,11 @@ const CampaignDetails = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (contract) {
+    if (address) {
       fetchData(slug as string);
     }
     setIsLoading(false);
-  }, [fetchData, contract, slug]);
+  }, [fetchData, address, slug]);
 
   return (
     <div>
@@ -726,11 +729,15 @@ const CampaignDetails = () => {
                         className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
                       />
                     ) : (
-                      <MediaRenderer
-                        className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
-                        src={campaign.thumbnail}
+                      <Image  
+                      width={1400}
+                      height={800}
+
+                       className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
                         alt="title"
-                      />
+                     src={storage.resolveScheme(campaign.thumbnail)}
+                    
+                     />
                     )}
                   </div>
 

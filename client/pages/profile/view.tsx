@@ -3,7 +3,6 @@ import Image from "next/image";
 import { FaCheck, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { FiCopy } from "react-icons/fi";
 import Head from "next/head";
-import { MediaRenderer } from "@thirdweb-dev/react";
 import { useStateContext } from "@/context/state";
 import { useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -13,6 +12,7 @@ import Loader from "@/components/atomic/Loader";
 import CoverImg from "@/assets/cover.webp";
 import Link from "next/link";
 import FormField from "@/components/atomic/FormField";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 type Props = {};
 
@@ -34,6 +34,9 @@ const Profile = (props: Props) => {
     twitterLink: "",
     instagramLink: "",
   });
+  const storage = new ThirdwebStorage();
+
+  console.log(user.coverPhoto)
 
   useEffect(() => {
     setLoading(true);
@@ -189,14 +192,13 @@ const Profile = (props: Props) => {
           {loading && !user.profile && <Loader />}
 
           {!loading && address && user.coverPhoto && (
-            <MediaRenderer
-              width={"1920px"}
-              height={"400px"}
-              className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
-              src={user.coverPhoto}
-              alt={user.username}
-              style={{ objectFit: "cover" }}
-            />
+            <Image  
+            width={1920}
+            height={400}
+            className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
+            src={storage.resolveScheme(user.coverPhoto)}
+            alt={user.username}
+            style={{ objectFit: "cover" }} />
           )}
           {!loading && address && !user.coverPhoto && (
             <Image
@@ -213,13 +215,14 @@ const Profile = (props: Props) => {
                 <div className="hidden sm:block relative shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="relative flex w-20 lg:w-32 ml-auto mr-auto mb-5">
                     {user.profile && (
-                      <MediaRenderer
-                        width={"8rem"}
-                        height={"8rem"}
-                        className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
-                        src={user.profile}
-                        alt={user.username}
-                        style={{ objectFit: "cover" }}
+                     
+                      <Image  
+                      width={100}
+                      height={100}
+                      className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
+                      src={storage.resolveScheme(user.profile)}
+                      alt={user.username}
+                      style={{ objectFit: "cover" }}
                       />
                     )}
                     {!user.profile && (
