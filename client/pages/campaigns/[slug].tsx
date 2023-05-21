@@ -32,15 +32,13 @@ const CampaignDetails = () => {
   >([]);
   const [campaign, setCampaign] = useState<CampaignType | null>(null);
 
-  const handleDonate = async () => {
+  const handleDonate = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoadingTransaction(true);
     if (campaign) {
-      if (!amount || parseFloat(amount) <= 0) {
-        alert("Enter a valid fund.");
-      } else {
+      
         await donate(campaign.id, amount);
-        router.push("/");
-      }
+      
     }
 
     setLoadingTransaction(false);

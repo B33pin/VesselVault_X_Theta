@@ -80,8 +80,6 @@ const Chat = (props: Props) => {
     }
   }, [receiverID]);
 
-  console.log(messages);
-
   return (
     <div>
       <Head>

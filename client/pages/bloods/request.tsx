@@ -15,7 +15,7 @@ const BloodRequest = (props: Props) => {
   const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const [bloods, setBloods] = useState([]);
-  const { contract, getSearchBloods, assignBloodReceiver } =
+  const { getSearchBloods, assignBloodReceiver } =
     useDonationContext();
   const [requestLoading, setRequestLoading] = useState(false);
 
@@ -28,10 +28,8 @@ const BloodRequest = (props: Props) => {
   }, [getSearchBloods]);
 
   useEffect(() => {
-    if (contract) {
       fetchBloods();
-    }
-  }, [address, contract, fetchBloods]);
+  }, [fetchBloods]);
 
   const BloodType: any = {
     1: "AB+",
@@ -43,8 +41,6 @@ const BloodRequest = (props: Props) => {
     7: "O+",
     8: "O-",
   };
-
-  console.log(bloods);
 
   return (
     <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
@@ -725,11 +721,11 @@ const BloodRequest = (props: Props) => {
                       return (
                         <tr
                           key={index}
-                          className="bg-white hover:bg-gray-50 dark:hover:bg-gray-600"
+                          className="bg-white hover:bg-gray-50"
                         >
                           <th
                             scope="row"
-                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                           >
                             {blood.pouchID}
                           </th>
@@ -745,7 +741,7 @@ const BloodRequest = (props: Props) => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button
-                              className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                              className="font-medium text-blue-600 hover:underline"
                               onClick={async () => {
                                 setRequestLoading(true);
                                 await assignBloodReceiver(blood.pouchID);

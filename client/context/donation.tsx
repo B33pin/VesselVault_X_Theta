@@ -57,7 +57,6 @@ export const DonationContextProvider = ({
   };
 
   const addUserBloodDetails = async (bloodDetails: any) => {
-    console.log(bloodDetails)
     try {
       const contract = await connectToContract();
       const response = await contract.enterBloodDetails( 
@@ -128,7 +127,6 @@ export const DonationContextProvider = ({
   const fetchIsGuardian = useCallback(async (address: string) => {
     const contract = await connectToContract();
     const guardianStatus = await contract.isGuardian(address)
-      console.log(guardianStatus)
       setIsGuardian(guardianStatus);
     },[]);
   

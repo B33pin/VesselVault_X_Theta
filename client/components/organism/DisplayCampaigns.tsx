@@ -57,43 +57,7 @@ const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({
               campaigns.map((campaign, index) => {
                 return (
                   <>
-                    <SwiperSlide key={index}>
-                      <Link
-                        href={{
-                          pathname: `/campaigns/${campaign.id}`,
-                        }}
-                      >
-                        <FundCard {...campaign} />
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide key={index}>
-                      <Link
-                        href={{
-                          pathname: `/campaigns/${campaign.id}`,
-                        }}
-                      >
-                        <FundCard {...campaign} />
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide key={index}>
-                      <Link
-                        href={{
-                          pathname: `/campaigns/${campaign.id}`,
-                        }}
-                      >
-                        <FundCard {...campaign} />
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide key={index}>
-                      <Link
-                        href={{
-                          pathname: `/campaigns/${campaign.id}`,
-                        }}
-                      >
-                        <FundCard {...campaign} />
-                      </Link>
-                    </SwiperSlide>
-                    <SwiperSlide key={index}>
+                    <SwiperSlide key={campaign.id}>
                       <Link
                         href={{
                           pathname: `/campaigns/${campaign.id}`,

@@ -35,26 +35,30 @@ export const CampaignContextProvider = ({
   const { connectToContract, bloodDonationContract, address } =
     useStateContext();
 
-  const publishCampaign = async (form: CampaignType) => {
-    try {
-      const contract = await connectToContract();
-      const response = await contract.createCampaign(
-        address,
-        form.title, // title
-        form.description, // description
-        form.target, // target
-        new Date(form.deadline).getTime(), // deadline,
-        form.thumbnail, // image
-        form.video, // video
-        form.slug // slug
-      );
-      await response.wait();
-      console.log("contract call success");
-    } catch (error) {
-      alert(JSON.stringify(error));
-      console.error("contract call failure", error);
-    }
-  };
+    const publishCampaign = async (form: CampaignType) => {
+      try {
+        const contract = await connectToContract();
+        // generate a random number between 1 and 100000
+        const randomId = Math.floor(Math.random() * 100000) + 1;
+        const response = await contract.createCampaign(
+         
+          form.title, // title
+          randomId, // use randomId here instead of new Date().getTime()
+          form.description, // description
+          form.target, // target
+          new Date(form.deadline).getTime(), // deadline
+          form.thumbnail, // image
+          form.video, // video
+          form.slug // slug
+        );
+        await response.wait();
+        console.log("contract call success");
+      } catch (error) {
+        alert(JSON.stringify(error));
+        console.error("contract call failure", error);
+      }
+    };
+  
 
   const getCampaigns = async () => {
     const contract = await connectToContract();
@@ -94,10 +98,16 @@ export const CampaignContextProvider = ({
   };
 
   const donate = async (id: string, amount: string): Promise<any> => {
-    const data = await bloodDonationContract.donateToCampaign(id, {
-      value: ethers.utils.parseEther(amount),
+    // Check if the Ethereum provider is available
+    console.log("window.ethereum", window.ethereum);
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await window.ethereum.enable();
+    const signer = provider.getSigner();
+    const amountToSend = ethers.utils.parseEther(amount);
+    const data = await bloodDonationContract.connect(signer).donateToCampaign(id, {
+      value: amountToSend,
     });
-
+    data.wait();
     return data;
   };
 

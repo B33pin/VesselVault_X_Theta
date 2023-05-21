@@ -24,8 +24,6 @@ const Explore = (props: Props) => {
     fetchCampaigns();
   }, []);
 
-  console.log(campaigns);
-
   return (
     <div>
       <Head>
@@ -679,60 +677,6 @@ const Explore = (props: Props) => {
                   campaigns.map((campaign, index) => {
                     return (
                       <>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>{" "}
                         <Link
                           key={index}
                           href={{

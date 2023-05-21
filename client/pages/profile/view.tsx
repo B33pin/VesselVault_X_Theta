@@ -35,9 +35,7 @@ const Profile = (props: Props) => {
     instagramLink: "",
   });
   const storage = new ThirdwebStorage();
-
-  console.log(user.coverPhoto);
-
+  
   useEffect(() => {
     setLoading(true);
     getUserData(address as string);

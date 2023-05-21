@@ -20,6 +20,7 @@ const AddGuardian = () => {
     setIsLoading(true);
     await addGuardianAddress(address);
     setIsLoading(false);
+    router.push("/")
   };
 
   useEffect(() => {
