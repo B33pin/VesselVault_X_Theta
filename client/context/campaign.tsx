@@ -32,21 +32,22 @@ const CampaignContext = createContext(contextDefaultValue);
 export const CampaignContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const {connectToContract,bloodDonationContract, address} = useStateContext()
+  const { connectToContract, bloodDonationContract, address } =
+    useStateContext();
 
   const publishCampaign = async (form: CampaignType) => {
     try {
-      const contract = await connectToContract()
+      const contract = await connectToContract();
       const response = await contract.createCampaign(
         address,
-          form.title, // title
-          form.description, // description
-          form.target, // target
-          new Date(form.deadline).getTime(), // deadline,
-          form.thumbnail, // image
-          form.video, // video
-          form.slug, // slug
-      )
+        form.title, // title
+        form.description, // description
+        form.target, // target
+        new Date(form.deadline).getTime(), // deadline,
+        form.thumbnail, // image
+        form.video, // video
+        form.slug // slug
+      );
       await response.wait();
       console.log("contract call success");
     } catch (error) {
@@ -56,7 +57,7 @@ export const CampaignContextProvider = ({
   };
 
   const getCampaigns = async () => {
-    const contract = await connectToContract()
+    const contract = await connectToContract();
     const campaigns = await contract.getAllCampaigns();
 
     const parsedCampaigns = campaigns.map((campaign: CampaignType) => ({

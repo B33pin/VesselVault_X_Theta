@@ -21,10 +21,10 @@ const Explore = (props: Props) => {
   };
 
   useEffect(() => {
-      fetchCampaigns();
+    fetchCampaigns();
   }, []);
 
-  console.log(campaigns)
+  console.log(campaigns);
 
   return (
     <div>

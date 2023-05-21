@@ -14,7 +14,7 @@ import { CampaignType } from "@/@types/CampaignType";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const {address} = useStateContext()
+  const { address } = useStateContext();
   const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
   const { getCampaigns } = useCampaignContext();
 
@@ -26,7 +26,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-      fetchCampaigns();
+    fetchCampaigns();
   }, []);
 
   return (

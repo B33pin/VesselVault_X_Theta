@@ -36,7 +36,7 @@ const Profile = (props: Props) => {
   });
   const storage = new ThirdwebStorage();
 
-  console.log(user.coverPhoto)
+  console.log(user.coverPhoto);
 
   useEffect(() => {
     setLoading(true);
@@ -192,13 +192,14 @@ const Profile = (props: Props) => {
           {loading && !user.profile && <Loader />}
 
           {!loading && address && user.coverPhoto && (
-            <Image  
-            width={1920}
-            height={400}
-            className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
-            src={storage.resolveScheme(user.coverPhoto)}
-            alt={user.username}
-            style={{ objectFit: "cover" }} />
+            <Image
+              width={1920}
+              height={400}
+              className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
+              src={storage.resolveScheme(user.coverPhoto)}
+              alt={user.username}
+              style={{ objectFit: "cover" }}
+            />
           )}
           {!loading && address && !user.coverPhoto && (
             <Image
@@ -215,14 +216,13 @@ const Profile = (props: Props) => {
                 <div className="hidden sm:block relative shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="relative flex w-20 lg:w-32 ml-auto mr-auto mb-5">
                     {user.profile && (
-                     
-                      <Image  
-                      width={100}
-                      height={100}
-                      className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
-                      src={storage.resolveScheme(user.profile)}
-                      alt={user.username}
-                      style={{ objectFit: "cover" }}
+                      <Image
+                        width={100}
+                        height={100}
+                        className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
+                        src={storage.resolveScheme(user.profile)}
+                        alt={user.username}
+                        style={{ objectFit: "cover" }}
                       />
                     )}
                     {!user.profile && (

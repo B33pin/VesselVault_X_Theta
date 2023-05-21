@@ -1,9 +1,9 @@
 import React from "react";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { shortAddress } from "@/utils";
 import useCountdown from "@/hooks/useTimer";
 import Image from "next/image";
 import { FcClock } from "react-icons/fc";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 interface FundCardProps {
   owner: string;
@@ -38,14 +38,14 @@ const FundCard: React.FC<FundCardProps> = ({
       className={`bg-white rounded-md transition duration-200 border hover:shadow-lg ${wrapperClass}`}
     >
       <div className="relative bg-red group overflow-hidden m-3 bg-red-50 rounded-md">
-         <Image  
-                       style={{ width: "100%", minWidth: 300, maxHeight: 280 }}
-                       className="w-full rounded group-hover:scale-105 duration-200"
-                       src={storage.resolveScheme(thumbnail)}
-                       alt="title"
-                       width={300}
-                       height={300}
-                      />
+        <Image
+          style={{ width: "100%", minWidth: 300, maxHeight: 280 }}
+          className="w-full rounded group-hover:scale-105 duration-200"
+          src={storage.resolveScheme(thumbnail)}
+          alt="title"
+          width={300}
+          height={300}
+        />
         <div className="bg-white rounded-md absolute bottom-2 right-2 px-2 py-0.5 text-red-600 flex items-center justify-center text-sm">
           <FcClock size={20} /> <span className="ml-2">{leftDays}</span>
         </div>

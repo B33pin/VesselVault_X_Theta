@@ -16,19 +16,19 @@ const fontFamily = Noto_Sans_Display({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-      <StateContextProvider>
-        <UserContextProvider>
-          <DonationContextProvider>
-            <CampaignContextProvider>
-              <Navbar />
-              <main className={`${fontFamily.className} mt-[90px]`}>
-                <Component {...pageProps} />
-                <ScrollToTop />
-              </main>
-              <Footer />
-            </CampaignContextProvider>
-          </DonationContextProvider>
-        </UserContextProvider>
-      </StateContextProvider>
+    <StateContextProvider>
+      <UserContextProvider>
+        <DonationContextProvider>
+          <CampaignContextProvider>
+            <Navbar />
+            <main className={`${fontFamily.className} mt-[90px]`}>
+              <Component {...pageProps} />
+              <ScrollToTop />
+            </main>
+            <Footer />
+          </CampaignContextProvider>
+        </DonationContextProvider>
+      </UserContextProvider>
+    </StateContextProvider>
   );
 }

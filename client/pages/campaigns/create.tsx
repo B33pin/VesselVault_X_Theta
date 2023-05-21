@@ -42,7 +42,7 @@ const CreateCampaign = () => {
 
     try {
       const campaignImageIPfs = await storage.upload(form.thumbnail);
-      
+
       // const res = await axios({
       //   url: "https://api.thetavideoapi.com/upload",
       //   method: "POST",

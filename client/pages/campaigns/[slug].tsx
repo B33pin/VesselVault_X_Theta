@@ -20,7 +20,7 @@ const CampaignDetails = () => {
   const router = useRouter();
   const slug: any = router.query.slug || "";
   const [copied, setCopied] = useState(false);
-  const {address} = useStateContext()
+  const { address } = useStateContext();
   const { donate, getDonations, getCampaign } = useCampaignContext();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTransaction, setLoadingTransaction] = useState(false);
@@ -729,15 +729,13 @@ const CampaignDetails = () => {
                         className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
                       />
                     ) : (
-                      <Image  
-                      width={1400}
-                      height={800}
-
-                       className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
+                      <Image
+                        width={1400}
+                        height={800}
+                        className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
                         alt="title"
-                     src={storage.resolveScheme(campaign.thumbnail)}
-                    
-                     />
+                        src={storage.resolveScheme(campaign.thumbnail)}
+                      />
                     )}
                   </div>
 

@@ -183,12 +183,12 @@ const Navbar = () => {
                 <div className="flex w-[40px] h-[40px] justify-center items-center cursor-pointer">
                   <div onClick={() => setShowProfileMenu(!showProfileMenu)}>
                     {user.profile && (
-                      <Image  
-                      width={40}
-                      height={40}
-                      className="rounded-full object-contain border-2 border-red-600"
-                      src={storage.resolveScheme(user.profile)}
-                      alt={user.username}
+                      <Image
+                        width={40}
+                        height={40}
+                        className="rounded-full object-contain border-2 border-red-600"
+                        src={storage.resolveScheme(user.profile)}
+                        alt={user.username}
                       />
                     )}
                     {!user.profile && (
