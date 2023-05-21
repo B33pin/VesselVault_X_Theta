@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const contractAddress = "0x683ba8076b72A271Fb3e4E9D7762D34a7e026936";
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const abi = [
   {
     "inputs": [],
@@ -60,7 +60,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "guardian",
+        "name": "_guardian",
         "type": "address"
       }
     ],
@@ -121,7 +121,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "pouchID",
+        "name": "_pouchID",
         "type": "uint256"
       }
     ],
@@ -147,6 +147,60 @@ const abi = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_target",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_thumbnail",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_video",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_slug",
+        "type": "string"
+      }
+    ],
+    "name": "createCampaign",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -187,8 +241,234 @@ const abi = [
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "donateToCampaign",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_pouchID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_donorID",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_donorZipCode",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_bloodReportStatus",
+        "type": "string"
+      },
+      {
+        "internalType": "enum BloodDonation.BloodGroup",
+        "name": "_bloodGroup",
+        "type": "uint8"
+      }
+    ],
+    "name": "enterBloodDetails",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
-    "name": "deployer",
+    "name": "getAllCampaigns",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "target",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountCollected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "thumbnail",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "video",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "slug",
+            "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "donators",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "donations",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct BloodDonation.Campaign[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCampaign",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "target",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountCollected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "thumbnail",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "video",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "slug",
+            "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "donators",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "donations",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct BloodDonation.Campaign",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCampaignDonators",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDeployer",
     "outputs": [
       {
         "internalType": "address",
@@ -200,36 +480,53 @@ const abi = [
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "getPouches",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "pouchID",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "donorID",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "donorZipCode",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "bloodReportStatus",
-        "type": "string"
-      },
-      {
-        "internalType": "enum BloodDonation.BloodGroup",
-        "name": "bloodGroup",
-        "type": "uint8"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "pouchID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "donorID",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "donorZipCode",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "bloodReportStatus",
+            "type": "string"
+          },
+          {
+            "internalType": "enum BloodDonation.BloodGroup",
+            "name": "bloodGroup",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "receiverID",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "guardianID",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct BloodDonation.BloodPouch[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
-    "name": "enterBloodDetails",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -260,7 +557,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "_account",
         "type": "address"
       }
     ],
@@ -326,7 +623,7 @@ const abi = [
           },
           {
             "internalType": "address",
-            "name": "gurdainID",
+            "name": "guardianID",
             "type": "address"
           }
         ],
