@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const ethers = require("ethers");
-const contractAddress = "0x683ba8076b72A271Fb3e4E9D7762D34a7e026936";
+const contractAddress = "0xcCe249b5677BaEb52252c452d1d4b38e499501c2";
 const abi = [
   {
     "inputs": [],
@@ -61,7 +61,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "guardian",
+        "name": "_guardian",
         "type": "address"
       }
     ],
@@ -122,7 +122,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "pouchID",
+        "name": "_pouchID",
         "type": "uint256"
       }
     ],
@@ -148,6 +148,60 @@ const abi = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_target",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_thumbnail",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_video",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_slug",
+        "type": "string"
+      }
+    ],
+    "name": "createCampaign",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -204,33 +258,276 @@ const abi = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "pouchID",
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "donateToCampaign",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_pouchID",
         "type": "uint256"
       },
       {
         "internalType": "address",
-        "name": "donorID",
+        "name": "_donorID",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "donorZipCode",
+        "name": "_donorZipCode",
         "type": "uint256"
       },
       {
         "internalType": "string",
-        "name": "bloodReportStatus",
+        "name": "_bloodReportStatus",
         "type": "string"
       },
       {
         "internalType": "enum BloodDonation.BloodGroup",
-        "name": "bloodGroup",
+        "name": "_bloodGroup",
         "type": "uint8"
       }
     ],
     "name": "enterBloodDetails",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllCampaigns",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "target",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountCollected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "thumbnail",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "video",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "slug",
+            "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "donators",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "donations",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct BloodDonation.Campaign[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCampaign",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "target",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountCollected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "thumbnail",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "video",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "slug",
+            "type": "string"
+          },
+          {
+            "internalType": "address[]",
+            "name": "donators",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "donations",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct BloodDonation.Campaign",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_id",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCampaignDonators",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPouches",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "pouchID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "donorID",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "donorZipCode",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "bloodReportStatus",
+            "type": "string"
+          },
+          {
+            "internalType": "enum BloodDonation.BloodGroup",
+            "name": "bloodGroup",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "receiverID",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "guardianID",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct BloodDonation.BloodPouch[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -261,7 +558,7 @@ const abi = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "_account",
         "type": "address"
       }
     ],
@@ -327,7 +624,7 @@ const abi = [
           },
           {
             "internalType": "address",
-            "name": "gurdainID",
+            "name": "guardianID",
             "type": "address"
           }
         ],
@@ -438,7 +735,9 @@ connectButton.addEventListener("click", async () => {
     connectButton.classList.add("connected");
 
     const account = await signer.getAddress();
+    
     const isDeployer = (await bloodDonationContract.deployer()) === account;
+    
     const isGuardian = await bloodDonationContract.isGuardian(account);
 
     document.getElementById("add-guardian-section").style.display = isDeployer
@@ -465,6 +764,9 @@ document
 document
   .getElementById("search-blood-button")
   .addEventListener("click", searchForBlood);
+document
+  .getElementById("getCampaigns")
+  .addEventListener("click", getAllCampaigns);
 
 async function submitBloodDetails() {
   const pouchIDElement = document.getElementById("pouch-id");
@@ -580,7 +882,15 @@ async function assignBloodReceiver(pouchID, gurdainID) {
   }
 }
 
-
+async function getAllCampaigns() {
+  console.log("get all campaigns")
+  try {
+    const bloodList = await bloodDonationContract.getAllCampaigns();
+    console.log("Available blood pouches:", bloodList);
+  } catch (error) {
+    console.error("Error searching for blood", error);
+  }
+}
 
 function showSnackbar(message) {
   const snackbar = document.getElementById("snackbar");
@@ -591,6 +901,18 @@ function showSnackbar(message) {
   }, 3000);
 }
 
+async function fundCampaign() {
+  try {
+    await window.ethereum.enable();
+    const signer = provider.getSigner();
+    const amountToSend = ethers.utils.parseEther("10");
+    const tx = await bloodDonationContract.connect(signer).donateToCampaign(iD, { value: amountToSend });
+    await tx.wait();
+    console.log("Donated");
+  } catch (error) {
+    console.error("Error Donation", error);
+  }
+}
 },{"ethers":149}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });

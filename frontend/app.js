@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const contractAddress = "0xcCe249b5677BaEb52252c452d1d4b38e499501c2";
 const abi = [
   {
     "inputs": [],
@@ -241,6 +241,19 @@ const abi = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "deployer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -461,19 +474,6 @@ const abi = [
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getDeployer",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -734,7 +734,9 @@ connectButton.addEventListener("click", async () => {
     connectButton.classList.add("connected");
 
     const account = await signer.getAddress();
+    
     const isDeployer = (await bloodDonationContract.deployer()) === account;
+    
     const isGuardian = await bloodDonationContract.isGuardian(account);
 
     document.getElementById("add-guardian-section").style.display = isDeployer
@@ -761,6 +763,9 @@ document
 document
   .getElementById("search-blood-button")
   .addEventListener("click", searchForBlood);
+document
+  .getElementById("getCampaigns")
+  .addEventListener("click", getAllCampaigns);
 
 async function submitBloodDetails() {
   const pouchIDElement = document.getElementById("pouch-id");
@@ -876,7 +881,15 @@ async function assignBloodReceiver(pouchID, gurdainID) {
   }
 }
 
-
+async function getAllCampaigns() {
+  console.log("get all campaigns")
+  try {
+    const bloodList = await bloodDonationContract.getAllCampaigns();
+    console.log("Available blood pouches:", bloodList);
+  } catch (error) {
+    console.error("Error searching for blood", error);
+  }
+}
 
 function showSnackbar(message) {
   const snackbar = document.getElementById("snackbar");
