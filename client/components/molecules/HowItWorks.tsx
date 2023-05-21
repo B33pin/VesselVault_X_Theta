@@ -1,4 +1,4 @@
-import HowItWorksImg from "@/assets/how-it-work-image.png";
+import HowItWorksImg from "@/assets/how-it-works.png";
 import Image from "next/image";
 
 type Props = {};
@@ -172,8 +172,8 @@ const HowItWorks = (props: Props) => {
               className="lg:max-w-full sm:max-w-xl"
               src={HowItWorksImg}
               alt="title"
-              width={800}
-              height={800}
+              width={1200}
+              height={1200}
             />
           </div>
         </div>

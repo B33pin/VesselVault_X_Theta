@@ -2,6 +2,13 @@ import { CampaignType } from "@/@types/CampaignType";
 import Link from "next/link";
 import FundCard from "../molecules/FundCard";
 import Loader from "../atomic/Loader";
+import { Swiper, SwiperSlide } from "swiper/react";
+import SwiperCore, { Navigation } from "swiper";
+import "swiper/css/bundle";
+import "swiper/css";
+import "swiper/css/navigation";
+
+SwiperCore.use([Navigation]);
 
 interface DisplayCampaignsProps {
   title: string;
@@ -15,35 +22,90 @@ const DisplayCampaigns: React.FC<DisplayCampaignsProps> = ({
   campaigns,
 }: DisplayCampaignsProps): JSX.Element => {
   return (
-    <section className="campaign-list pt-6 pb-10 relative">
+    <section className="campaign-list pt-6 pb-10 relative z-10">
       <div className="container">
-        <h1 className=" font-semibold text-[18px] text-white text-left">
-          {title} ({campaigns.length})
-        </h1>
-
-        <div className="flex flex-wrap mt-[20px] gap-[26px]">
+        <div className="mt-[20px]">
           {isLoading && <Loader />}
 
           {!isLoading && campaigns.length === 0 && (
             <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
-              You have not created any campaigns yet
+              We apologize for the inconvenience, but currently, there are no
+              ongoing campaigns available for blood donation.
             </p>
           )}
 
-          {!isLoading &&
-            campaigns.length > 0 &&
-            campaigns.map((campaign, index) => {
-              return (
-                <Link
-                  href={{
-                    pathname: `/campaigns/${campaign.id}`,
-                  }}
-                  key={index}
-                >
-                  <FundCard {...campaign} />
-                </Link>
-              );
-            })}
+          <Swiper
+            slidesPerView={1}
+            spaceBetween={30}
+            breakpoints={{
+              568: {
+                slidesPerView: 2,
+                spaceBetween: 40,
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 40,
+              },
+              1200: {
+                slidesPerView: 4,
+                spaceBetween: 40,
+              },
+            }}
+          >
+            {!isLoading &&
+              campaigns.length > 0 &&
+              campaigns.map((campaign, index) => {
+                return (
+                  <>
+                    <SwiperSlide key={index}>
+                      <Link
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                      >
+                        <FundCard {...campaign} />
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide key={index}>
+                      <Link
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                      >
+                        <FundCard {...campaign} />
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide key={index}>
+                      <Link
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                      >
+                        <FundCard {...campaign} />
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide key={index}>
+                      <Link
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                      >
+                        <FundCard {...campaign} />
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide key={index}>
+                      <Link
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                      >
+                        <FundCard {...campaign} />
+                      </Link>
+                    </SwiperSlide>
+                  </>
+                );
+              })}
+          </Swiper>
         </div>
       </div>
     </section>

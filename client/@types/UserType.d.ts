@@ -3,10 +3,12 @@ type User = {
   username: string;
   bio: string;
   email: string;
-
   coverPhoto: string;
   profile: string;
   occupation: string;
   country: string;
   zipCode: string;
+  facebookLink: string;
+  instagramLink: string;
+  twitterLink: string;
 };

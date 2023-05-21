@@ -1,37 +1,37 @@
-import { CampaignType } from "@/@types/CampaignType";
-import Loader from "@/components/atomic/Loader";
-import FundCard from "@/components/molecules/FundCard";
-import { useCampaignContext } from "@/context/campaign";
-import { useStateContext } from "@/context/state";
+import FormField from "@/components/atomic/FormField";
+import { useDonationContext } from "@/context/donation";
 import Head from "next/head";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 
-type Props = {};
-
-const Explore = (props: Props) => {
+const AddGuardian = () => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useStateContext();
-  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
-  const { contract, getCampaigns } = useCampaignContext();
+  const [address, setAddress] = useState("");
+  const { isGuardian, isGuardianLoading, addGuardianAddress } =
+    useDonationContext();
 
-  const fetchCampaigns = useCallback(async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!address) {
+      return alert("Please enter valid address");
+    }
     setIsLoading(true);
-    const data = await getCampaigns();
-    setCampaigns(data);
+    await addGuardianAddress(address);
     setIsLoading(false);
-  }, [getCampaigns]);
+  };
 
   useEffect(() => {
-    if (contract) {
-      fetchCampaigns();
+    if (!isGuardianLoading && !isGuardian) {
+      router.push("/bloods/request");
     }
-  }, [address, contract, fetchCampaigns]);
+  }, [isGuardian, isGuardianLoading, router, address]);
 
   return (
     <div>
       <Head>
-        <title>Explore Campaigns | VesselVault</title>
+        <title>Add Guardian | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
@@ -165,7 +165,7 @@ const Explore = (props: Props) => {
           </svg>
         </div>
 
-        <div className="absolute z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
+        <div className="absolute -z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
           <span className="animate-1 absolute left-20 bottom-0">
             <svg
               width="101"
@@ -407,7 +407,7 @@ const Explore = (props: Props) => {
               ></ellipse>
             </svg>
           </span>
-          <span className="animate-2 absolute left-1/3 xl:w-1/4 top-10">
+          <span className="animate-2 absolute left-1/4 top-10">
             <svg
               width="38"
               height="38"
@@ -641,10 +641,10 @@ const Explore = (props: Props) => {
             </svg>
           </span>
         </div>
-        <div className="container mx-auto relative">
+        <div className="container mx-auto relative z-20">
           <div className="section-title text-center">
-            <h2 className="leading-tight text-4xl lg:text-6xl font-bold mb-4">
-              Explore Campaigns
+            <h2 className="text-coolGray-900 leading-tight text-4xl lg:text-6xl font-bold mb-4">
+              Add Guardian
             </h2>
             <div className="section-breadcrumb flex items-center justify-center">
               <Link
@@ -658,102 +658,41 @@ const Explore = (props: Props) => {
                 className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
                 href="#"
               >
-                Explore Campaigns
+                Guardian
               </Link>
             </div>
           </div>
         </div>
-        <section className="campaign-list pt-6 pb-10 relative z-10">
-          <div className="container">
-            <div className="mt-[20px]">
-              {isLoading && <Loader />}
+        <div className="z-20 relative pt-10 2xl:pt-20">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="bg-white shadow-md rounded p-6 lg:p-10">
+              <h2 className="text-xl font-bold mb-4">Add Guardian</h2>
 
-              {!isLoading && campaigns.length === 0 && (
-                <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
-                  We apologize for the inconvenience, but currently, there are
-                  no ongoing campaigns available for blood donation.
-                </p>
-              )}
-
-              <div className="flex flex-wrap">
-                {!isLoading &&
-                  campaigns.length > 0 &&
-                  campaigns.map((campaign, index) => {
-                    return (
-                      <>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>{" "}
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                      </>
-                    );
-                  })}
-              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Guardian Address *"
+                    placeholder="0xfe....."
+                    inputType="text"
+                    value={address}
+                    handleChange={(e) => setAddress(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className={`w-full inline-flex justify-center items-center border border-red-600 text-white rounded-full transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left px-8 py-3 ${
+                    isLoading ? "cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                >
+                  {isLoading ? "Loading" : "Add Guardian"}
+                </button>
+              </form>
             </div>
           </div>
-        </section>
+        </div>
       </section>
     </div>
   );
 };
 
-export default Explore;
+export default AddGuardian;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
 import { CampaignType } from "@/@types/CampaignType";

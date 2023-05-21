@@ -17,6 +17,9 @@ type DefaultValue = {
     profile: string;
     username: string;
     zipCode: string;
+    facebookLink: string;
+    instagramLink: string;
+    twitterLink: string;
   };
   createUser: (address: string) => void;
   getUserData: (address: string) => void;
@@ -34,6 +37,9 @@ const contextDefaultValue: DefaultValue = {
     profile: "",
     username: "",
     zipCode: "",
+    facebookLink: "",
+    twitterLink: "",
+    instagramLink: "",
   },
   createUser: (address) => {},
   getUserData: (address) => {},
@@ -55,6 +61,9 @@ export const UserContextProvider = ({
     profile: "",
     username: "",
     zipCode: "",
+    facebookLink: "",
+    instagramLink: "",
+    twitterLink: "",
   });
 
   const wallet = new Wallet(process.env.NEXT_PUBLIC_PRIVATE_KEY || "");
@@ -84,9 +93,9 @@ export const UserContextProvider = ({
       if (check_user.data.length == 0) {
         await db
           .collection("User")
-          .create([address, "", "", "", "", "", "", "", ""]);
+          .create([address, "", "", "", "", "", "", "", "", "", "", ""]);
       }
-      getUserData(address);
+      // getUserData(address);
     } catch (error) {
       console.log(error);
     }
@@ -107,6 +116,9 @@ export const UserContextProvider = ({
         data.occupation,
         data.country,
         data.zipCode,
+        data.facebookLink,
+        data.instagramLink,
+        data.twitterLink,
       ]);
     return res.data;
   };
@@ -114,6 +126,7 @@ export const UserContextProvider = ({
   const getUserData = async (address: string) => {
     const db = polybase();
     const res = await db.collection("User").record(address).get();
+    console.log(res.data);
     setUser(res.data);
     return res.data;
   };

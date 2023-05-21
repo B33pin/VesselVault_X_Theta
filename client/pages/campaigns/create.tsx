@@ -723,7 +723,7 @@ const CreateCampaign = () => {
             </svg>
           </span>
         </div>
-        <div className="max-w-2xl mx-auto z-10">
+        <div className="relative max-w-2xl mx-auto z-20">
           <div className="bg-white shadow-lg rounded-md p-6 lg:p-10">
             <h2 className="text-2xl font-bold mb-4">Create a Campaign</h2>
             <p className="text-coolGray-600 font-normal mb-6">

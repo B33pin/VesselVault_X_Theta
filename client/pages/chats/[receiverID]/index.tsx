@@ -1,44 +1,98 @@
-import { CampaignType } from "@/@types/CampaignType";
-import Loader from "@/components/atomic/Loader";
-import FundCard from "@/components/molecules/FundCard";
-import { useCampaignContext } from "@/context/campaign";
-import { useStateContext } from "@/context/state";
 import Head from "next/head";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import React, { useEffect, useRef, useState } from "react";
+import { auth, db } from "@/firebase.config";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { shortAddress } from "@/utils";
+import GoogleButton from "react-google-button";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import Button from "@/components/atomic/Button";
+
+function SignIn() {
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider);
+  };
+
+  return (
+    <div className="flex items-center justify-center h-80">
+      <GoogleButton onClick={signInWithGoogle} />
+    </div>
+  );
+}
+
+function SignOut() {
+  return (
+    auth.currentUser && (
+      <button
+        className="block rounded-full px-6 py-1 text-base transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left text-white"
+        onClick={() => auth.signOut()}
+      >
+        Sign Out
+      </button>
+    )
+  );
+}
 
 type Props = {};
 
-const Explore = (props: Props) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { address } = useStateContext();
-  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
-  const { contract, getCampaigns } = useCampaignContext();
-
-  const fetchCampaigns = useCallback(async () => {
-    setIsLoading(true);
-    const data = await getCampaigns();
-    setCampaigns(data);
-    setIsLoading(false);
-  }, [getCampaigns]);
+const Chat = (props: Props) => {
+  const router = useRouter();
+  const { receiverID }: any = router.query || {
+    receiverID: "",
+  };
+  const [user] = useAuthState(auth as any);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    if (contract) {
-      fetchCampaigns();
+    if (receiverID) {
+      const q = query(
+        collection(db, "vessel-vault-chats"),
+        // where("donorID", "in", [donorID, receiverID]),
+        // where("receiverID", "in", [donorID, receiverID]),
+        orderBy("timestamp")
+      );
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        let messages: any = [];
+        querySnapshot.forEach((doc) => {
+          if (
+            doc.data() &&
+            (doc.data().receiverID === receiverID ||
+              doc.data().donorID === receiverID)
+          ) {
+            const alreadyPushed = messages.find(
+              (item: any) =>
+                item.receiverID === doc.data().receiverID ||
+                item.receiverID === doc.data().donorID
+            );
+            if (!alreadyPushed) {
+              messages.push({ ...doc.data(), id: doc.id });
+            }
+          }
+        });
+        setMessages(messages);
+      });
+      return () => unsubscribe();
     }
-  }, [address, contract, fetchCampaigns]);
+  }, [receiverID]);
+
+  console.log(messages);
 
   return (
     <div>
       <Head>
-        <title>Explore Campaigns | VesselVault</title>
+        <title>My Chats | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
+      <section className="xl:pt-10 pb-14 relative">
         <div className="absolute -top-40 left-0 right-0 -z-10">
           <svg
             width="1920"
@@ -164,8 +218,7 @@ const Explore = (props: Props) => {
             </defs>
           </svg>
         </div>
-
-        <div className="absolute z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
+        <div className="absolute -z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
           <span className="animate-1 absolute left-20 bottom-0">
             <svg
               width="101"
@@ -407,7 +460,7 @@ const Explore = (props: Props) => {
               ></ellipse>
             </svg>
           </span>
-          <span className="animate-2 absolute left-1/3 xl:w-1/4 top-10">
+          <span className="animate-2 absolute left-1/4 top-10">
             <svg
               width="38"
               height="38"
@@ -641,119 +694,80 @@ const Explore = (props: Props) => {
             </svg>
           </span>
         </div>
-        <div className="container mx-auto relative">
-          <div className="section-title text-center">
-            <h2 className="leading-tight text-4xl lg:text-6xl font-bold mb-4">
-              Explore Campaigns
-            </h2>
-            <div className="section-breadcrumb flex items-center justify-center">
-              <Link
-                className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
-                href="/"
-              >
-                Home
-              </Link>{" "}
-              <span>/</span>
-              <Link
-                className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
-                href="#"
-              >
-                Explore Campaigns
-              </Link>
-            </div>
-          </div>
-        </div>
-        <section className="campaign-list pt-6 pb-10 relative z-10">
-          <div className="container">
-            <div className="mt-[20px]">
-              {isLoading && <Loader />}
 
-              {!isLoading && campaigns.length === 0 && (
-                <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
-                  We apologize for the inconvenience, but currently, there are
-                  no ongoing campaigns available for blood donation.
-                </p>
-              )}
-
-              <div className="flex flex-wrap">
-                {!isLoading &&
-                  campaigns.length > 0 &&
-                  campaigns.map((campaign, index) => {
+        <div className="max-w-5xl mx-auto px-4 bg-white">
+          {!user && <SignIn />}
+          {user && (
+            <div className="flex-1 p-3 sm:p-6 flex flex-col h-[600px] border md:shadow-md rounded-md">
+              <div className="flex items-center justify-between pb-3 border-b-2 border-gray-200">
+                <div className="relative flex items-center space-x-4">
+                  <div className="relative">
+                    <Image
+                      src="/logo.png"
+                      alt="My profile"
+                      width={40}
+                      height={40}
+                      className="rounded-full order-1 bg-red-100 p-1"
+                    />
+                  </div>
+                  <div className="text-xl mt-1 flex items-center">
+                    <span className="text-gray-700 mr-3 font-bold">
+                      Messages
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <SignOut />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                {messages.length <= 0 && (
+                  <div className="py-4">No Messages yet.</div>
+                )}
+                {messages.length > 0 &&
+                  messages.map((message: any) => {
                     return (
-                      <>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
+                      <div
+                        key={message.uid}
+                        className="flex items-center space-x-4 justify-between border-b py-4"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="relative">
+                            <Image
+                              src={message.photoURL}
+                              alt={message.username}
+                              title={message.photoURL}
+                              width={40}
+                              height={40}
+                              className="rounded-full order-1 bg-red-100 p-1"
+                            />
+                          </div>
+                          <div className="md:text-xl mt-1 flex items-center">
+                            <span className="text-gray-700 mr-3">
+                              {shortAddress(message.donorID, 8, 5)}
+                            </span>
+                          </div>
+                        </div>
+                        <Link href={`/chats/${receiverID}/${message.donorID}`}>
+                          <Button
+                            btnType="button"
+                            title={"Say Hi!"}
+                            styles={
+                              "block rounded-full px-6 py-1 text-base transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
+                            }
+                            handleClick={() => {}}
+                          />
                         </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>{" "}
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                      </>
+                      </div>
                     );
                   })}
               </div>
             </div>
-          </div>
-        </section>
+          )}
+        </div>
       </section>
     </div>
   );
 };
 
-export default Explore;
+export default Chat;

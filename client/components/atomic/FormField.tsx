@@ -6,6 +6,7 @@ interface FormFieldProps {
   inputType?: string;
   isTextArea?: boolean;
   value?: string;
+  disabled?: boolean;
   handleChange: (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -18,6 +19,7 @@ const FormField: React.FC<FormFieldProps> = ({
   inputType,
   isTextArea,
   value = "",
+  disabled = false,
   handleChange,
   accept,
   ...props
@@ -32,21 +34,23 @@ const FormField: React.FC<FormFieldProps> = ({
       {isTextArea ? (
         <textarea
           required
+          disabled={disabled}
           value={value}
           onChange={handleChange}
           rows={10}
           placeholder={placeholder}
-          className="border border-coolGray-300 rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
+          className="border border-gray-300 rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
         />
       ) : (
         <input
           required={inputType === "file" ? false : true}
           value={value}
+          disabled={disabled}
           onChange={handleChange}
           type={inputType}
           step="0.1"
           placeholder={placeholder}
-          className="border border-coolGray-300 rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
+          className="border border-gray-300 rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
           accept={accept}
         />
       )}

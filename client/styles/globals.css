@@ -7,15 +7,18 @@ html {
   overflow-x: hidden;
 }
 
-body::-webkit-scrollbar {
+body::-webkit-scrollbar,
+#messages::-webkit-scrollbar {
   width: 10px;
 }
 
-body::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track,
+#messages::-webkit-scrollbar-track {
   border-radius: 0;
 }
 
-body::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb,
+#messages::-webkit-scrollbar-thumb {
   @apply bg-red-400 rounded;
 }
 

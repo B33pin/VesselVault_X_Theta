@@ -1,5 +1,9 @@
 import React from "react";
 import { MediaRenderer } from "@thirdweb-dev/react";
+import { shortAddress } from "@/utils";
+import useCountdown from "@/hooks/useTimer";
+import Image from "next/image";
+import { FcClock } from "react-icons/fc";
 
 interface FundCardProps {
   owner: string;
@@ -9,51 +13,69 @@ interface FundCardProps {
   deadline: Date;
   amountCollected: number;
   thumbnail: string;
+  wrapperClass?: string;
 }
 
 const FundCard: React.FC<FundCardProps> = ({
   owner,
   title,
-  description,
   target,
-  deadline,
+  description,
   amountCollected,
+  deadline,
   thumbnail,
+  wrapperClass = "w-full max-w-sm",
 }: FundCardProps): JSX.Element => {
-  // const remainingDays = daysLeft(deadline);
+  const [days, hours, minutes, seconds] = useCountdown(deadline);
+
+  const leftDays = `${days}:${("0" + hours).slice(-2)}:${("0" + minutes).slice(
+    -2
+  )}:${("0" + seconds).slice(-2)}`;
 
   return (
-    <div className="card-product-style bg-white rounded transition duration-200 border hover:shadow-lg">
-      <div className="card-product-image relative">
-        <MediaRenderer className="w-full rounded" src={thumbnail} alt="title" />
+    <div
+      className={`bg-white rounded-md transition duration-200 border hover:shadow-lg ${wrapperClass}`}
+    >
+      <div className="relative bg-red group overflow-hidden m-3 bg-red-50 rounded-md">
+        <MediaRenderer
+          style={{ width: "100%", minWidth: 300, maxHeight: 280 }}
+          className="w-full rounded group-hover:scale-105 duration-200"
+          src={thumbnail}
+          alt="title"
+        />
+        <div className="bg-white rounded-md absolute bottom-2 right-2 px-2 py-0.5 text-red-600 flex items-center justify-center text-sm">
+          <FcClock size={20} /> <span className="ml-2">{leftDays}</span>
+        </div>
       </div>
-      <div className="card-product-content px-4 py-6">
-        <h2 className="text-coolGray-900 text-lg font-bold transition duration-500 hover:text-teal-400 mb-2">
+      <div className="px-4 py-6">
+        <h2 className="text-gray-900 text-lg font-bold transition duration-500 hover:text-teal-400 mb-2">
           {title}
         </h2>
-        <div className="flex justify-between flex-wrap mt-[15px] gap-2">
-          <div className="flex flex-col">
-            <h4 className="font-epilogue font-semibold text-[14px] leading-[22px]">
-              {amountCollected}
-            </h4>
-            <p className="mt-[3px] font-epilogue font-normal text-[12px] leading-[18px]  sm:max-w-[120px] truncate">
-              Raised of {target}
+        <p className="py-3 text-gray-500">{description.slice(0, 50) + "..."}</p>
+        <div className="flex flex-wrap justify-between items-center gap-2">
+          <div className="flex flex-wrap gap-2">
+            <p className="mt-[3px] font-normal text-base leading-[18px]  sm:max-w-[120px] truncate">
+              Raised:
             </p>
-          </div>
-          <div className="flex flex-col">
-            <h4 className="font-epilogue font-semibold text-[14px]  leading-[22px]">
-              2
+            <h4 className="font-semibold text-xl leading-[22px] text-red-600">
+              {amountCollected} <span className="text-base">/ {target}</span>
             </h4>
-            <p className="mt-[3px] font-epilogue font-normal text-[12px] leading-[18px]  sm:max-w-[120px] truncate">
-              Days Left
-            </p>
           </div>
-        </div>
 
-        <div className="flex items-center my-2 gap-[12px]">
-          <p className="flex-1 font-epilogue font-normal text-[12px] truncate">
-            by <span className="">{owner}</span>
-          </p>
+          <div className="flex items-center gap-[12px]">
+            <div>
+              <Image
+                src="/icons/android-icon-96x96.png"
+                alt={"Donar"}
+                width={40}
+                height={40}
+                className="w-8 h-8 bg-red-100 p-1 rounded-full"
+              />
+            </div>
+            <p className="flex-1 font-normal text-sm truncate">
+              <span className="">{shortAddress(owner, 5, 3)}</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
