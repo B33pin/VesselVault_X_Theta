@@ -16,7 +16,7 @@ contract BloodDonation is ERC20 {
     }
 
     struct Campaign {
-        bytes32 id;
+        uint256 id;
         address owner;
         string title;
         string description;
@@ -131,7 +131,7 @@ contract BloodDonation is ERC20 {
         BloodPouch storage pouch = _pouches[index];
         require(pouch.receiverID == address(0), "Pouch already has a receiver");
 
-        // Transfer the received Ether to the guardian's address
+        // Transfer the received Tfuel to the guardian's address
         payable(pouch.guardianID).transfer(msg.value);
         pouch.receiverID = msg.sender;
     }
@@ -145,27 +145,22 @@ contract BloodDonation is ERC20 {
     }
 
     function createCampaign(
-        address _owner,
         string memory _title,
+        uint256 _id,
         string memory _description,
         uint256 _target,
         uint256 _deadline,
         string memory _thumbnail,
         string memory _video,
         string memory _slug
-    ) public onlyGuardian returns (bytes32) {
+    ) public onlyGuardian returns (uint256) {
         require(
             _deadline > block.timestamp,
             "The deadline should be a date in the future."
         );
-
-        bytes32 id = keccak256(
-            abi.encodePacked(block.timestamp, msg.sender, _campaigns.length)
-        );
-
         Campaign memory newCampaign = Campaign({
-            id: id,
-            owner: _owner,
+            id: _id,
+            owner: msg.sender,
             title: _title,
             description: _description,
             target: _target,
@@ -180,21 +175,22 @@ contract BloodDonation is ERC20 {
 
         _campaigns.push(newCampaign);
 
-        return id;
+        return _id;
     }
 
     function donateToCampaign(uint256 _id) public payable {
-        require(
-            _id < _campaigns.length,
-            "The specified campaign ID does not exist."
-        );
-
-        Campaign storage campaign = _campaigns[_id];
+        uint256 count = 0;
+        for (uint256 i = 0; i < _campaigns.length; i++) {
+            if (_campaigns[i].id == _id) {
+                count = i;
+            }
+        }
+        Campaign storage campaign = _campaigns[count];
 
         campaign.donators.push(msg.sender);
         campaign.donations.push(msg.value);
 
-        // Transfer the received Ether to the campaign owner's address
+        // Transfer the received tfuel to the campaign owner's address
         payable(campaign.owner).transfer(msg.value);
 
         // Mint governance tokens to the donor
@@ -204,7 +200,7 @@ contract BloodDonation is ERC20 {
     }
 
     function getCampaignDonators(
-        bytes32 _id
+        uint256 _id
     ) public view returns (address[] memory, uint256[] memory) {
         for (uint256 i = 0; i < _campaigns.length; i++) {
             if (_campaigns[i].id == _id) {
@@ -219,7 +215,7 @@ contract BloodDonation is ERC20 {
         return _campaigns;
     }
 
-    function getCampaign(bytes32 _id) public view returns (Campaign memory) {
+    function getCampaign(uint256 _id) public view returns (Campaign memory) {
         for (uint256 i = 0; i < _campaigns.length; i++) {
             if (_campaigns[i].id == _id) {
                 return _campaigns[i];
