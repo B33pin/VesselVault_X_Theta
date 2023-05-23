@@ -24,6 +24,7 @@ import FormField from "@/components/atomic/FormField";
 import User from "@/assets/user.jpg";
 import { useUserContext } from "@/context/user";
 import useCountdown from "@/hooks/useTimer";
+import { toast } from "react-hot-toast";
 
 const CampaignDetails = () => {
   const router = useRouter();
@@ -54,10 +55,17 @@ const CampaignDetails = () => {
     setLoadingTransaction(true);
     if (campaign) {
       if (!amount || parseFloat(amount) <= 0) {
-        alert("Enter a valid fund.");
+        toast.error("Enter a valid fund.");
       } else {
-        await donate(campaign.id, amount);
-        router.push("/");
+        try {
+          await donate(campaign.id, amount);
+          toast.success("Fund donated successful.");
+          setAmount("");
+          router.reload();
+        } catch (error) {
+          console.error(error);
+          toast.error("Failed to donate fund.");
+        }
       }
     }
 
@@ -873,10 +881,12 @@ const CampaignDetails = () => {
                           className="flex justify-between items-center gap-4"
                         >
                           <p className="font-bold text-[16px] text-gray-600 leading-[26px] break-ll">
-                            {index + 1}. {shortAddress(item.donator, 8, 5)}{" "}
+                            <Link href={`/profile/${item.donator}`}>
+                              {index + 1}. {shortAddress(item.donator, 8, 5)}
+                            </Link>
                           </p>
                           <p className="font-bold text-[16px] text-red-600 leading-[26px] break-ll">
-                            {item.donation} TFUEL
+                            {parseFloat(item.donation).toFixed(3)} TFUEL
                           </p>
                         </div>
                       ))
@@ -904,14 +914,20 @@ const CampaignDetails = () => {
                       Raised:
                     </p>
                     <h4 className="font-semibold text-xl leading-[22px] text-red-600">
-                      {ethers.utils.formatEther(
-                        campaign.collectedAmount.toString()
-                      )}
+                      {parseFloat(
+                        ethers.utils.formatEther(
+                          campaign.collectedAmount.toString()
+                        )
+                      ).toFixed(3)}
+
                       <span className="text-base">
+                        {" "}
                         /{" "}
-                        {ethers.utils.formatEther(
-                          campaign.targetAmount.toString()
-                        )}
+                        {parseFloat(
+                          ethers.utils.formatEther(
+                            campaign.targetAmount.toString()
+                          )
+                        ).toFixed(3)}
                       </span>
                     </h4>
                   </div>

@@ -14,6 +14,11 @@ import { useStateContext } from "@/context/state";
 import Head from "next/head";
 import Image from "next/image";
 import { FiSend } from "react-icons/fi";
+import Button from "@/components/atomic/Button";
+import Link from "next/link";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { FiCopy } from "react-icons/fi";
+import { shortAddress } from "@/utils";
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -710,7 +715,7 @@ const Chat = () => {
 
         <div className="max-w-5xl mx-auto px-4">
           {address && (
-            <div className="flex-1 p:2 sm:p-6 justify-between flex flex-col h-[600px] md:border md:shadow-md rounded-md">
+            <div className="flex-1 p-4 sm:p-6 justify-between flex flex-col h-[600px] bg-white border md:shadow-md rounded-md">
               <div className="flex sm:items-center justify-between pb-3 border-b-2 border-gray-200">
                 <div className="relative flex items-center space-x-4">
                   <div className="relative">
@@ -723,10 +728,32 @@ const Chat = () => {
                     />
                   </div>
                   <div className="text-2xl mt-1 flex items-center">
-                    <span className="text-gray-700 mr-3">Name</span>
+                    <span className="text-gray-700 mr-3">
+                      {
+                        <CopyToClipboard text={receiverId as string}>
+                          <Link href={`/profile/${receiverId}`}>
+                            <span className="text-base transition duration-200 hover:text-red-600 flex items-center cursor-pointer">
+                              {shortAddress(receiverId as string)}{" "}
+                              {<FiCopy size={16} className="ml-3" />}
+                            </span>
+                          </Link>
+                        </CopyToClipboard>
+                      }
+                    </span>
                   </div>
                 </div>
-                <div></div>
+                <div>
+                  <Link href={`/bloods/history`}>
+                    <Button
+                      btnType="button"
+                      title={"History"}
+                      styles={
+                        "block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left mx-auto"
+                      }
+                      handleClick={() => {}}
+                    />
+                  </Link>
+                </div>
               </div>
               <div
                 ref={scroll}

@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-} from "react";
+import { createContext, useContext } from "react";
 import { ethers } from "ethers";
 import { useStateContext } from "./state";
 import { useUserContext } from "./user";
@@ -38,16 +32,18 @@ function getBloodGroupValue(bloodGroup: string) {
 type DefaultValue = {
   addOrganization: (address: string, data: any) => Promise<void>;
   addUserBloodDetails: (bloodDetails: BloodDetails) => Promise<void>;
-  getPouches: () => Promise<any>;
-  getSearchBloods: () => Promise<any>;
-  assignBloodReceiver: (pouchID: string, amount?: string) => Promise<void>;
+  getAvailablePouches: () => Promise<any>;
+  getReceivedPouches: (address: string) => Promise<any>;
+  getMyPouches: (address: string) => Promise<any>;
+  assignBloodReceiver: (pouchID: number, amount?: string) => Promise<void>;
 };
 
 const contextDefaultValue: DefaultValue = {
   addOrganization: async () => {},
   addUserBloodDetails: async () => {},
-  getPouches: async () => [],
-  getSearchBloods: async () => [],
+  getAvailablePouches: async () => [],
+  getReceivedPouches: async () => [],
+  getMyPouches: async () => [],
   assignBloodReceiver: async () => {},
 };
 
@@ -58,20 +54,6 @@ export const DonationContextProvider = ({
 }: ContextProps): JSX.Element => {
   const { connectBloodDonationContract } = useStateContext();
   const { addOrganizationProfile } = useUserContext();
-
-  const handleTransaction = useCallback(
-    async (transactionPromise: Promise<ethers.ContractTransaction>) => {
-      console.log(transactionPromise);
-      // try {
-
-      //   const transactionResponse = await transactionPromise;
-      //   await transactionResponse.wait();
-      // } catch (error: any) {
-      //   console.error(error.message);
-      // }
-    },
-    []
-  );
 
   const addOrganization = async (address: string, data: any) => {
     const contract = await connectBloodDonationContract();
@@ -89,67 +71,86 @@ export const DonationContextProvider = ({
       const contract = await connectBloodDonationContract();
       if (!contract) throw new Error("Contract is not connected.");
 
-      console.log(
-        bloodDetails.pouchID,
-        bloodDetails.donarID,
-        bloodGroupValue,
-        bloodDetails.details
-      );
       const response = await contract.enterBloodDetails(
-        bloodDetails.pouchID,
         bloodDetails.donarID,
         bloodGroupValue,
         bloodDetails.details
       );
-
-      await response.wait();
+      const data = await response.wait();
+      return data;
     } catch (error) {
-      console.log("Add Blood Error", error);
+      console.error("Add Blood Error", error);
     }
   };
 
-  const parseBloodData = (bloodData: any) => ({
-    donarID: bloodData.donorID,
-    pouchID: bloodData.pouchID.toNumber(),
-    organizationID: bloodData.organizationID,
-    receiverID: bloodData.receiverID,
-    bloodGroup: bloodData.bloodGroup,
-    status: bloodData.status,
-  });
-
-  const getPouches = async () => {
+  const getAvailablePouches = async () => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
-    const pouches = await contract.getPouches();
-    return pouches.map(parseBloodData);
-  };
-
-  const getSearchBloods = async () => {
-    const contract = await connectBloodDonationContract();
-    if (!contract) throw new Error("Contract is not connected.");
-    const bloods = await contract.getAvailablePouches();
+    const bloods = await contract.getAllAvailablePouches();
     return bloods.map((bloodData: any) => {
       return {
-        donarID: bloodData.donorID,
         pouchID: bloodData.pouchID.toNumber(),
+        donarID: bloodData.donorID,
         organizationID: bloodData.organizationID,
         bloodGroup: bloodData.bloodGroup,
         status: bloodData.status,
         details: bloodData.details,
+        receiverID: bloodData.receiverID,
         receivedDate: bloodData.receivedDate,
         publishDate: bloodData.publishDate,
       };
     });
   };
 
-  const assignBloodReceiver = async (pouchID: string, amount = "0.002") => {
+  const getReceivedPouches = async (address: string) => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
-    handleTransaction(
-      contract.assignReceiver(pouchID, {
-        value: ethers.utils.parseEther(amount),
-      })
-    );
+    const bloods = await contract.getReceivedPouches(address);
+    return bloods.map((bloodData: any) => {
+      return {
+        pouchID: bloodData.pouchID.toNumber(),
+        donarID: bloodData.donorID,
+        organizationID: bloodData.organizationID,
+        bloodGroup: bloodData.bloodGroup,
+        status: bloodData.status,
+        details: bloodData.details,
+        receiverID: bloodData.receiverID,
+        receivedDate: bloodData.receivedDate,
+        publishDate: bloodData.publishDate,
+      };
+    });
+  };
+
+  const getMyPouches = async (address: string) => {
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+
+    const bloods = await contract.getMyPouches(address);
+
+    return bloods.map((bloodData: any) => {
+      return {
+        pouchID: bloodData.pouchID.toNumber(),
+        donarID: bloodData.donorID,
+        organizationID: bloodData.organizationID,
+        bloodGroup: bloodData.bloodGroup,
+        status: bloodData.status,
+        details: bloodData.details,
+        receiverID: bloodData.receiverID,
+        receivedDate: bloodData.receivedDate,
+        publishDate: bloodData.publishDate,
+      };
+    });
+  };
+
+  const assignBloodReceiver = async (pouchID: number, amount = "0.002") => {
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const response = await contract.assignReceiver(pouchID, {
+      value: ethers.utils.parseEther(amount),
+    });
+
+    const data = await response.wait();
+    return data;
   };
 
   return (
@@ -157,8 +158,9 @@ export const DonationContextProvider = ({
       value={{
         addOrganization,
         addUserBloodDetails,
-        getSearchBloods,
-        getPouches,
+        getAvailablePouches,
+        getReceivedPouches,
+        getMyPouches,
         assignBloodReceiver,
       }}
     >

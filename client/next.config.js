@@ -8,6 +8,14 @@ const nextConfig = {
       "ipfs-2.thirdwebcdn.com",
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://vesselvault-default-rtdb.firebaseio.com//:path*",
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

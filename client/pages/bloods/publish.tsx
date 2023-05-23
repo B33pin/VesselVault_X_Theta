@@ -54,7 +54,7 @@ const AddBloods = (props: Props) => {
       router.push("/bloods/request");
     } catch (error: any) {
       toast.error("Failed to publish blood pouch.");
-      console.log(error.message);
+      console.error(error.message);
     }
 
     setIsLoading(false);
@@ -701,6 +701,8 @@ const AddBloods = (props: Props) => {
         </span>
       </div>
 
+      {isLoading && <TransactionLoader />}
+
       <div className="container mx-auto relative z-20">
         <div className="section-title text-center">
           <h2 className="text-coolGray-900 leading-tight text-4xl lg:text-6xl font-bold mb-4">
@@ -725,7 +727,6 @@ const AddBloods = (props: Props) => {
 
         {isOrganization && (
           <div className="max-w-2xl mx-auto z-10 my-10">
-            {isLoading && <TransactionLoader />}
             <div className="bg-white shadow-lg rounded-md p-6 lg:p-10">
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-wrap-reverse lg:gap-4">

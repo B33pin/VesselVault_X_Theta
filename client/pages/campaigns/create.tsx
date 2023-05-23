@@ -28,7 +28,7 @@ const CreateCampaign = () => {
     title: "",
     description: "",
     target: "",
-    deadline: "",
+    deadlineDate: "",
     image: null,
     video: null,
   });
@@ -54,8 +54,8 @@ const CreateCampaign = () => {
         description: form.description,
         imageId: campaignImageIPfs,
         videoId: campaignImageIPfs,
-        deadlineDate: form.deadline,
         targetAmount: ethers.utils.parseUnits(form.target, 18),
+        deadlineDate: form.deadlineDate,
         donators: [],
         donations: [],
       });
@@ -63,7 +63,7 @@ const CreateCampaign = () => {
       router.push("/campaigns/explore");
     } catch (error: any) {
       toast.error("Failed to create campaign.");
-      console.log(error.message);
+      console.error(error.message);
     }
     setIsLoading(false);
   };

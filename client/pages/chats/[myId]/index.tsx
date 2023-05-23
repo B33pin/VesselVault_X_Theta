@@ -90,8 +90,6 @@ const Chat = () => {
     }
   };
 
-  console.log(messages);
-
   return (
     <div>
       <Head>

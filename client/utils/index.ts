@@ -32,3 +32,20 @@ export const shortAddress = (address: string, initial = 5, ending = 5) => {
 export const validateAddress = (address: string) => {
   return /^(0x)?[0-9a-fA-F]{40}$/.test(address);
 };
+
+export const BloodType: any = {
+  0: "AB+",
+  1: "AB-",
+  2: "A+",
+  3: "A-",
+  4: "B+",
+  5: "B-",
+  6: "O+",
+  7: "O-",
+};
+
+export const BloodStatus: any = {
+  0: "Available",
+  1: "Expired",
+  2: "Received",
+};

@@ -295,7 +295,7 @@ const Navbar = () => {
                         </Link>
                       </li>
 
-                      <hr className="border-gray-200" />
+                      {/* <hr className="border-gray-200" />
                       <li className="relative p-2">
                         <Link
                           href={`/chats/${address}`}
@@ -304,7 +304,7 @@ const Navbar = () => {
                         >
                           My Chats
                         </Link>
-                      </li>
+                      </li> */}
 
                       <hr className="border-gray-400" />
                       <li className="relative p-2">

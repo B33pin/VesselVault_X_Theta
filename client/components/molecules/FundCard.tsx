@@ -62,8 +62,10 @@ const FundCard: React.FC<FundCardProps> = ({
             Raised:
           </p>
           <h4 className="font-semibold text-xl leading-[22px] text-red-600">
-            {collectedAmount}{" "}
-            <span className="text-base">/ {targetAmount}</span>
+            {parseFloat(collectedAmount).toFixed(3)}{" "}
+            <span className="text-sm">
+              / {parseFloat(targetAmount).toFixed(1)} TFUEL
+            </span>
           </h4>
         </div>
       </div>

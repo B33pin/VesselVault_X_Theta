@@ -103,7 +103,7 @@ const EditProfile = () => {
       });
       router.push("/profile/view");
     } catch (error: any) {
-      console.log(error.message);
+      console.error(error.message);
     }
 
     setIsFormLoading(false);

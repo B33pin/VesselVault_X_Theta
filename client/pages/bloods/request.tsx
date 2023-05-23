@@ -2,11 +2,12 @@ import Loader from "@/components/atomic/Loader";
 import TransactionLoader from "@/components/atomic/TransactionLoader";
 import { useDonationContext } from "@/context/donation";
 import { useStateContext } from "@/context/state";
-import { shortAddress } from "@/utils";
+import { BloodStatus, BloodType, shortAddress } from "@/utils";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 
 type Props = {};
 
@@ -15,33 +16,33 @@ const BloodRequest = (props: Props) => {
   const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const [bloods, setBloods] = useState([]);
-  const { getSearchBloods, assignBloodReceiver } = useDonationContext();
+  const { getAvailablePouches, assignBloodReceiver } = useDonationContext();
   const [requestLoading, setRequestLoading] = useState(false);
 
   const fetchBloods = useCallback(async () => {
     setIsLoading(true);
-    const data = await getSearchBloods();
+    const data = await getAvailablePouches();
 
     setBloods(data);
     setIsLoading(false);
-  }, [getSearchBloods]);
+  }, [getAvailablePouches]);
 
   useEffect(() => {
     fetchBloods();
   }, [fetchBloods]);
 
-  const BloodType: any = {
-    1: "AB+",
-    2: "AB-",
-    3: "A+",
-    4: "A-",
-    5: "B+",
-    6: "B-",
-    7: "O+",
-    8: "O-",
+  const handleRequestBlood = async (pouchID: number) => {
+    setRequestLoading(true);
+    try {
+      const res = await assignBloodReceiver(pouchID);
+      toast.success("Blood pouch request successful.");
+      router.push("/profile/history");
+    } catch (error: any) {
+      toast.error("Failed to request blood pouch.");
+      console.error(error.message);
+    }
+    setRequestLoading(false);
   };
-
-  console.log(bloods);
 
   return (
     <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
@@ -679,11 +680,11 @@ const BloodRequest = (props: Props) => {
         </div>
       </div>
 
+      {isLoading && <Loader />}
+      {requestLoading && <TransactionLoader />}
+
       <div className="z-20 relative pt-10 2xl:pt-20">
         <div className="max-w-5xl mx-auto px-4">
-          {isLoading && <Loader />}
-          {requestLoading && <TransactionLoader />}
-
           {!isLoading && bloods.length === 0 && (
             <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
               We regret to inform you that at this time, we do not have any
@@ -706,7 +707,10 @@ const BloodRequest = (props: Props) => {
                       Blood Group
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      Report Status
+                      Status
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Publish Date
                     </th>
                     <th scope="col" className="px-6 py-3">
                       <span className="sr-only">Edit</span>
@@ -727,24 +731,26 @@ const BloodRequest = (props: Props) => {
                           >
                             {blood.pouchID}
                           </th>
-                          <td className="px-6 py-4">
-                            {shortAddress(blood.donarID)}
+                          <td className="px-6 py-4 hover:underline">
+                            <Link href={`/profile/${blood.donarID}`}>
+                              {shortAddress(blood.donarID)}
+                            </Link>
                           </td>
                           <td className="px-6 py-4">
                             {BloodType[blood.bloodGroup as number]}
                           </td>
                           <td className="px-6 py-4">
-                            {blood.bloodReportStatus}
+                            {BloodStatus[blood.status as number]}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Link href={`/profile/${blood.organizationID}`}>
+                              {shortAddress(blood.organizationID)}
+                            </Link>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <button
                               className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                              onClick={async () => {
-                                setRequestLoading(true);
-                                await assignBloodReceiver(blood.pouchID);
-                                setRequestLoading(false);
-                                router.push("/bloods/request");
-                              }}
+                              onClick={() => handleRequestBlood(blood.pouchID)}
                             >
                               Request
                             </button>

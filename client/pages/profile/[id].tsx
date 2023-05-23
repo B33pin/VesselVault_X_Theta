@@ -43,7 +43,6 @@ const Profile = (props: Props) => {
     const fetchUserData = async () => {
       setLoading(true);
       const response = await getUserByAddress(userId as string);
-      console.log(response);
       setGuestUser(response);
       setLoading(false);
     };
@@ -59,8 +58,6 @@ const Profile = (props: Props) => {
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guestUser]);
-
-  console.log(guestUser);
 
   return (
     <div>
@@ -231,7 +228,7 @@ const Profile = (props: Props) => {
                           height={100}
                           className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
                           src={storage.resolveScheme(
-                            guestUser.organizationPhoto
+                            "ipfs://QmQSXDz9sgMkRSRobKCj8dB66t85HuQJYW1J9h3cghtTp8/0"
                           )}
                           alt={guestUser.organizationName}
                         />

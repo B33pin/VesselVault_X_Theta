@@ -1,12 +1,10 @@
 import Button from "@/components/atomic/Button";
 import Loader from "@/components/atomic/Loader";
-import TransactionLoader from "@/components/atomic/TransactionLoader";
 import { useDonationContext } from "@/context/donation";
 import { useStateContext } from "@/context/state";
-import { shortAddress } from "@/utils";
+import { BloodStatus, BloodType, shortAddress } from "@/utils";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FiCopy } from "react-icons/fi";
@@ -14,46 +12,31 @@ import { FiCopy } from "react-icons/fi";
 type Props = {};
 
 const BloodRequest = (props: Props) => {
-  const router = useRouter();
   const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
-  const [pouches, setPouches] = useState([]);
   const [donatedHistory, setDonatedHistory] = useState([]);
   const [receivedHistory, setReceivedHistory] = useState([]);
-  const { assignBloodReceiver, getPouches } = useDonationContext();
-  const [requestLoading, setRequestLoading] = useState(false);
+  const { getMyPouches, getReceivedPouches } = useDonationContext();
 
   const fetchPouches = useCallback(async () => {
     setIsLoading(true);
-    const data = await getPouches();
-    setPouches(data);
-    const filteredDonatedPouches = data.filter((bloodPouch: any) => {
-      if (bloodPouch.donarID === address) return true;
-      return false;
-    });
-    const filteredReceivedPouches = data.filter((bloodPouch: any) => {
-      if (bloodPouch.receiverID === address) return true;
-      return false;
-    });
-    setDonatedHistory(filteredDonatedPouches);
-    setReceivedHistory(filteredReceivedPouches);
+    try {
+      const res1 = await getMyPouches(address as string);
+      setDonatedHistory(res1);
+
+      const res2 = await getReceivedPouches(address as string);
+      setReceivedHistory(res2);
+    } catch (error) {
+      setDonatedHistory([]);
+      setReceivedHistory([]);
+    }
+
     setIsLoading(false);
-  }, [getPouches, address]);
+  }, [getMyPouches, getReceivedPouches, address]);
 
   useEffect(() => {
     fetchPouches();
   }, [address, fetchPouches]);
-
-  const BloodType: any = {
-    1: "AB+",
-    2: "AB-",
-    3: "A+",
-    4: "A-",
-    5: "B+",
-    6: "B-",
-    7: "O+",
-    8: "O-",
-  };
 
   return (
     <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
@@ -691,18 +674,10 @@ const BloodRequest = (props: Props) => {
         </div>
       </div>
 
+      {isLoading && <Loader />}
+
       <div className="z-20 relative pt-10 2xl:pt-20">
         <div className="max-w-5xl mx-auto px-4">
-          {isLoading && <Loader />}
-          {requestLoading && <TransactionLoader />}
-
-          {!isLoading && pouches.length === 0 && (
-            <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
-              We regret to inform you that at this time, we do not have any
-              available blood units for request.
-            </p>
-          )}
-
           {receivedHistory.length > 0 && (
             <div className="pb-5">
               <h2 className="leading-10 text-xl font-bold my-5">
@@ -719,10 +694,10 @@ const BloodRequest = (props: Props) => {
                         Blood Group
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Report Status
+                        Donor ID
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Donor ID
+                        Received Date
                       </th>
                       <th scope="col" className="px-6 py-3">
                         <span className="sr-only">Edit</span>
@@ -731,6 +706,7 @@ const BloodRequest = (props: Props) => {
                   </thead>
                   <tbody>
                     {receivedHistory.map((blood: any, index) => {
+                      const date = new Date(blood.publishDate.toNumber());
                       return (
                         <tr
                           key={index}
@@ -746,15 +722,17 @@ const BloodRequest = (props: Props) => {
                             {BloodType[blood.bloodGroup as number]}
                           </td>
                           <td className="px-6 py-4">
-                            {blood.bloodReportStatus}
-                          </td>
-                          <td className="px-6 py-4">
                             <CopyToClipboard text={blood.donarID}>
                               <span className="text-base transition duration-200 hover:text-red-600 flex items-center cursor-pointer">
                                 {shortAddress(blood.donarID)}{" "}
                                 {<FiCopy size={16} className="ml-3" />}
                               </span>
                             </CopyToClipboard>
+                          </td>
+                          <td className="px-6 py-4">
+                            {`${date.getFullYear()}-${
+                              date.getMonth() + 1
+                            }-${date.getDate()}`}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <Link
@@ -764,11 +742,9 @@ const BloodRequest = (props: Props) => {
                                 btnType="button"
                                 title={"Say Hi!"}
                                 styles={
-                                  "block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
+                                  "block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left mx-auto"
                                 }
-                                handleClick={() => {
-                                  console.log(address, blood.donarID);
-                                }}
+                                handleClick={() => {}}
                               />
                             </Link>
                           </td>
@@ -797,16 +773,23 @@ const BloodRequest = (props: Props) => {
                         Blood Group
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Report Status
+                        Published Date
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Receiver ID
+                        Received
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Receiver
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <span className="sr-only">Edit</span>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {donatedHistory.map((blood: any, index) => {
-                      console.log(blood);
+                      const date = new Date(blood.publishDate.toNumber());
+                      const date2 = new Date(blood.receivedDate.toNumber());
                       return (
                         <tr
                           key={index}
@@ -822,8 +805,19 @@ const BloodRequest = (props: Props) => {
                             {BloodType[blood.bloodGroup as number]}
                           </td>
                           <td className="px-6 py-4">
-                            {blood.bloodReportStatus}
+                            {`${date.getFullYear()}-${
+                              date.getMonth() + 1
+                            }-${date.getDate()}`}
                           </td>
+                          <td className="px-6 py-4">
+                            {blood.receiverID ===
+                            "0x0000000000000000000000000000000000000000"
+                              ? BloodStatus[blood.status as number]
+                              : `${date2.getFullYear()}-${
+                                  date2.getMonth() + 1
+                                }-${date2.getDate()}`}
+                          </td>
+
                           <td className="px-6 py-4">
                             {blood.receiverID !==
                             "0x0000000000000000000000000000000000000000" ? (
@@ -835,6 +829,25 @@ const BloodRequest = (props: Props) => {
                               </CopyToClipboard>
                             ) : (
                               <span>Pending Receiver</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {blood.receiverID !==
+                            "0x0000000000000000000000000000000000000000" ? (
+                              <Link
+                                href={`/chats/${blood.donarID}/${blood.receiverID}`}
+                              >
+                                <Button
+                                  btnType="button"
+                                  title={"Say Hi!"}
+                                  styles={
+                                    "block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left mx-auto"
+                                  }
+                                  handleClick={() => {}}
+                                />
+                              </Link>
+                            ) : (
+                              <span>Pending </span>
                             )}
                           </td>
                         </tr>
