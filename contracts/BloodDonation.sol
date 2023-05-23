@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -104,23 +104,22 @@ contract BloodDonation is ERC20 {
 
     /**
      * @dev Function to enter new blood details
-     * @param _pouchID Unique identifier for the blood pouch
      * @param _donorID The address of the donor
      * @param _bloodGroup The blood group
      * @param _details Additional details about the blood pouch
+     * @return The generated pouch ID
      */
     function enterBloodDetails(
-        uint256 _pouchID,
         address _donorID,
         BloodGroup _bloodGroup,
         string memory _details
-    ) public onlyOrganization {
-        require(_pouches[_pouchID].donorID == address(0), "Pouch ID already used");
+    ) public onlyOrganization returns (uint256) {
+        uint256 pouchID = _pouchCount;
 
         BloodPouch memory newPouch = BloodPouch({
-            pouchID: _pouchID,
+            pouchID: pouchID,
             donorID: _donorID,
-            bloodGroup: BloodGroup(uint256(_bloodGroup)),
+            bloodGroup: _bloodGroup,
             receiverID: address(0),
             organizationID: msg.sender,
             details: _details,
@@ -129,41 +128,42 @@ contract BloodDonation is ERC20 {
             status: BloodStatus.Available
         });
 
-        _pouches[_pouchID] = newPouch;
+        _pouches[pouchID] = newPouch;
         _pouchCount++;
 
         // Mint governance tokens to the donor
         _mint(_donorID, 100 * 10 ** decimals());
+
+        return pouchID;
     }
 
     /**
-     * @dev Function to get the list of available blood pouches
+     * @dev Function to get all available blood pouches
      * @return An array of available blood pouches
      */
-    function getAvailablePouches() public view returns (BloodPouch[] memory) {
-        // BloodPouch[] memory availablePouches = new BloodPouch[](_pouchCount);
-        // uint256 count = 0;
+    function getAllAvailablePouches() public view returns (BloodPouch[] memory) {
+        uint256 count = 0;
 
-        // for (uint256 i = 0; i < _pouchCount; i++) {
-        //     if (_pouches[i].status == BloodStatus.Available) {
-        //         availablePouches[count] = _pouches[i];
-        //         count++;
-        //     }
-        // }
-
-        // BloodPouch[] memory result = new BloodPouch[](count);
-        // for (uint256 i = 0; i < count; i++) {
-        //     result[i] = availablePouches[i];
-        // }
-
-        // return result;
-        BloodPouch[] memory allPouches = new BloodPouch[](_pouchCount);
-
+        // Count the number of available pouches
         for (uint256 i = 0; i < _pouchCount; i++) {
-            allPouches[i] = _pouches[i];
+            if (_pouches[i].status == BloodStatus.Available) {
+                count++;
+            }
         }
 
-        return allPouches;
+        // Create an array to store the available pouches
+        BloodPouch[] memory availablePouches = new BloodPouch[](count);
+        uint256 index = 0;
+
+        // Iterate through the pouches and add the available ones to the array
+        for (uint256 i = 0; i < _pouchCount; i++) {
+            if (_pouches[i].status == BloodStatus.Available) {
+                availablePouches[index] = _pouches[i];
+                index++;
+            }
+        }
+
+        return availablePouches;
     }
 
     /**
@@ -196,22 +196,28 @@ contract BloodDonation is ERC20 {
      * @return An array of blood pouches owned by the address
      */
     function getMyPouches(address _owner) public view returns (BloodPouch[] memory) {
-        BloodPouch[] memory myPouches = new BloodPouch[](_pouchCount);
         uint256 count = 0;
 
+        // Count the number of pouches owned by the address
         for (uint256 i = 0; i < _pouchCount; i++) {
             if (_pouches[i].donorID == _owner) {
-                myPouches[count] = _pouches[i];
                 count++;
             }
         }
 
-        BloodPouch[] memory result = new BloodPouch[](count);
-        for (uint256 i = 0; i < count; i++) {
-            result[i] = myPouches[i];
+        // Create an array to store the pouches owned by the address
+        BloodPouch[] memory myPouches = new BloodPouch[](count);
+        uint256 index = 0;
+
+        // Iterate through the pouches and add the ones owned by the address to the array
+        for (uint256 i = 0; i < _pouchCount; i++) {
+            if (_pouches[i].donorID == _owner) {
+                myPouches[index] = _pouches[i];
+                index++;
+            }
         }
 
-        return result;
+        return myPouches;
     }
 
     /**
@@ -249,7 +255,7 @@ contract BloodDonation is ERC20 {
         uint256 _targetAmount,
         uint256 _deadlineDate
     ) public onlyOrganization returns (uint256) {
-        uint256 id = uint256(keccak256(abi.encodePacked(blockhash(block.number), block.timestamp, _campaignCount)));
+        uint256 id = _campaignCount;
 
         Campaign memory newCampaign = Campaign({
             id: id,
@@ -292,16 +298,17 @@ contract BloodDonation is ERC20 {
     }
 
     /**
-    * @dev Function to get all active campaign details
-    * @return An array of active campaign details
-    */
+     * @dev Function to get all active campaign details
+     * @return An array of active campaign details
+     */
     function getAllActiveCampaigns() public view returns (Campaign[] memory) {
         Campaign[] memory activeCampaigns = new Campaign[](_campaignCount);
         uint256 activeCampaignCount = 0;
 
         for (uint256 i = 0; i < _campaignCount; i++) {
-            if (_campaigns[i].deadlineDate > block.timestamp) {
-                activeCampaigns[activeCampaignCount] = _campaigns[i];
+            Campaign memory campaign = _campaigns[i];
+            if (campaign.deadlineDate > block.timestamp) {
+                activeCampaigns[activeCampaignCount] = campaign;
                 activeCampaignCount++;
             }
         }
@@ -316,22 +323,23 @@ contract BloodDonation is ERC20 {
 
     /**
      * @dev Function to get all campaigns created by the caller (organization)
-     * @return An array of campaign IDs
+     * @return An array of campaigns
      */
-    function getMyCampaigns() public view onlyOrganization returns (uint256[] memory) {
-        uint256[] memory myCampaigns = new uint256[](_campaignCount);
-        uint256 myCampaignCount = 0;
+    function getMyCampaigns() public view onlyOrganization returns (Campaign[] memory) {
+        Campaign[] memory activeCampaigns = new Campaign[](_campaignCount);
+        uint256 activeCampaignCount = 0;
 
         for (uint256 i = 0; i < _campaignCount; i++) {
-            if (_campaigns[i].owner == msg.sender) {
-                myCampaigns[myCampaignCount] = _campaigns[i].id;
-                myCampaignCount++;
+            Campaign memory campaign = _campaigns[i];
+            if (campaign.owner == msg.sender) {
+                activeCampaigns[activeCampaignCount] = campaign;
+                activeCampaignCount++;
             }
         }
 
-        uint256[] memory result = new uint256[](myCampaignCount);
-        for (uint256 i = 0; i < myCampaignCount; i++) {
-            result[i] = myCampaigns[i];
+        Campaign[] memory result = new Campaign[](activeCampaignCount);
+        for (uint256 i = 0; i < activeCampaignCount; i++) {
+            result[i] = activeCampaigns[i];
         }
 
         return result;
@@ -353,7 +361,7 @@ contract BloodDonation is ERC20 {
      * @return donators The donators of the campaign
      * @return donations The donations of the campaign
      * @dev Reverts if the specified campaign ID does not exist
-    */
+     */
     function getCampaign(uint256 _id) public view returns (
         uint256 id,
         address owner,
@@ -394,7 +402,7 @@ contract BloodDonation is ERC20 {
      * @return donators An array of donators' addresses
      * @return donations An array of corresponding donation amounts
      * @dev Reverts if the specified campaign ID does not exist
-    */
+     */
     function getCampaignDonators(uint256 _id) public view returns (address[] memory, uint256[] memory) {
         require(_campaigns[_id].owner != address(0), "The specified campaign ID does not exist");
 
