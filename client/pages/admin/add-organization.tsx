@@ -1,38 +1,86 @@
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import ImageUploading from "react-images-uploading";
 import FormField from "@/components/atomic/FormField";
 import { useDonationContext } from "@/context/donation";
+import { useUserContext } from "@/context/user";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import TransactionLoader from "@/components/atomic/TransactionLoader";
+import { toast } from "react-hot-toast";
 
-const AddGuardian = () => {
+type HandleFormFieldChange = (
+  fieldName: string,
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+) => void;
+
+const AddOrganization = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [address, setAddress] = useState("");
-  const { isGuardian, isGuardianLoading, addGuardianAddress } =
-    useDonationContext();
+  const [form, setForm] = useState<any>({
+    address: "",
+    organizationName: "",
+    organizationDetails: "",
+    organizationPhoto: null,
+    email: "",
+    website: "",
+    phoneNumber: "",
+    country: "",
+    zipCode: "",
+  });
+  const storage = new ThirdwebStorage();
+  const { isAdmin } = useUserContext();
+  const { addOrganization } = useDonationContext();
+
+  const handleFormFieldChange: HandleFormFieldChange = (fieldName, e) => {
+    setForm((prev: any) => ({
+      ...prev,
+      [fieldName]: e.target.value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address) {
+    if (!form.address) {
       return alert("Please enter valid address");
     }
     setIsLoading(true);
-    await addGuardianAddress(address);
+
+    try {
+      const campaignImageIPfs = await storage.upload(form.organizationPhoto[0]);
+
+      await addOrganization(form.address, {
+        organizationName: form.organizationName,
+        organizationDetails: form.organizationDetails,
+        organizationPhoto: campaignImageIPfs,
+        email: form.email,
+        website: form.website,
+        phoneNumber: form.phoneNumber,
+        country: form.country,
+        zipCode: form.zipCode,
+      });
+      toast.success("Organization added successful.");
+      router.push(`/profile/${form.address}`);
+    } catch (error) {
+      toast.error("Failed to add organization.");
+      console.error("Error", error);
+    }
+
     setIsLoading(false);
-    router.push("/")
   };
 
   useEffect(() => {
-    if (!isGuardianLoading && !isGuardian) {
+    if (!isAdmin) {
       router.push("/bloods/request");
     }
-  }, [isGuardian, isGuardianLoading, router, address]);
+  }, [isAdmin, router]);
 
   return (
     <div>
       <Head>
-        <title>Add Guardian | VesselVault</title>
+        <title>Add Organization | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
@@ -40,6 +88,7 @@ const AddGuardian = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
+        {isLoading && <TransactionLoader />}
         <div className="absolute -top-40 left-0 right-0 -z-10">
           <svg
             width="1920"
@@ -645,7 +694,7 @@ const AddGuardian = () => {
         <div className="container mx-auto relative z-20">
           <div className="section-title text-center">
             <h2 className="text-coolGray-900 leading-tight text-4xl lg:text-6xl font-bold mb-4">
-              Add Guardian
+              Add Organization
             </h2>
             <div className="section-breadcrumb flex items-center justify-center">
               <Link
@@ -659,7 +708,7 @@ const AddGuardian = () => {
                 className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
                 href="#"
               >
-                Guardian
+                Organization
               </Link>
             </div>
           </div>
@@ -667,16 +716,178 @@ const AddGuardian = () => {
         <div className="z-20 relative pt-10 2xl:pt-20">
           <div className="max-w-4xl mx-auto px-4">
             <div className="bg-white shadow-md rounded p-6 lg:p-10">
-              <h2 className="text-xl font-bold mb-4">Add Guardian</h2>
+              <h2 className="text-xl font-bold mb-4">Add Organization</h2>
 
               <form onSubmit={handleSubmit}>
+                <div className="flex flex-wrap lg:gap-4">
+                  <div className="mb-4 w-full">
+                    <ImageUploading
+                      value={form.organizationPhoto}
+                      onChange={(imageList: any) => {
+                        setForm((prev: any) => ({
+                          ...prev,
+                          organizationPhoto: imageList,
+                        }));
+                      }}
+                      maxNumber={1}
+                      dataURLKey="data_url"
+                    >
+                      {({
+                        imageList,
+                        onImageUpload,
+                        onImageUpdate,
+                        onImageRemove,
+                        isDragging,
+                        dragProps,
+                      }) => (
+                        <div className="image-upload">
+                          <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                            Image *
+                          </span>
+                          <div className="w-full mt-[10px]">
+                            {imageList.length <= 0 && (
+                              <button
+                                type="button"
+                                onClick={onImageUpload}
+                                className={`flex justify-center items-baseline w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none ${
+                                  isDragging ? "bg-red-200" : "bg-gray-200"
+                                }`}
+                                {...dragProps}
+                              >
+                                <div className="flex items-center justify-center w-full h-full space-x-2">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-6 h-6 text-gray-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                    />
+                                  </svg>
+                                  <span className="font-medium text-gray-600">
+                                    Drop image or
+                                    <span className="text-blue-600 underline ml-2">
+                                      browse
+                                    </span>
+                                  </span>
+                                </div>
+                              </button>
+                            )}
+                            {imageList.map((image, index) => (
+                              <div key={index} className="image-item">
+                                <Image
+                                  src={image["data_url"]}
+                                  alt="Campaign Image"
+                                  width={200}
+                                  height={200}
+                                  className="border rounded-md"
+                                />
+                                <div className="image-item__btn-wrapper">
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageUpdate(index)}
+                                    className="text-blue-500 underline mr-2"
+                                  >
+                                    Update
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageRemove(index)}
+                                    className="text-red-500 underline mr-2"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </ImageUploading>
+                  </div>
+                </div>
+
                 <div className="mb-4">
                   <FormField
-                    labelName="Guardian Address *"
+                    labelName="Organization Address *"
                     placeholder="0xfe....."
                     inputType="text"
-                    value={address}
-                    handleChange={(e) => setAddress(e.target.value)}
+                    value={form.address}
+                    handleChange={(e) => handleFormFieldChange("address", e)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Organization Name *"
+                    placeholder="Your Organization Name"
+                    inputType="text"
+                    value={form.organizationName}
+                    handleChange={(e) =>
+                      handleFormFieldChange("organizationName", e)
+                    }
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Organization Description *"
+                    placeholder="Write about organization"
+                    isTextArea
+                    value={form.organizationDetails}
+                    handleChange={(e) =>
+                      handleFormFieldChange("organizationDetails", e)
+                    }
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Organization Email *"
+                    placeholder="admin@red-cross.com"
+                    inputType="email"
+                    value={form.email}
+                    handleChange={(e) => handleFormFieldChange("email", e)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Organization Website Url *"
+                    placeholder="Organization Url"
+                    inputType="url"
+                    value={form.website}
+                    handleChange={(e) => handleFormFieldChange("website", e)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Organization Phone Number *"
+                    placeholder="Organization Phone Number"
+                    inputType="number"
+                    value={form.phoneNumber}
+                    handleChange={(e) =>
+                      handleFormFieldChange("phoneNumber", e)
+                    }
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Country *"
+                    placeholder="Country"
+                    inputType="text"
+                    value={form.country}
+                    handleChange={(e) => handleFormFieldChange("country", e)}
+                  />
+                </div>
+                <div className="mb-4">
+                  <FormField
+                    labelName="Zip Code *"
+                    placeholder="Zip Code"
+                    inputType="number"
+                    value={form.zipCode}
+                    handleChange={(e) => handleFormFieldChange("zipCode", e)}
                   />
                 </div>
                 <button
@@ -685,7 +896,7 @@ const AddGuardian = () => {
                     isLoading ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
-                  {isLoading ? "Loading" : "Add Guardian"}
+                  {isLoading ? "Loading" : "Add Organization"}
                 </button>
               </form>
             </div>
@@ -696,4 +907,4 @@ const AddGuardian = () => {
   );
 };
 
-export default AddGuardian;
+export default AddOrganization;

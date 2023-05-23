@@ -1,5 +1,6 @@
 import { useUserContext } from "@/context/user";
 import Image from "next/image";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { FaCheck, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { FiCopy } from "react-icons/fi";
 import Head from "next/head";
@@ -12,15 +13,15 @@ import Loader from "@/components/atomic/Loader";
 import CoverImg from "@/assets/cover.webp";
 import Link from "next/link";
 import FormField from "@/components/atomic/FormField";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 type Props = {};
 
 const Profile = (props: Props) => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { address } = useStateContext();
+  const { address, balance } = useStateContext();
   const { user, getUserData } = useUserContext();
+  const storage = new ThirdwebStorage();
   const [form, setForm] = useState({
     username: "",
     bio: "",
@@ -28,14 +29,13 @@ const Profile = (props: Props) => {
     country: "",
     profile: "",
     coverPhoto: "",
-    occupation: "",
+    phoneNumber: "",
     zipCode: "",
     facebookLink: "",
     twitterLink: "",
     instagramLink: "",
   });
-  const storage = new ThirdwebStorage();
-  
+
   useEffect(() => {
     setLoading(true);
     getUserData(address as string);
@@ -50,7 +50,7 @@ const Profile = (props: Props) => {
       ...user,
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   return (
     <div>
@@ -196,7 +196,6 @@ const Profile = (props: Props) => {
               className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
               src={storage.resolveScheme(user.coverPhoto)}
               alt={user.username}
-              style={{ objectFit: "cover" }}
             />
           )}
           {!loading && address && !user.coverPhoto && (
@@ -213,17 +212,25 @@ const Profile = (props: Props) => {
               <div className="flex lg:flex-nowrap items-start -mt-20">
                 <div className="hidden sm:block relative shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="relative flex w-20 lg:w-32 ml-auto mr-auto mb-5">
-                    {user.profile && (
+                    {user.isOrganization && (
+                      <Image
+                        width={100}
+                        height={100}
+                        className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
+                        src={storage.resolveScheme(user.organizationPhoto)}
+                        alt={user.organizationName}
+                      />
+                    )}
+                    {!user.isOrganization && user.profile && (
                       <Image
                         width={100}
                         height={100}
                         className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
                         src={storage.resolveScheme(user.profile)}
                         alt={user.username}
-                        style={{ objectFit: "cover" }}
                       />
                     )}
-                    {!user.profile && (
+                    {!user.isOrganization && !user.profile && (
                       <Image
                         src={"/logo-large.png"}
                         alt={user.username}
@@ -259,9 +266,11 @@ const Profile = (props: Props) => {
                       </span>
                     </CopyToClipboard>
                   </p>
-                  <p className="hidden sm:block text-red-600 text-center my-2 font-bold">
-                    2.4999 ETH
-                  </p>
+                  {balance && (
+                    <p className="hidden sm:block text-red-600 text-center my-2 font-bold">
+                      {parseFloat(balance).toFixed(4)} TFUEL
+                    </p>
+                  )}
                   <p className="hidden sm:block text-gray-600 text-sm text-center my-2 underline uppercase">
                     <Link href="/profile/edit">Update Profile</Link>
                   </p>
@@ -302,9 +311,17 @@ const Profile = (props: Props) => {
                       </span>
                     </a>
                   </div>
-                  <p className="text-gray-600 leading-7 font-normal">
-                    {user.bio}
-                  </p>
+
+                  {user.isOrganization && (
+                    <p className="text-gray-600 leading-7 font-normal">
+                      {user.organizationDetails}
+                    </p>
+                  )}
+                  {!user.isOrganization && user.bio && (
+                    <p className="text-gray-600 leading-7 font-normal">
+                      {user.bio}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="my-5 lg:my-10">
@@ -336,10 +353,10 @@ const Profile = (props: Props) => {
                     <div className="mb-4 w-full lg:flex-1">
                       <FormField
                         disabled
-                        labelName="Occupation *"
-                        placeholder="Doctor"
+                        labelName="Phone Number *"
+                        placeholder="Phone Number"
                         inputType="text"
-                        value={form.occupation}
+                        value={form.phoneNumber}
                         handleChange={(e) => {}}
                       />
                     </div>

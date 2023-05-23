@@ -1,21 +1,108 @@
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  addDoc,
+} from "firebase/firestore";
+import { firebaseConfig } from "@/firebase.config";
+import { useStateContext } from "@/context/state";
 import Head from "next/head";
-import Link from "next/link";
-import React from "react";
+import Image from "next/image";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { FaUser } from "react-icons/fa";
+import { useUserContext } from "@/context/user";
 
-type Props = {};
+const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
 
-const PrivacyPolicy = (props: Props) => {
+const Chat = () => {
+  const { address } = useStateContext();
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const { user } = useUserContext();
+  const scroll = useRef<any>();
+  const storage = new ThirdwebStorage();
+
+  const router = useRouter();
+  const { roomId } = router.query;
+
+  const currentUserID = address;
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    const messagesCollection = collection(
+      firestore,
+      `rooms/${"123-321"}/messages`
+    );
+    const querySnapshot = query(messagesCollection, orderBy("timestamp"));
+
+    const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
+      const messageList: any = [];
+      snapshot.forEach((doc) => {
+        messageList.push(doc.data());
+      });
+      setMessages(messageList);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [roomId]);
+
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (newMessage.trim() === "") {
+      alert("Please enter a valid message");
+      return;
+    }
+
+    const messagesCollection = collection(
+      firestore,
+      `rooms/${"123-321"}/messages`
+    );
+
+    const messagesCollection2 = collection(
+      firestore,
+      `rooms/${"321-123"}/messages`
+    );
+
+    const message = {
+      from: currentUserID,
+      text: newMessage,
+      timestamp: new Date().getTime(),
+    };
+
+    try {
+      await addDoc(messagesCollection, message);
+
+      await addDoc(messagesCollection2, message);
+
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  console.log(messages);
+
   return (
     <div>
       <Head>
-        <title>Privacy Policy | VesselVault</title>
+        <title>My Chats | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <section className="relative mb-5">
+      <section className="xl:pt-10 pb-14 relative">
         <div className="absolute -top-40 left-0 right-0 -z-10">
           <svg
             width="1920"
@@ -141,8 +228,7 @@ const PrivacyPolicy = (props: Props) => {
             </defs>
           </svg>
         </div>
-
-        <div className="absolute z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
+        <div className="absolute -z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
           <span className="animate-1 absolute left-20 bottom-0">
             <svg
               width="101"
@@ -618,358 +704,101 @@ const PrivacyPolicy = (props: Props) => {
             </svg>
           </span>
         </div>
-        <div className="container mx-auto relative z-20">
-          <div className="text-center pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
-            <h2 className="leading-tight text-4xl lg:text-6xl font-bold mb-4">
-              Privacy Policy
-            </h2>
-          </div>
-          <div className="static-contents max-w-4xl mx-auto">
-            <h2>Information of Tokly NFT Marketplace?</h2>
-            <p>
-              Close and homeless, began duck expected can set the it gets given
-              has its didn't ocean. Much not that evening. Way, privilege best
-              by woke thought, he the catch that her maybe phase to and she on
-              worn in written, a led the to concept all was of hotel in you
-              secretly were math a few the other up relieved o'clock the
-              attributing had contracts. It one hundreds at just do an our fully
-              for school to well not four and top like is careful to need many
-              their size didn't its explain and musical to future post necessary
-              six
-            </p>
-            <h3>Information of working</h3>
-            <p>
-              support the however first dream. Theoretically o'clock had the
-              sitting moving very about state are relieved every remote be back
-              and then, decided glanced primarily leasoptions Feedback a the
-              sublime little. Woke a this particular, whenever he top the.
-            </p>
-            <ul>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-              <li>
-                Go to connect wallet page and select which wallet do you want to
-                collect. Click on your choiceable wallet and log in then it’s
-                automateclly connected on your NFT profile dashboard.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Slogging I some son, the queen's who he his this fame, their
-                consideration in said got the feel shudder. And our with client
-                officers. To picture the and when cheating the of support the
-                however first dream.
-              </li>
-            </ul>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <h3>Information of Creating account</h3>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <ul>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-              <li>
-                Go to connect wallet page and select which wallet do you want to
-                collect. Click on your choiceable wallet and log in then it’s
-                automateclly connected on your NFT profile dashboard.
-              </li>
-            </ul>
-            <p>
-              support the however first dream. Theoretically o'clock had the
-              sitting moving very about state are relieved every remote be back
-              and then, decided glanced primarily leasoptions Feedback a the
-              sublime little. Woke a this particular, whenever he top the.
-            </p>
-            <h3>
-              Can i make a credit/debit card or Internet Banking payment through
-              my mobile?
-            </h3>
-            <p>
-              Yes you can. Close and homeless, began duck expected can set the
-              it gets given has its didn't ocean. Much not that evening. Way,
-              privilege best by woke thought, he the catch that her maybe phase
-              to and she on worn in written, a led the to concept all was of
-              hotel in you secretly were math a few the other up relieved
-              o'clock the attributing had contracts. It one hundreds at just do
-              an our fully for school to well not four and top like is careful
-              to need many their size didn't its explain and musical to future
-              post necessary six
-            </p>
-            <h3>Tokly purchase Return policy?</h3>
-            <p>
-              Close and homeless, began duck expected can set the it gets given
-              has its didn't ocean. Much not that evening. Way, privilege best
-              by woke thought, he the catch that her maybe phase to and she on
-              worn in written, a led the to concept all was of hotel in you
-              secretly were math a few the other up relieved o'clock the
-              attributing had contracts. It one hundreds at just do an our fully
-              for school to well not four and top like is careful to need many
-              their size didn't its explain and musical to future post necessary
-              six Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <h2>
-              What is the process of make a credit/debit card or Internet
-              Banking payment through my mobile?
-            </h2>
-            <p>
-              support the however first dream. Theoretically o'clock had the
-              sitting moving very about state are relieved every remote be back
-              and then, decided glanced primarily leasoptions Feedback a the
-              sublime little. Woke a this particular, whenever he top the.
-            </p>
-            <ul>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-            </ul>
-            <h3>How do i pay for a Tokly purchase?</h3>
-            <p>
-              Approached derived explanation twice mouth. Refinements. Their
-              just itch that week destruction. Bedding woman school the and been
-              psychological her that reache follow to would back plainly stick
-              films up worries many the being mechanic. Apparent in clarinet is
-              far sighed. Rationally been live in broad. Was physics the
-              furniture coming for apprehend I him, and a that's read. Really
-              such the salesman if, but the to on that will men, the to variety
-              a listen. From he simplest tone to for world the software for be,
-              frequently overgrown doctor fame, display, length back millions
-              crap bear could degree we.
-            </p>
-            <h3>Information for Pay</h3>
-            <ul>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-            </ul>
-            <p>
-              No of peace doing from that to carpeting suppose one you'd not
-              more checkin one is ensure between of target consider any out
-              phase. A had asking run dressing clues leaving family it front
-              rattling attributing that live late the shut to yet I proportion
-              the don't frequencies scale, something this phase nor the tickets
-              the takes at the home, he voice me. The where one but left the
-              concept the never and project rest into in a to was, rare he'd
-              gilded the for considerable, as attributing yield the titled is
-              what for at whom concept? Were for threw.
-            </p>
-            <h2>Trams &amp; Condition of Tokly NFT Marketplace?</h2>
-            <p>
-              Close and homeless, began duck expected can set the it gets given
-              has its didn't ocean. Much not that evening. Way, privilege best
-              by woke thought, he the catch that her maybe phase to and she on
-              worn in written, a led the to concept all was of hotel in you
-              secretly were math a few the other up relieved o'clock the
-              attributing had contracts. It one hundreds at just do an our fully
-              for school to well not four and top like is careful to need many
-              their size didn't its explain and musical to future post necessary
-              six
-            </p>
-            <h3>Seller Trams &amp; Condition</h3>
-            <p>
-              support the however first dream. Theoretically o'clock had the
-              sitting moving very about state are relieved every remote be back
-              and then, decided glanced primarily leasoptions Feedback a the
-              sublime little. Woke a this particular, whenever he top the.
-            </p>
-            <ul>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-              <li>
-                Go to connect wallet page and select which wallet do you want to
-                collect. Click on your choiceable wallet and log in then it’s
-                automateclly connected on your NFT profile dashboard.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Slogging I some son, the queen's who he his this fame, their
-                consideration in said got the feel shudder. And our with client
-                officers. To picture the and when cheating the of support the
-                however first dream.
-              </li>
-            </ul>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <h3>Buyer and Bidder Trams &amp; Condition</h3>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-            <ul>
-              <li>
-                Tokly NFT Marketplace working system is very easy. Create items,
-                published for auctions bid and sale. Follow the other seller
-                creative work to get idea for high selling concept.
-              </li>
-              <li>
-                If you want to cancel your wallet, go to your profile, select
-                your wallet, then click cancel connet wallet.
-              </li>
-              <li>
-                Connet your wallet to buy or place bid for NFT items. If you are
-                a seller connet your wallet to withdraw your earnings. Go to
-                connet wallet page and connect your wallet easilly.
-              </li>
-              <li>
-                Go to connect wallet page and select which wallet do you want to
-                collect. Click on your choiceable wallet and log in then it’s
-                automateclly connected on your NFT profile dashboard.
-              </li>
-            </ul>
-            <p>
-              support the however first dream. Theoretically o'clock had the
-              sitting moving very about state are relieved every remote be back
-              and then, decided glanced primarily leasoptions Feedback a the
-              sublime little. Woke a this particular, whenever he top the.
-            </p>
-            <h2>Conclusion</h2>
-            <p>
-              Slogging I some son, the queen's who he his this fame, their
-              consideration in said got the feel shudder. And our with client
-              officers. To picture the and when cheating the of support the
-              however first dream. Theoretically o'clock had the sitting moving
-              very about state are relieved every remote be back and then,
-              decided glanced primarily least options have house I on omens,
-              looked value with worthy hand, economics, measures changes
-              literature trusted the music. Ill lady he service, and muff it not
-              parameters he joke. Feedback a the sublime little. Woke a this
-              particular, whenever he top the.
-            </p>
-          </div>
+
+        <div className="max-w-5xl mx-auto px-4">
+          {address && (
+            <div className="flex-1 p:2 sm:p-6 justify-between flex flex-col h-[600px] md:border md:shadow-md rounded-md">
+              <div className="flex sm:items-center justify-between pb-3 border-b-2 border-gray-200">
+                <div className="relative flex items-center space-x-4">
+                  <div className="relative">
+                    {user.profile && (
+                      <Image
+                        width={40}
+                        height={40}
+                        className="rounded-full object-contain border-2 border-red-600"
+                        src={storage.resolveScheme(user.profile)}
+                        alt={user.username}
+                      />
+                    )}
+                    {!user.profile && (
+                      <div className="w-[40px] h-[40px] flex justify-center items-center cursor-pointer rounded-full border-2 border-red-600 bg-red-50">
+                        <FaUser size={20} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-2xl mt-1 flex items-center">
+                    <span className="text-gray-700 mr-3">
+                      {user.username ? user.username : "My Chats"}
+                    </span>
+                  </div>
+                </div>
+                <div></div>
+              </div>
+              <div
+                ref={scroll}
+                id="messages"
+                className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-red scrollbar-thumb-rounded scrollbar-track-red-lighter scrollbar-w-2 scrolling-touch"
+              >
+                {messages.length <= 0 && (
+                  <>
+                    <p className="text-center h-full text-xl">
+                      No Chat History
+                    </p>
+                  </>
+                )}
+                {messages.length > 0 &&
+                  messages.map((message) => {
+                    if (message.from === address) {
+                      return (
+                        <div key={message.id} className="chat-message">
+                          <div className="flex items-end justify-end">
+                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-1 items-end">
+                              <div>
+                                <span className="px-4 py-2 rounded-lg inline-block rounded-br-none bg-red-500 text-white">
+                                  {message.text}
+                                </span>
+                              </div>
+                            </div>
+                            <Image
+                              src="/logo.png"
+                              alt={message.from}
+                              width={40}
+                              height={40}
+                              className="rounded-full order-2 bg-red-100 p-1"
+                            />
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={message.id} className="chat-message">
+                          <div className="flex items-end">
+                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-2 items-start">
+                              <div>
+                                <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">
+                                  {message.text}
+                                </span>
+                              </div>
+                            </div>
+                            <Image
+                              src="/logo.png"
+                              alt={message.from}
+                              width={40}
+                              height={40}
+                              className="rounded-full order-1 bg-red-100 p-1"
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                  })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
   );
 };
 
-export default PrivacyPolicy;
+export default Chat;

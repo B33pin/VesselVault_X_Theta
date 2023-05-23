@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
-import FormField from "@/components/atomic/FormField";
-import Loader from "@/components/atomic/Loader";
 import { useUserContext } from "@/context/user";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import Head from "next/head";
 import Image from "next/image";
-import CoverImg from "@/assets/cover.webp";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import ImageUploading from "react-images-uploading";
 import { FaCheck, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { FiCopy } from "react-icons/fi";
+import Head from "next/head";
 import { useStateContext } from "@/context/state";
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
-import { shortAddress } from "@/utils";
 import { MdDone } from "react-icons/md";
+import { shortAddress } from "@/utils";
+import Loader from "@/components/atomic/Loader";
+import CoverImg from "@/assets/cover.webp";
+import FormField from "@/components/atomic/FormField";
+import { useRouter } from "next/router";
 
 type HandleFormFieldChange = (
   fieldName: string,
@@ -25,16 +26,16 @@ const EditProfile = () => {
   const [loading, setLoading] = useState(false);
   const { user, getUserData, updateProfile } = useUserContext();
   const storage = new ThirdwebStorage();
-  const { address } = useStateContext();
+  const { address, balance } = useStateContext();
   const [isFormLoading, setIsFormLoading] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     username: "",
     bio: "",
     email: "",
     country: "",
-    profile: "",
-    coverPhoto: "",
-    occupation: "",
+    profile: null,
+    coverPhoto: null,
+    phoneNumber: "",
     zipCode: "",
     facebookLink: "",
     twitterLink: "",
@@ -49,8 +50,18 @@ const EditProfile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
+  useEffect(() => {
+    setForm((prev: any) => ({
+      ...prev,
+      ...user,
+      profile: null,
+      coverPhoto: null,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const handleFormFieldChange: HandleFormFieldChange = (fieldName, e) => {
-    setForm((prev) => ({
+    setForm((prev: any) => ({
       ...prev,
       [fieldName]: e.target.value,
     }));
@@ -60,27 +71,36 @@ const EditProfile = () => {
     e.preventDefault();
     setIsFormLoading(true);
 
-    try {
-      const profilePhotoIPfs = await storage.upload(form.profile);
-      const coverPhotoIPfs = await storage.upload(form.coverPhoto);
+    let profilePhotoIPfs = "";
+    let coverPhotoIPfs = "";
 
-      console.log(form);
+    try {
+      if (form.profile) {
+        profilePhotoIPfs = await storage.upload(form.profile[0]);
+      }
+      if (form.coverPhoto) {
+        coverPhotoIPfs = await storage.upload(form.coverPhoto[0]);
+      }
 
       updateProfile({
         id: address as string,
         username: form.username,
         bio: form.bio,
         email: form.email,
+        coverPhoto: coverPhotoIPfs ? coverPhotoIPfs : user.coverPhoto,
+        profile: profilePhotoIPfs ? profilePhotoIPfs : user.profile,
+        phoneNumber: form.phoneNumber,
         country: form.country,
-        profile: profilePhotoIPfs,
-        coverPhoto: coverPhotoIPfs,
-        occupation: form.occupation,
         zipCode: form.zipCode,
         facebookLink: form.facebookLink,
         instagramLink: form.instagramLink,
         twitterLink: form.twitterLink,
+        isOrganization: false,
+        organizationName: "",
+        organizationDetails: "",
+        organizationPhoto: "",
+        website: "",
       });
-
       router.push("/profile/view");
     } catch (error: any) {
       console.log(error.message);
@@ -88,14 +108,6 @@ const EditProfile = () => {
 
     setIsFormLoading(false);
   };
-
-  useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      ...user,
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div>
@@ -241,7 +253,6 @@ const EditProfile = () => {
               className="max-h-60 lg:max-h-96 h-full w-full object-cover rounded"
               src={storage.resolveScheme(user.coverPhoto)}
               alt={user.username}
-              style={{ objectFit: "cover" }}
             />
           )}
           {!loading && address && !user.coverPhoto && (
@@ -258,17 +269,25 @@ const EditProfile = () => {
               <div className="flex lg:flex-nowrap items-start -mt-20">
                 <div className="hidden sm:block shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="card-creator-author flex w-20 lg:w-32 ml-auto mr-auto relative mb-5">
-                    {user.profile && (
+                    {user.isOrganization && (
+                      <Image
+                        width={100}
+                        height={100}
+                        className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
+                        src={storage.resolveScheme(user.organizationPhoto)}
+                        alt={user.organizationName}
+                      />
+                    )}
+                    {!user.isOrganization && user.profile && (
                       <Image
                         width={100}
                         height={100}
                         className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
                         src={storage.resolveScheme(user.profile)}
                         alt={user.username}
-                        style={{ objectFit: "cover" }}
                       />
                     )}
-                    {!user.profile && (
+                    {!user.isOrganization && !user.profile && (
                       <Image
                         src={"/logo-large.png"}
                         alt={user.username}
@@ -304,9 +323,11 @@ const EditProfile = () => {
                       </span>
                     </CopyToClipboard>
                   </p>
-                  <p className="text-red-600 text-center my-2 font-bold">
-                    2.4999 ETH
-                  </p>
+                  {balance && (
+                    <p className="hidden sm:block text-red-600 text-center my-2 font-bold">
+                      {parseFloat(balance).toFixed(4)} TFUEL
+                    </p>
+                  )}
                 </div>
                 <div className="sm:pl-10 pt-28">
                   <h4 className="text-gray-900 text-xl font-medium mb-2">
@@ -384,41 +405,195 @@ const EditProfile = () => {
                 </div>
                 <div className="flex flex-wrap lg:gap-4">
                   <div className="mb-4 w-full lg:flex-1">
-                    <FormField
-                      labelName="Profile Picture *"
-                      placeholder="Place profile picture"
-                      inputType="file"
-                      accept="image/*"
-                      handleChange={(e: any) =>
-                        setForm((prev) => ({
+                    <ImageUploading
+                      value={form.profile}
+                      onChange={(imageList: any) => {
+                        setForm((prev: any) => ({
                           ...prev,
-                          profile: e.target.files[0],
-                        }))
-                      }
-                    />
+                          profile: imageList,
+                        }));
+                      }}
+                      maxNumber={1}
+                      dataURLKey="data_url"
+                    >
+                      {({
+                        imageList,
+                        onImageUpload,
+                        onImageUpdate,
+                        onImageRemove,
+                        isDragging,
+                        dragProps,
+                      }) => (
+                        <div className="image-upload">
+                          <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                            Profile *
+                          </span>
+                          <div className="w-full mt-[10px]">
+                            {imageList.length <= 0 && (
+                              <button
+                                type="button"
+                                onClick={onImageUpload}
+                                className={`flex justify-center items-baseline w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none ${
+                                  isDragging ? "bg-red-200" : "bg-gray-200"
+                                }`}
+                                {...dragProps}
+                              >
+                                <div className="flex items-center justify-center w-full h-full space-x-2">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-6 h-6 text-gray-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                    />
+                                  </svg>
+                                  <span className="font-medium text-gray-600">
+                                    Drop image or
+                                    <span className="text-blue-600 underline ml-2">
+                                      browse
+                                    </span>
+                                  </span>
+                                </div>
+                              </button>
+                            )}
+                            {imageList.map((image, index) => (
+                              <div key={index} className="image-item">
+                                <Image
+                                  src={image["data_url"]}
+                                  alt="Campaign Image"
+                                  width={200}
+                                  height={200}
+                                  className="border rounded-md"
+                                />
+                                <div className="image-item__btn-wrapper">
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageUpdate(index)}
+                                    className="text-blue-500 underline mr-2"
+                                  >
+                                    Update
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageRemove(index)}
+                                    className="text-red-500 underline mr-2"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </ImageUploading>
                   </div>
                   <div className="mb-4 w-full lg:flex-1">
-                    <FormField
-                      labelName="Cover Picture *"
-                      placeholder="Place profile picture"
-                      inputType="file"
-                      accept="image/*"
-                      handleChange={(e: any) =>
-                        setForm((prev) => ({
+                    <ImageUploading
+                      value={form.coverPhoto}
+                      onChange={(imageList: any) => {
+                        setForm((prev: any) => ({
                           ...prev,
-                          coverPhoto: e.target.files[0],
-                        }))
-                      }
-                    />
+                          coverPhoto: imageList,
+                        }));
+                      }}
+                      maxNumber={1}
+                      dataURLKey="data_url"
+                    >
+                      {({
+                        imageList,
+                        onImageUpload,
+                        onImageUpdate,
+                        onImageRemove,
+                        isDragging,
+                        dragProps,
+                      }) => (
+                        <div className="image-upload">
+                          <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                            Cover Image *
+                          </span>
+                          <div className="w-full mt-[10px]">
+                            {imageList.length <= 0 && (
+                              <button
+                                type="button"
+                                onClick={onImageUpload}
+                                className={`flex justify-center items-baseline w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none ${
+                                  isDragging ? "bg-red-200" : "bg-gray-200"
+                                }`}
+                                {...dragProps}
+                              >
+                                <div className="flex items-center justify-center w-full h-full space-x-2">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-6 h-6 text-gray-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                    />
+                                  </svg>
+                                  <span className="font-medium text-gray-600">
+                                    Drop image or
+                                    <span className="text-blue-600 underline ml-2">
+                                      browse
+                                    </span>
+                                  </span>
+                                </div>
+                              </button>
+                            )}
+                            {imageList.map((image, index) => (
+                              <div key={index} className="image-item">
+                                <Image
+                                  src={image["data_url"]}
+                                  alt="Campaign Image"
+                                  width={200}
+                                  height={200}
+                                  className="border rounded-md"
+                                />
+                                <div className="image-item__btn-wrapper">
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageUpdate(index)}
+                                    className="text-blue-500 underline mr-2"
+                                  >
+                                    Update
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => onImageRemove(index)}
+                                    className="text-red-500 underline mr-2"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </ImageUploading>
                   </div>
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelName="Occupation *"
-                    placeholder="Doctor"
+                    labelName="Phone Number *"
+                    placeholder="+977 98......"
                     inputType="text"
-                    value={form.occupation}
-                    handleChange={(e) => handleFormFieldChange("occupation", e)}
+                    value={form.phoneNumber}
+                    handleChange={(e) =>
+                      handleFormFieldChange("phoneNumber", e)
+                    }
                   />
                 </div>
                 <div className="flex flex-wrap lg:gap-4">

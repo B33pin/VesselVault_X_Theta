@@ -1,118 +1,14 @@
+/* eslint-disable react/no-unescaped-entities */
+import HowItWorks from "@/components/molecules/HowItWorks";
 import Head from "next/head";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
-import { FiSend } from "react-icons/fi";
-import { auth, db } from "@/firebase.config";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-import {
-  addDoc,
-  and,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  where,
-} from "firebase/firestore";
-import { shortAddress } from "@/utils";
-import GoogleButton from "react-google-button";
+import Link from "next/link";
+import React from "react";
 
-function SignIn() {
-  const signInWithGoogle = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
-  };
-
-  return (
-    <div className="flex items-center justify-center">
-      <GoogleButton onClick={signInWithGoogle} />
-    </div>
-  );
-}
-
-function SignOut() {
-  return (
-    auth.currentUser && (
-      <button
-        className="block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left text-white"
-        onClick={() => auth.signOut()}
-      >
-        Sign Out
-      </button>
-    )
-  );
-}
-
-type Props = {};
-
-const Chat = (props: Props) => {
-  const router = useRouter();
-  const { donorID, receiverID }: any = router.query || {
-    donorID: "",
-    receiverID: "",
-  };
-  const [user] = useAuthState(auth as any);
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
-  const scroll = useRef<any>();
-
-  useEffect(() => {
-    if (donorID && receiverID) {
-      const q = query(
-        collection(db, "vessel-vault-chats"),
-        // where("donorID", "in", [donorID, receiverID]),
-        // where("receiverID", "in", [donorID, receiverID]),
-        orderBy("timestamp")
-      );
-
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        let messages: any = [];
-        querySnapshot.forEach((doc) => {
-          if (
-            doc.data() &&
-            doc.data().donorID === donorID &&
-            doc.data().receiverID === receiverID
-          ) {
-            messages.push({ ...doc.data(), id: doc.id });
-          }
-        });
-        setMessages(messages);
-      });
-      return () => unsubscribe();
-    }
-  }, [donorID, receiverID]);
-
-  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (message === "") {
-      alert("Please enter a valid message");
-      return;
-    }
-
-    if (user) {
-      const { uid, displayName, photoURL } = user;
-
-      await addDoc(collection(db, "vessel-vault-chats"), {
-        uid,
-        text: message,
-        photoURL: photoURL,
-        username: displayName,
-        donorID: donorID,
-        receiverID: receiverID,
-        timestamp: serverTimestamp(),
-      });
-    }
-    setMessage("");
-    scroll.current.scrollIntoView({ behavior: "smooth" });
-  };
-
+const About = () => {
   return (
     <div>
       <Head>
-        <title>Chats | VesselVault</title>
+        <title>About us | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
@@ -245,7 +141,8 @@ const Chat = (props: Props) => {
             </defs>
           </svg>
         </div>
-        <div className="absolute -z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
+
+        <div className="absolute z-10 hidden xl:block opacity-25 2xl:opacity-100 top-0 bottom-0 right-0 left-0">
           <span className="animate-1 absolute left-20 bottom-0">
             <svg
               width="101"
@@ -721,118 +618,116 @@ const Chat = (props: Props) => {
             </svg>
           </span>
         </div>
-
-        <div className="max-w-5xl mx-auto px-4">
-          {!user && <SignIn />}
-          {user && (
-            <div className="flex-1 p:2 sm:p-6 justify-between flex flex-col h-[600px] md:border md:shadow-md rounded-md">
-              <div className="flex sm:items-center justify-between pb-3 border-b-2 border-gray-200">
-                <div className="relative flex items-center space-x-4">
-                  <div className="relative">
-                    <Image
-                      src="/logo.png"
-                      alt="My profile"
-                      width={40}
-                      height={40}
-                      className="rounded-full order-1 bg-red-100 p-1"
-                    />
-                  </div>
-                  <div className="text-2xl mt-1 flex items-center">
-                    <span className="text-gray-700 mr-3">
-                      {shortAddress(donorID, 8, 5)}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <SignOut />
-                </div>
-              </div>
-              <div
-                ref={scroll}
-                id="messages"
-                className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-red scrollbar-thumb-rounded scrollbar-track-red-lighter scrollbar-w-2 scrolling-touch"
+        <div className="container mx-auto relative z-20">
+          <div className="section-title text-center">
+            <h2 className="text-coolGray-900 leading-tight text-4xl lg:text-6xl font-bold mb-4">
+              About Us
+            </h2>
+            <div className="section-breadcrumb flex items-center justify-center">
+              <Link
+                className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
+                href="/"
               >
-                {messages &&
-                  messages.map((message: any) => {
-                    if (
-                      auth &&
-                      auth.currentUser &&
-                      auth.currentUser.uid === message.uid
-                    ) {
-                      return (
-                        <div key={message.id} className="chat-message">
-                          <div className="flex items-end justify-end">
-                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-1 items-end">
-                              <div>
-                                <span className="px-4 py-2 rounded-lg inline-block rounded-br-none bg-red-500 text-white">
-                                  {message.text}
-                                </span>
-                              </div>
-                            </div>
-                            <Image
-                              src={message.photoURL}
-                              alt={message.username}
-                              title={message.photoURL}
-                              width={40}
-                              height={40}
-                              className="rounded-full order-2 bg-red-100 p-1"
-                            />
-                          </div>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div key={message.id} className="chat-message">
-                          <div className="flex items-end">
-                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-2 items-start">
-                              <div>
-                                <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">
-                                  {message.text}
-                                </span>
-                              </div>
-                            </div>
-                            <Image
-                              src={message.photoURL}
-                              alt={message.username}
-                              title={message.photoURL}
-                              width={40}
-                              height={40}
-                              className="rounded-full order-1 bg-red-100 p-1"
-                            />
-                          </div>
-                        </div>
-                      );
-                    }
-                  })}
-              </div>
-              <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-                <form onSubmit={sendMessage} className="relative flex">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write your message!"
-                    className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-5 bg-gray-200 rounded-md py-3"
-                  />
-                  <div className="absolute right-0 items-center inset-y-0 flex">
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-red-600 hover:bg-red-500 focus:outline-none"
-                    >
-                      <span className="font-bold hidden sm:block mr-2">
-                        Send
-                      </span>
-                      <FiSend size={20} className="" />
-                    </button>
-                  </div>
-                </form>
-              </div>
+                Home
+              </Link>{" "}
+              <span>/</span>
+              <Link
+                className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
+                href="#"
+              >
+                About us
+              </Link>
             </div>
-          )}
+          </div>
+        </div>
+        <div className="z-20 relative pt-10 2xl:pt-20">
+          <div className="max-w-5xl mx-auto px-4">
+            <p className="text-center text-xl text-gray-600">
+              VesselVault is a revolutionizing blood donation with a transparent
+              and reliable blood bank tracking system. Using advanced blockchain
+              technology, we ensure fair blood distribution and empower donors
+              with valuable information. Join us in creating a supportive
+              community and making a meaningful impact on lives. Together,
+              let&apos;s save lives with VesselVault.
+            </p>
+          </div>
+
+          <div>
+            <HowItWorks />
+          </div>
+
+          <div className="container my-5">
+            <h3 className="text-xl md:text-3xl mb-3">
+              How is VesselVault different from traditional bloood donation
+              program?
+            </h3>
+
+            <ul className="py-3">
+              <li className="my-3 text-lg text-gray-600">
+                1. Donors in the traditional system lack knowledge about the
+                usage of their donated blood. By providing real-time updates and
+                maintaining a transparent record, VesselVault ensures that
+                donors can see the direct impact of their contribution,
+                fostering a stronger connection between donors and
+                recipients.This significant difference instills trust and
+                confidence in the donation process.
+              </li>
+              <li className="my-3 text-lg text-gray-600">
+                2. In today's traditional blood donation programs, there can be
+                variations in the cost of requested blood. However, VesselVault
+                ensures equal access to blood pouches for everyone, regardless
+                of their financial status. In our platform, every individual is
+                provided with the same opportunity to receive the blood they
+                need, fostering a sense of equality and fairness. We believe
+                that access to life-saving blood should not be determined by
+                one's wealth.
+              </li>
+            </ul>
+          </div>
+
+          <div className="container my-5">
+            <h3 className="text-xl md:text-3xl mb-3">What is campaign?</h3>
+
+            <p className="py-3 text-lg text-gray-600">
+              Campaign is a facility within VesselVault that enables individuals
+              who are unable to donate blood due to various complications to
+              provide financial support to blood donation programs. The funds
+              contributed through the campaign are utilized by guardians to
+              cover expenses such as blood test costs, blood storage fees, and
+              maintenance expenses. This financial support plays a crucial role
+              in reducing the overall cost of blood, ensuring that everyone has
+              access to affordable life-saving resources for themselves and
+              their loved ones.
+            </p>
+          </div>
+
+          <div className="container my-5">
+            <h3 className="text-xl md:text-3xl mb-3">Features</h3>
+
+            <ul className="py-3">
+              <li className="my-3 text-lg text-gray-600">
+                1. <strong>Easy Registration:</strong> A simple sign-up process
+                for both donors and recipients.
+              </li>
+              <li className="my-3 text-lg text-gray-600">
+                2. <strong>Blood Pouch Tracking:</strong> A system that follows
+                the journey of donated blood from the donor to the recipient.
+              </li>
+              <li className="my-3 text-lg text-gray-600">
+                3. <strong>Human Connections:</strong> A platform that allows
+                donors and recipients to communicate and support each other.
+              </li>
+              <li className="my-3 text-lg text-gray-600">
+                3. <strong>Encouraging Blood Donation:</strong> A transparent
+                and trustworthy platform that motivates more people to donate
+                blood.
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
     </div>
   );
 };
 
-export default Chat;
+export default About;

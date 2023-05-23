@@ -2,6 +2,7 @@ import { CampaignType } from "@/@types/CampaignType";
 import Loader from "@/components/atomic/Loader";
 import FundCard from "@/components/molecules/FundCard";
 import { useCampaignContext } from "@/context/campaign";
+import { useStateContext } from "@/context/state";
 import Head from "next/head";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -10,19 +11,21 @@ type Props = {};
 
 const Explore = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { address } = useStateContext();
   const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
   const { getCampaigns } = useCampaignContext();
 
-  const fetchCampaigns = async () => {
-    setIsLoading(true);
-    const data = await getCampaigns();
-    setCampaigns(data);
-    setIsLoading(false);
-  };
-
   useEffect(() => {
+    const fetchCampaigns = async () => {
+      setIsLoading(true);
+      const data = await getCampaigns();
+      setCampaigns(data);
+      setIsLoading(false);
+    };
+
     fetchCampaigns();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   return (
     <div>
@@ -664,7 +667,7 @@ const Explore = (props: Props) => {
             <div className="mt-[20px]">
               {isLoading && <Loader />}
 
-              {!isLoading && campaigns && campaigns.length === 0 && (
+              {!isLoading && campaigns.length === 0 && (
                 <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
                   We apologize for the inconvenience, but currently, there are
                   no ongoing campaigns available for blood donation.
@@ -674,19 +677,17 @@ const Explore = (props: Props) => {
               <div className="flex flex-wrap">
                 {!isLoading &&
                   campaigns.length > 0 &&
-                  campaigns.map((campaign, index) => {
+                  campaigns.map((campaign) => {
                     return (
-                      <>
-                        <Link
-                          key={index}
-                          href={{
-                            pathname: `/campaigns/${campaign.id}`,
-                          }}
-                          className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
-                        >
-                          <FundCard wrapperClass="m-3" {...campaign} />
-                        </Link>
-                      </>
+                      <Link
+                        key={campaign.id}
+                        href={{
+                          pathname: `/campaigns/${campaign.id}`,
+                        }}
+                        className="w-full sm:w-1/2 lg:w-1/3 xl:w-1/4"
+                      >
+                        <FundCard wrapperClass="m-3" {...campaign} />
+                      </Link>
                     );
                   })}
               </div>

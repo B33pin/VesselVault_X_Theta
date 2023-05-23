@@ -10,23 +10,27 @@ import DisplayCampaigns from "@/components/organism/DisplayCampaigns";
 import Link from "next/link";
 import CreatorsList from "@/components/organism/CreatorsList";
 import RequestBloods from "@/components/organism/RequestBloods";
-import { CampaignType } from "@/@types/CampaignType";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useStateContext();
-  const [campaigns, setCampaigns] = useState<CampaignType[]>([]);
+  const [campaigns, setCampaigns] = useState([]);
+
   const { getCampaigns } = useCampaignContext();
 
-  const fetchCampaigns = async () => {
-    setIsLoading(true);
-    const data = await getCampaigns();
-    setCampaigns(data);
-    setIsLoading(false);
-  };
-
   useEffect(() => {
-    fetchCampaigns();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const campaigns = await getCampaigns();
+        setCampaigns(campaigns);
+      } catch (error) {
+        console.error("Failed to fetch campaigns:", error);
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,72 +1,94 @@
-import React, { useState, useEffect, useCallback } from "react";
-import User from "@/assets/user.jpg";
-import { useRouter } from "next/router";
-import { calculateBarPercentage, daysLeft, shortAddress } from "@/utils";
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
+import CopyToClipboard from "react-copy-to-clipboard";
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  InstapaperShareButton,
+} from "react-share";
+import { ethers } from "ethers";
+import { useRouter } from "next/router";
+import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FiCopy } from "react-icons/fi";
+import { MdDone } from "react-icons/md";
+import { FcClock } from "react-icons/fc";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { calculateBarPercentage, shortAddress } from "@/utils";
 import { useCampaignContext } from "@/context/campaign";
 import Loader from "@/components/atomic/Loader";
 import TransactionLoader from "@/components/atomic/TransactionLoader";
-import Head from "next/head";
 import { CampaignType } from "@/@types/CampaignType";
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
-import CopyToClipboard from "react-copy-to-clipboard";
-import { FiCopy } from "react-icons/fi";
-import { MdDone } from "react-icons/md";
 import FormField from "@/components/atomic/FormField";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import { useStateContext } from "@/context/state";
+import User from "@/assets/user.jpg";
+import { useUserContext } from "@/context/user";
+import useCountdown from "@/hooks/useTimer";
 
 const CampaignDetails = () => {
   const router = useRouter();
-  const slug: any = router.query.slug || "";
+  const id: any = router.query.id || "";
   const [copied, setCopied] = useState(false);
-  const { address } = useStateContext();
-  const { donate, getDonations, getCampaign } = useCampaignContext();
+  const { donate, getDonatorsList, getCampaign } = useCampaignContext();
+  const { getUserByAddress } = useUserContext();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTransaction, setLoadingTransaction] = useState(false);
   const [amount, setAmount] = useState("");
   const [checked, setChecked] = useState(false);
-  const storage = new ThirdwebStorage();
   const [donators, setDonators] = useState<
     { donator: string; donation: string }[]
   >([]);
   const [campaign, setCampaign] = useState<CampaignType | null>(null);
+  const [organizationData, setOrganizationData] = useState<any>(null);
+  const storage = new ThirdwebStorage();
+  const [days, hours, minutes, seconds] = useCountdown(
+    campaign?.deadlineDate.toNumber()
+  );
+
+  const leftDays = `${days}:${("0" + hours).slice(-2)}:${("0" + minutes).slice(
+    -2
+  )}:${("0" + seconds).slice(-2)}`;
 
   const handleDonate = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     setLoadingTransaction(true);
     if (campaign) {
-      
+      if (!amount || parseFloat(amount) <= 0) {
+        alert("Enter a valid fund.");
+      } else {
         await donate(campaign.id, amount);
-      
+        router.push("/");
+      }
     }
 
     setLoadingTransaction(false);
   };
 
-  const fetchData = useCallback(
-    async (id: string) => {
-      const campaignData = await getCampaign(id);
-      const donationsData = await getDonations(id);
+  useEffect(() => {
+    const fetchData = async (campaignAddress: string) => {
+      setIsLoading(true);
+      const campaignData = await getCampaign(campaignAddress);
+      const donatorsData = await getDonatorsList(campaignAddress);
+      const organizerData = await getUserByAddress(campaignData.owner);
 
       setCampaign(campaignData);
-      setDonators(donationsData);
-    },
-    [getCampaign, getDonations]
-  );
+      setDonators(donatorsData);
+      setOrganizationData(organizerData);
+      setIsLoading(false);
+    };
 
-  useEffect(() => {
-    setIsLoading(true);
-    if (address) {
-      fetchData(slug as string);
+    if (id) {
+      fetchData(id as string);
     }
-    setIsLoading(false);
-  }, [fetchData, address, slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   return (
     <div>
       <Head>
-        <title>{campaign?.title && `${campaign?.title} | `} VesselVault</title>
+        <title>
+          {campaign?.title ? `${campaign?.title} | VesselVault` : "VesselVault"}
+        </title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
@@ -691,24 +713,30 @@ const CampaignDetails = () => {
                   <span className="text-gray-600 font-bold text-sm mr-3">
                     SHARE :
                   </span>
-                  <a
-                    className="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white"
-                    href="#"
-                  >
-                    <FaFacebookF size={16} />
-                  </a>
-                  <a
-                    className="flex items-center justify-center w-8 h-8 bg-orange-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white"
-                    href="#"
-                  >
-                    <FaInstagram size={16} />
-                  </a>
-                  <a
-                    className="flex items-center justify-center w-8 h-8  bg-sky-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white"
-                    href="#"
-                  >
-                    <FaTwitter size={16} />
-                  </a>
+
+                  <div className="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white">
+                    <FacebookShareButton
+                      url={`${window.location.origin}/${window.location.pathname}`}
+                    >
+                      <FaFacebookF size={16} />
+                    </FacebookShareButton>
+                  </div>
+
+                  <div className="flex items-center justify-center w-8 h-8 bg-orange-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white">
+                    <InstapaperShareButton
+                      url={`${window.location.origin}/${window.location.pathname}`}
+                    >
+                      <FaInstagram size={16} />
+                    </InstapaperShareButton>
+                  </div>
+
+                  <div className="flex items-center justify-center w-8 h-8  bg-sky-500 rounded-full transition-all duration-500 hover:bg-red-500 mr-2 text-white">
+                    <TwitterShareButton
+                      url={`${window.location.origin}/${window.location.pathname}`}
+                    >
+                      <FaTwitter size={16} />
+                    </TwitterShareButton>
+                  </div>
                 </div>
               </>
             )}
@@ -716,10 +744,10 @@ const CampaignDetails = () => {
             {campaign && (
               <div className="w-full flex lg:flex-row flex-col my-4 gap-[30px]">
                 <div className="flex-1 flex-col">
-                  <div className="w-full h-full">
-                    {campaign.video ? (
+                  <div className="w-full h-full relative">
+                    {campaign.videoId ? (
                       <iframe
-                        src={`https://player.thetavideoapi.com/video/${campaign.video}`}
+                        src={`https://player.thetavideoapi.com/video/${campaign.videoId}`}
                         width="100%"
                         height="100%"
                         style={{ maxHeight: "60vh", minHeight: "300px" }}
@@ -731,9 +759,15 @@ const CampaignDetails = () => {
                         width={1400}
                         height={800}
                         className="h-[auto] sm:h-[400px] md:h-[600px] lg:h-[800px] w-[100%] rounded-md overflow-hidden"
-                        alt="title"
-                        src={storage.resolveScheme(campaign.thumbnail)}
+                        src={"/logo.png"}
+                        alt={campaign?.title}
                       />
+                    )}
+                    {campaign.deadlineDate.toNumber() && (
+                      <div className="bg-white rounded-md absolute bottom-5 md:bottom-10 right-5 px-2 py-0.5 text-red-600 flex items-center justify-center text-lg md:text-2xl">
+                        <FcClock size={20} />{" "}
+                        <span className="ml-2">{leftDays}</span>
+                      </div>
                     )}
                   </div>
 
@@ -741,7 +775,10 @@ const CampaignDetails = () => {
                     <div
                       className="absolute h-full bg-[#4acd8d] rounded-md"
                       style={{
-                        width: `${calculateBarPercentage(100, 85)}%`,
+                        width: `${calculateBarPercentage(
+                          campaign.targetAmount,
+                          campaign.collectedAmount
+                        )}%`,
                         maxWidth: "100%",
                       }}
                     ></div>
@@ -753,7 +790,7 @@ const CampaignDetails = () => {
         </div>
         <div className="container">
           {campaign && (
-            <div className="mt-10 flex lg:flex-row flex-col gap-5">
+            <div className="mt-10 flex lg:flex-row flex-col-reverse gap-8 md:gap-10">
               <div className="flex-[2] flex flex-col gap-[40px]">
                 <div>
                   <h4 className="font-semibold text-[18px] uppercase">
@@ -761,12 +798,29 @@ const CampaignDetails = () => {
                   </h4>
 
                   <div className="mt-[20px] flex flex-row items-center flex-wrap gap-[14px]">
-                    <div className="w-[52px] h-[52px] flex items-center justify-center rounded-full bg-[#2c2f32] cursor-pointer">
-                      <Image
-                        src={User}
-                        alt="user"
-                        className="w-[60%] h-[60%] object-contain"
-                      />
+                    <div className="w-[80px] h-[80px] flex items-center justify-center rounded-full bg-[#2c2f32] cursor-pointer">
+                      <Link
+                        href={`/profile/${organizationData.id}`}
+                        className="text-blue-600 text-sm hover:underline"
+                      >
+                        {organizationData ? (
+                          <Image
+                            src={storage.resolveScheme(
+                              organizationData.profile
+                            )}
+                            alt="user"
+                            width={120}
+                            height={120}
+                            className="rounded-full object-contain"
+                          />
+                        ) : (
+                          <Image
+                            src={User}
+                            alt="user"
+                            className="rounded-full object-contain"
+                          />
+                        )}
+                      </Link>
                     </div>
                     <div>
                       <h4 className="font-semibold text-[14px] break-all">
@@ -780,12 +834,18 @@ const CampaignDetails = () => {
                           }}
                         >
                           <span className="font-bold uppercase text-base transition duration-200 hover:text-red-600 flex items-center cursor-pointer">
-                            {shortAddress(campaign.owner)}{" "}
+                            {shortAddress(campaign.owner, 8, 5)}{" "}
                             {!copied && <FiCopy size={16} className="ml-3" />}
                             {copied && <MdDone size={16} className="ml-3" />}
                           </span>
                         </CopyToClipboard>
                       </h4>
+                      <Link
+                        href={`/profile/${organizationData.id}`}
+                        className="text-blue-600 text-sm hover:underline"
+                      >
+                        View Profile
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -802,7 +862,7 @@ const CampaignDetails = () => {
 
                 <div>
                   <h4 className="font-semibold text-[18px] uppercase">
-                    Donators
+                    Donators ({donators.length})
                   </h4>
 
                   <div className="mt-[20px] flex flex-col gap-4">
@@ -812,16 +872,16 @@ const CampaignDetails = () => {
                           key={`${item.donator}-${index}`}
                           className="flex justify-between items-center gap-4"
                         >
-                          <p className="font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">
-                            {index + 1}. {item.donator}
+                          <p className="font-bold text-[16px] text-gray-600 leading-[26px] break-ll">
+                            {index + 1}. {shortAddress(item.donator, 8, 5)}{" "}
                           </p>
-                          <p className="font-normal text-[16px] text-[#808191] leading-[26px] break-ll">
-                            {item.donation}
+                          <p className="font-bold text-[16px] text-red-600 leading-[26px] break-ll">
+                            {item.donation} TFUEL
                           </p>
                         </div>
                       ))
                     ) : (
-                      <p className="font-normal text-[16px] text-[#808191] leading-[26px] text-justify">
+                      <p className="font-bold text-[18px] text-[#808191] leading-[26px] text-justify">
                         No donators yet. Be the first one!
                       </p>
                     )}
@@ -839,11 +899,28 @@ const CampaignDetails = () => {
                     us in making a difference and give hope to those in need.
                   </p>
 
+                  <div className="flex flex-wrap gap-2 my-5">
+                    <p className="mt-[3px] font-normal text-base leading-[18px]  sm:max-w-[120px] truncate">
+                      Raised:
+                    </p>
+                    <h4 className="font-semibold text-xl leading-[22px] text-red-600">
+                      {ethers.utils.formatEther(
+                        campaign.collectedAmount.toString()
+                      )}
+                      <span className="text-base">
+                        /{" "}
+                        {ethers.utils.formatEther(
+                          campaign.targetAmount.toString()
+                        )}
+                      </span>
+                    </h4>
+                  </div>
+
                   <form onSubmit={handleDonate}>
                     <div className="mb-4 select-none">
                       <FormField
                         labelName=""
-                        placeholder="0.05 ETH"
+                        placeholder={`Donate 100 TFUEL`}
                         inputType="number"
                         value={amount}
                         handleChange={(e) => setAmount(e.target.value)}

@@ -1,37 +1,54 @@
-"use client";
-
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import { ethers } from "ethers";
 import { useStateContext } from "./state";
+import { useUserContext } from "./user";
 
 type ContextProps = {
   children: React.ReactNode;
 };
 
+type BloodDetails = {
+  pouchID: number;
+  donarID: string;
+  bloodGroup: string;
+  details: string;
+};
+
+function getBloodGroupValue(bloodGroup: string) {
+  const bloodGroupMap: any = {
+    A_positive: 0,
+    A_negative: 1,
+    B_positive: 2,
+    B_negative: 3,
+    AB_positive: 4,
+    AB_negative: 5,
+    O_positive: 6,
+    O_negative: 7,
+  };
+
+  return bloodGroupMap[bloodGroup as any];
+}
+
 type DefaultValue = {
-  addGuardianAddress: (address: string) => Promise<void>;
-  addUserBloodDetails: (bloodDetails: any) => Promise<any>;
-  getSearchBloods: () => Promise<any>;
+  addOrganization: (address: string, data: any) => Promise<void>;
+  addUserBloodDetails: (bloodDetails: BloodDetails) => Promise<void>;
   getPouches: () => Promise<any>;
-  isGuardian: boolean;
-  isGuardianLoading: boolean;
-  assignBloodReceiver: (pouchID: string, amount?: string) => Promise<any>;
+  getSearchBloods: () => Promise<any>;
+  assignBloodReceiver: (pouchID: string, amount?: string) => Promise<void>;
 };
 
 const contextDefaultValue: DefaultValue = {
-  addGuardianAddress: (string) => Promise.resolve(),
-  addUserBloodDetails: (bloodDetails) => Promise.resolve(),
-  getSearchBloods: () => Promise.resolve(),
-  getPouches: () => Promise.resolve(),
-  isGuardian: false,
-  isGuardianLoading: true,
-  assignBloodReceiver: (pouchID, amount) => Promise.resolve(),
+  addOrganization: async () => {},
+  addUserBloodDetails: async () => {},
+  getPouches: async () => [],
+  getSearchBloods: async () => [],
+  assignBloodReceiver: async () => {},
 };
 
 const DonationContext = createContext(contextDefaultValue);
@@ -39,115 +56,109 @@ const DonationContext = createContext(contextDefaultValue);
 export const DonationContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const {connectToContract, signer, address} = useStateContext()
-    const [isGuardian, setIsGuardian] = useState(false);
-    const [isGuardianLoading, setIsGuardianLoading] = useState(true);
+  const { connectBloodDonationContract } = useStateContext();
+  const { addOrganizationProfile } = useUserContext();
 
-  const addGuardianAddress = async (address: string) => {
-    try {
-      const contract = await connectToContract();
-      const response = await contract.addGuardian(address)
-      await response.wait();
+  const handleTransaction = useCallback(
+    async (transactionPromise: Promise<ethers.ContractTransaction>) => {
+      console.log(transactionPromise);
+      // try {
 
-      console.log("guardian address added");
-    } catch (error) {
-      alert(JSON.stringify(error));
-      console.error("guardian address failed", error);
-    }
+      //   const transactionResponse = await transactionPromise;
+      //   await transactionResponse.wait();
+      // } catch (error: any) {
+      //   console.error(error.message);
+      // }
+    },
+    []
+  );
+
+  const addOrganization = async (address: string, data: any) => {
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const response = await contract.addOrganization(address);
+
+    addOrganizationProfile(address, data);
+
+    await response.wait();
   };
 
-  const addUserBloodDetails = async (bloodDetails: any) => {
+  const addUserBloodDetails = async (bloodDetails: BloodDetails) => {
     try {
-      const contract = await connectToContract();
-      const response = await contract.enterBloodDetails( 
+      const bloodGroupValue = getBloodGroupValue(bloodDetails.bloodGroup);
+      const contract = await connectBloodDonationContract();
+      if (!contract) throw new Error("Contract is not connected.");
+
+      console.log(
         bloodDetails.pouchID,
         bloodDetails.donarID,
-        bloodDetails.zipCode,
-        bloodDetails.bloodReportStatus,
-        bloodDetails.bloodGroup,)
-      await response.wait();
+        bloodGroupValue,
+        bloodDetails.details
+      );
+      const response = await contract.enterBloodDetails(
+        bloodDetails.pouchID,
+        bloodDetails.donarID,
+        bloodGroupValue,
+        bloodDetails.details
+      );
 
-      console.log("Blood Details Added");
-    } catch (error: any) {
-      alert(JSON.stringify(error));
-      console.error("Blood Details failed", error.message);
+      await response.wait();
+    } catch (error) {
+      console.log("Add Blood Error", error);
     }
   };
 
+  const parseBloodData = (bloodData: any) => ({
+    donarID: bloodData.donorID,
+    pouchID: bloodData.pouchID.toNumber(),
+    organizationID: bloodData.organizationID,
+    receiverID: bloodData.receiverID,
+    bloodGroup: bloodData.bloodGroup,
+    status: bloodData.status,
+  });
+
   const getPouches = async () => {
-    const contract = await connectToContract();
-      const pouches = await contract.getPouches();
-
-    const parsedPouches = pouches.map((blood: any) => {
-      return {
-        donarID: blood.donorID,
-        pouchID: blood.pouchID.toNumber(),
-        guardianID: blood.donorID,
-        receiverID: blood.receiverID,
-        bloodGroup: blood.bloodGroup,
-        donorZipCode: blood.donorZipCode.toNumber(),
-        bloodReportStatus: blood.bloodReportStatus,
-      };
-    });
-
-    return parsedPouches;
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const pouches = await contract.getPouches();
+    return pouches.map(parseBloodData);
   };
 
   const getSearchBloods = async () => {
-    const contract = await connectToContract();
-      const bloods = await contract.searchBlood();
-
-    const parsedBloods = bloods.map((blood: any) => {
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const bloods = await contract.getAvailablePouches();
+    return bloods.map((bloodData: any) => {
       return {
-        donarID: blood.donorID,
-        pouchID: blood.pouchID.toNumber(),
-        bloodGroup: blood.bloodGroup,
-        donorZipCode: blood.donorZipCode.toNumber(),
-        bloodReportStatus: blood.bloodReportStatus,
-        receiverID: blood.receiverID,
+        donarID: bloodData.donorID,
+        pouchID: bloodData.pouchID.toNumber(),
+        organizationID: bloodData.organizationID,
+        bloodGroup: bloodData.bloodGroup,
+        status: bloodData.status,
+        details: bloodData.details,
+        receivedDate: bloodData.receivedDate,
+        publishDate: bloodData.publishDate,
       };
     });
-    return parsedBloods;
   };
 
-  const assignBloodReceiver = async (
-    pouchID: string,
-    amount = "0.002"
-  ): Promise<any> => {
-    const contract = await connectToContract();
-      const response = await contract.connect(signer).assignReceiver(pouchID, {
-      value: ethers.utils.parseEther(amount),
-    });
-
-    await response.wait();
-
-    console.log("Blood Assigned")
+  const assignBloodReceiver = async (pouchID: string, amount = "0.002") => {
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    handleTransaction(
+      contract.assignReceiver(pouchID, {
+        value: ethers.utils.parseEther(amount),
+      })
+    );
   };
-
-  const fetchIsGuardian = useCallback(async (address: string) => {
-    const contract = await connectToContract();
-    const guardianStatus = await contract.isGuardian(address)
-      setIsGuardian(guardianStatus);
-    },[]);
-  
-
-  useEffect(() => {
-    setIsGuardianLoading(true);
-    if (address) {
-      fetchIsGuardian(address);
-    }
-    setIsGuardianLoading(false);
-  }, [address, fetchIsGuardian]);
 
   return (
     <DonationContext.Provider
       value={{
-        addGuardianAddress,
+        addOrganization,
         addUserBloodDetails,
         getSearchBloods,
         getPouches,
-        isGuardian,
-        isGuardianLoading,
         assignBloodReceiver,
       }}
     >

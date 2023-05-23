@@ -28,3 +28,7 @@ export const slugify = (text: string): string => {
 export const shortAddress = (address: string, initial = 5, ending = 5) => {
   return address.slice(0, initial) + "..." + address.slice(-ending);
 };
+
+export const validateAddress = (address: string) => {
+  return /^(0x)?[0-9a-fA-F]{40}$/.test(address);
+};

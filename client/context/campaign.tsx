@@ -7,137 +7,133 @@ type ContextProps = {
   children: React.ReactNode;
 };
 
-type DefaultValue = {
+type CampaignContextValue = {
   createCampaign: (form: CampaignType) => Promise<void>;
   getCampaigns: () => Promise<any>;
   getCampaign: (id: string) => Promise<any>;
   getUserCampaigns: () => Promise<any>;
   donate: (id: string, amount: string) => Promise<any>;
-  getDonations: (
+  getDonatorsList: (
     id: string
   ) => Promise<{ donator: string; donation: string }[]>;
 };
 
-const contextDefaultValue: DefaultValue = {
-  createCampaign: (form) => Promise.resolve(),
-  getCampaigns: () => Promise.resolve(),
-  getCampaign: () => Promise.resolve(),
-  getUserCampaigns: () => Promise.resolve(),
-  donate: () => Promise.resolve(),
-  getDonations: () => Promise.resolve([{ donator: "", donation: "" }]),
-};
-
-const CampaignContext = createContext(contextDefaultValue);
+const CampaignContext = createContext<CampaignContextValue>({
+  createCampaign: async () => {},
+  getCampaigns: async () => [],
+  getCampaign: async () => null,
+  getUserCampaigns: async () => [],
+  donate: async () => {},
+  getDonatorsList: async () => [],
+});
 
 export const CampaignContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const { connectToContract, bloodDonationContract, address } =
-    useStateContext();
+  const { address, connectBloodDonationContract } = useStateContext();
 
-    const publishCampaign = async (form: CampaignType) => {
-      try {
-        const contract = await connectToContract();
-        // generate a random number between 1 and 100000
-        const randomId = Math.floor(Math.random() * 100000) + 1;
-        const response = await contract.createCampaign(
-         
-          form.title, // title
-          randomId, // use randomId here instead of new Date().getTime()
-          form.description, // description
-          form.target, // target
-          new Date(form.deadline).getTime(), // deadline
-          form.thumbnail, // image
-          form.video, // video
-          form.slug // slug
-        );
-        await response.wait();
-        console.log("contract call success");
-      } catch (error) {
-        alert(JSON.stringify(error));
-        console.error("contract call failure", error);
-      }
-    };
-  
+  const createCampaign = async (form: CampaignType) => {
+    try {
+      const contract = await connectBloodDonationContract();
+      if (!contract) throw new Error("Contract is not connected.");
+      const response = await contract.createCampaign(
+        address,
+        form.title,
+        form.description,
+        form.imageId,
+        form.videoId,
+        form.targetAmount,
+        new Date(form.deadlineDate).getTime()
+      );
+
+      await response.wait();
+    } catch (error) {
+      console.error("Error creating campaign", error);
+    }
+  };
 
   const getCampaigns = async () => {
-    const contract = await connectToContract();
-    const campaigns = await contract.getAllCampaigns();
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const campaigns = await contract.getAllActiveCampaigns();
 
-    const parsedCampaigns = campaigns.map((campaign: CampaignType) => ({
+    return campaigns.map((campaign: CampaignType) => ({
       id: campaign.id,
       owner: campaign.owner,
       title: campaign.title,
-      slug: campaign.slug,
       description: campaign.description,
-      target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
-      amountCollected: ethers.utils.formatEther(
-        campaign.amountCollected.toString()
+      image: campaign.imageId,
+      video: campaign.videoId,
+      targetAmount: ethers.utils.formatEther(campaign.targetAmount.toString()),
+      collectedAmount: ethers.utils.formatEther(
+        campaign.collectedAmount.toString()
       ),
-      thumbnail: campaign.thumbnail,
-      video: campaign.video,
+      creationDate: campaign.creationDate.toNumber(),
+      deadlineDate: campaign.deadlineDate.toNumber(),
+      donators: campaign.donators,
+      donations: campaign.donations,
     }));
-
-    return parsedCampaigns;
   };
 
   const getCampaign = async (id: string): Promise<any> => {
-    const data = await bloodDonationContract.getCampaign(id);
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const data = await contract.getCampaign(id);
+
     return data;
   };
 
   const getUserCampaigns = async () => {
-    const allCampaigns = await getCampaigns();
+    const campaigns = await getCampaigns();
 
-    const filteredCampaigns = allCampaigns.filter(
-      (campaign: CampaignType) => campaign.owner === address
-    );
-
-    return filteredCampaigns;
+    // return campaigns.filter(
+    //   (campaign: CampaignType) => campaign.owner === address
+    // );
   };
 
   const donate = async (id: string, amount: string): Promise<any> => {
-    // Check if the Ethereum provider is available
-    console.log("window.ethereum", window.ethereum);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     await window.ethereum.enable();
     const signer = provider.getSigner();
     const amountToSend = ethers.utils.parseEther(amount);
-    const data = await bloodDonationContract.connect(signer).donateToCampaign(id, {
-      value: amountToSend,
-    });
-    data.wait();
-    return data;
+
+    try {
+      const contract = await connectBloodDonationContract();
+      if (!contract) throw new Error("Contract is not connected.");
+      const data = await contract.connect(signer).donateToCampaign(id, {
+        value: amountToSend,
+      });
+
+      await data.wait();
+      return data;
+    } catch (error) {
+      console.error("Error donating to campaign", error);
+    }
   };
 
-  const getDonations = async (
+  const getDonatorsList = async (
     id: string
   ): Promise<{ donator: string; donation: string }[]> => {
-    const donations = await bloodDonationContract.getCampaignDonators(id);
+    const contract = await connectBloodDonationContract();
+    if (!contract) throw new Error("Contract is not connected.");
+    const donations = await contract.getCampaignDonators(id);
     const numberOfDonations = donations[0].length;
 
-    const parsedDonations: { donator: string; donation: string }[] = [];
-
-    for (let i = 0; i < numberOfDonations; i++) {
-      parsedDonations.push({
-        donator: donations[0][i],
-        donation: ethers.utils.formatEther(donations[1][i].toString()),
-      });
-    }
-
-    return parsedDonations;
+    return Array.from({ length: numberOfDonations }, (_, i) => ({
+      donator: donations[0][i],
+      donation: ethers.utils.formatEther(donations[1][i].toString()),
+    }));
   };
 
   return (
     <CampaignContext.Provider
       value={{
-        createCampaign: publishCampaign,
+        createCampaign,
         getCampaigns,
         getCampaign,
         getUserCampaigns,
         donate,
-        getDonations,
+        getDonatorsList,
       }}
     >
       {children}

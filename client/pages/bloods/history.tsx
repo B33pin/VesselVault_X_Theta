@@ -20,9 +20,9 @@ const BloodRequest = (props: Props) => {
   const [pouches, setPouches] = useState([]);
   const [donatedHistory, setDonatedHistory] = useState([]);
   const [receivedHistory, setReceivedHistory] = useState([]);
-  const { getPouches } = useDonationContext();
+  const { assignBloodReceiver, getPouches } = useDonationContext();
   const [requestLoading, setRequestLoading] = useState(false);
-  
+
   const fetchPouches = useCallback(async () => {
     setIsLoading(true);
     const data = await getPouches();
@@ -41,7 +41,7 @@ const BloodRequest = (props: Props) => {
   }, [getPouches, address]);
 
   useEffect(() => {
-      fetchPouches();
+    fetchPouches();
   }, [address, fetchPouches]);
 
   const BloodType: any = {
@@ -734,11 +734,11 @@ const BloodRequest = (props: Props) => {
                       return (
                         <tr
                           key={index}
-                          className="bg-white hover:bg-gray-50"
+                          className="bg-white hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           <th
                             scope="row"
-                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                           >
                             {blood.pouchID}
                           </th>
@@ -766,7 +766,9 @@ const BloodRequest = (props: Props) => {
                                 styles={
                                   "block rounded-full px-6 py-1 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
                                 }
-                                handleClick={() => {}}
+                                handleClick={() => {
+                                  console.log(address, blood.donarID);
+                                }}
                               />
                             </Link>
                           </td>
@@ -804,14 +806,15 @@ const BloodRequest = (props: Props) => {
                   </thead>
                   <tbody>
                     {donatedHistory.map((blood: any, index) => {
+                      console.log(blood);
                       return (
                         <tr
                           key={index}
-                          className="bg-white hover:bg-gray-50"
+                          className="bg-white hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           <th
                             scope="row"
-                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                           >
                             {blood.pouchID}
                           </th>

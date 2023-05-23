@@ -1,12 +1,15 @@
-import Button from "@/components/atomic/Button";
-import FormField from "@/components/atomic/FormField";
-import Loader from "@/components/atomic/Loader";
-import { useDonationContext } from "@/context/donation";
-import { useStateContext } from "@/context/state";
+import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import { useQRCode } from "next-qrcode";
+import Button from "@/components/atomic/Button";
+import FormField from "@/components/atomic/FormField";
+import { useDonationContext } from "@/context/donation";
+import { useStateContext } from "@/context/state";
+import { useUserContext } from "@/context/user";
+import TransactionLoader from "@/components/atomic/TransactionLoader";
+import { toast } from "react-hot-toast";
 
 type Props = {};
 
@@ -18,18 +21,23 @@ type HandleFormFieldChange = (
 ) => void;
 
 const AddBloods = (props: Props) => {
+  const { Canvas } = useQRCode();
   const router = useRouter();
   const { address } = useStateContext();
+  const { isOrganization } = useUserContext();
   const [isLoading, setIsLoading] = useState(false);
-  const { isGuardian, isGuardianLoading, addUserBloodDetails } =
-    useDonationContext();
+  const { addUserBloodDetails } = useDonationContext();
+  const [uniquePouchId, setUniquePouchId] = useState(
+    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
+  );
   const [form, setForm] = useState({
-    pouchID: "",
+    pouchID: 0,
     donarID: "",
-    zipCode: "",
-    bloodGroup: "",
-    bloodReportStatus: "Normal",
+    bloodGroup: "O_positive",
+    details: "",
   });
+  const canvasRef = useRef<any>();
+  const [checked, setChecked] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +47,13 @@ const AddBloods = (props: Props) => {
       await addUserBloodDetails({
         pouchID: form.pouchID,
         donarID: form.donarID,
-        zipCode: form.zipCode,
         bloodGroup: form.bloodGroup,
-        bloodReportStatus: form.bloodReportStatus,
+        details: form.details,
       });
+      toast.success("Blood pouch publish successful.");
       router.push("/bloods/request");
     } catch (error: any) {
+      toast.error("Failed to publish blood pouch.");
       console.log(error.message);
     }
 
@@ -59,10 +68,25 @@ const AddBloods = (props: Props) => {
   };
 
   useEffect(() => {
-    if (address && !isGuardianLoading && !isGuardian) {
+    if (address && !isOrganization) {
       router.push("/bloods/request");
     }
-  }, [isGuardian, isGuardianLoading, router, address]);
+  }, [isOrganization, router, address]);
+
+  useEffect(() => {
+    setForm((prev) => {
+      return {
+        ...prev,
+        pouchID: uniquePouchId,
+      };
+    });
+  }, [uniquePouchId]);
+
+  useEffect(() => {
+    setUniquePouchId(
+      Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
+    );
+  }, []);
 
   return (
     <section className="pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
@@ -699,19 +723,76 @@ const AddBloods = (props: Props) => {
           </div>
         </div>
 
-        {isGuardian && (
+        {isOrganization && (
           <div className="max-w-2xl mx-auto z-10 my-10">
-            {isLoading && <Loader />}
+            {isLoading && <TransactionLoader />}
             <div className="bg-white shadow-lg rounded-md p-6 lg:p-10">
               <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <FormField
-                    labelName="Pouch ID *"
-                    placeholder="Blood Pound ID"
-                    inputType="number"
-                    value={form.pouchID}
-                    handleChange={(e) => handleFormFieldChange("pouchID", e)}
-                  />
+                <div className="flex flex-wrap-reverse lg:gap-4">
+                  <div className="mb-4 w-full lg:flex-1">
+                    <FormField
+                      labelName="Pouch ID *"
+                      placeholder="Blood Pound ID"
+                      inputType="number"
+                      disabled
+                      value={form.pouchID.toString()}
+                      handleChange={(e) => handleFormFieldChange("pouchID", e)}
+                    />
+                    <div className="mt-4">
+                      <span className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                        Blood Group
+                      </span>
+                      <select
+                        className="border border-gray-300 bg-white rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
+                        value={form.bloodGroup}
+                        onChange={(e) => handleFormFieldChange("bloodGroup", e)}
+                      >
+                        <option value="AB_positive">AB+</option>
+                        <option value="AB_negative">AB-</option>
+                        <option value="A_positive">A+</option>
+                        <option value="A_negative">A-</option>
+                        <option value="B_positive">B+</option>
+                        <option value="B_negative">B-</option>
+                        <option value="O_positive">O+</option>
+                        <option value="O_negative">O-</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mb-4 w-full lg:w-[180px] p-1 text-center">
+                    <div className={`inline-block max-w-[180px]`}>
+                      <span ref={canvasRef}>
+                        <Canvas
+                          text={uniquePouchId.toString()}
+                          options={{
+                            level: "H",
+                            margin: 2,
+                            scale: 8,
+                            width: 180,
+                            color: {
+                              dark: "#DF2A2A",
+                              light: "#FEF0EE",
+                            },
+                          }}
+                          logo={{
+                            src: "https://next-qrcode.js.org/github.png",
+                            options: {
+                              width: 35,
+                              x: undefined,
+                              y: undefined,
+                            },
+                          }}
+                        />
+                      </span>
+                      <button
+                        className={`${
+                          checked ? "cursor-pointer" : "cursor-not-allowed"
+                        } text-sm underline`}
+                        type="button"
+                      >
+                        Download QR
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <div className="mb-4">
                   <FormField
@@ -722,50 +803,27 @@ const AddBloods = (props: Props) => {
                     handleChange={(e) => handleFormFieldChange("donarID", e)}
                   />
                 </div>
-                <div className="mb-4">
-                  <span className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
-                    Blood Group
-                  </span>
-                  <select
-                    className="border border-gray-300 bg-white rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
-                    value={form.bloodGroup}
-                    onChange={(e) => handleFormFieldChange("bloodGroup", e)}
-                  >
-                    <option value="1">AB+</option>
-                    <option value="2">AB-</option>
-                    <option value="3">A+</option>
-                    <option value="4">A-</option>
-                    <option value="5">B+</option>
-                    <option value="6">B-</option>
-                    <option value="7">O+</option>
-                    <option value="8">O-</option>
-                  </select>
-                </div>
+
                 <div className="mb-4">
                   <FormField
-                    labelName="Zip Code *"
-                    placeholder="Zip Code"
-                    inputType="number"
-                    value={form.zipCode}
-                    handleChange={(e) => handleFormFieldChange("zipCode", e)}
+                    labelName="Details *"
+                    placeholder="Write blood details"
+                    isTextArea
+                    value={form.details}
+                    handleChange={(e) => handleFormFieldChange("details", e)}
                   />
                 </div>
-                <div className="mb-4">
-                  <span className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
-                    Report Status *
-                  </span>
-                  <select
-                    className="border border-gray-300 bg-white rounded w-full text-gray-600 transition duration-500 focus:shadow-lg focus:border-red-400 focus:outline-none px-4 py-3"
-                    value={form.bloodReportStatus}
-                    onChange={(e) =>
-                      handleFormFieldChange("bloodReportStatus", e)
-                    }
-                  >
-                    <option value="Normal">Normal</option>
-                    <option value="Abnormal">Abnormal</option>
-                    <option value="Critical">Critical</option>
-                    <option value="Improving">Improving</option>
-                  </select>
+                <div
+                  className="my-4 cursor-pointer"
+                  onClick={() => setChecked(!checked)}
+                >
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={checked}
+                    onChange={() => setChecked(!checked)}
+                  />
+                  <span className="ml-2">Accepts Terms and Conditions</span>
                 </div>
 
                 <Button

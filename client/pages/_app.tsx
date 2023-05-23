@@ -8,6 +8,7 @@ import Navbar from "@/components/molecules/Navbar";
 import ScrollToTop from "@/components/atomic/ScrollToTop";
 import { UserContextProvider } from "@/context/user";
 import { DonationContextProvider } from "@/context/donation";
+import { Toaster } from "react-hot-toast";
 
 const fontFamily = Noto_Sans_Display({
   weight: ["400", "700", "900"],
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <CampaignContextProvider>
             <Navbar />
             <main className={`${fontFamily.className} mt-[90px]`}>
+              <Toaster position="top-center" />
               <Component {...pageProps} />
               <ScrollToTop />
             </main>

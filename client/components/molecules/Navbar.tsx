@@ -11,18 +11,17 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { shortAddress } from "@/utils";
 import { FiCopy } from "react-icons/fi";
 import { MdDone } from "react-icons/md";
-import { useDonationContext } from "@/context/donation";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 const Navbar = () => {
-  const { connect, address, disconnect } = useStateContext();
+  const { connectWallet, address, balance, disconnectWallet } =
+    useStateContext();
   const { createUser } = useUserContext();
   const [isVisible, setIsVisible] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { user } = useUserContext();
+  const { user, isOrganization, isAdmin } = useUserContext();
   const [isMenuActive, setIsMenuActive] = useState(false);
-  const { isGuardian } = useDonationContext();
   const profileRef = useRef<HTMLUListElement | null | any>();
   const menuRef = useRef<HTMLUListElement | null | any>();
   const storage = new ThirdwebStorage();
@@ -157,7 +156,7 @@ const Navbar = () => {
                 styles={
                   "hidden sm:block rounded-full px-4 py-2 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
                 }
-                handleClick={() => connect()}
+                handleClick={() => connectWallet()}
               />
             )}
 
@@ -168,7 +167,7 @@ const Navbar = () => {
                 styles={
                   "block sm:hidden rounded-full px-4 py-2 text-base mr-4 transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
                 }
-                handleClick={() => connect()}
+                handleClick={() => connectWallet()}
               />
             )}
 
@@ -200,7 +199,7 @@ const Navbar = () => {
                   {showProfileMenu && (
                     <ul
                       ref={profileRef}
-                      className={`bg-white shadow-md absolute right-0 items-center top-14 p-2 w-full max-w-[180px] rounded-md`}
+                      className={`bg-white shadow-md absolute right-0 items-center top-14 p-2 w-full max-w-[200px] rounded-md`}
                     >
                       <li className="relative p-2">
                         <CopyToClipboard
@@ -218,6 +217,13 @@ const Navbar = () => {
                             {copied && <MdDone size={16} className="ml-3" />}
                           </span>
                         </CopyToClipboard>
+                      </li>
+                      <li className="relative px-2 pb-2">
+                        {balance && (
+                          <p className="font-medium uppercase">
+                            {parseFloat(balance).toFixed(2)} TFUEL
+                          </p>
+                        )}
                       </li>
                       <hr className="border-gray-400" />
                       <li className="relative p-2">
@@ -240,25 +246,39 @@ const Navbar = () => {
                         </Link>
                       </li>
                       <hr className="border-gray-400" />
-                      {isGuardian && (
+                      {isOrganization && (
                         <>
+                          {isAdmin && isOrganization && (
+                            <>
+                              <li className="relative p-2">
+                                <Link
+                                  href={`/admin/add-organization`}
+                                  onClick={() => setShowProfileMenu(false)}
+                                  className="font-medium uppercase transition duration-200 hover:text-red-600"
+                                >
+                                  Add Organization
+                                </Link>
+                              </li>
+                              <hr className="border-gray-200" />
+                            </>
+                          )}
                           <li className="relative p-2">
                             <Link
-                              href={`/bloods/add`}
+                              href={`/campaigns/create`}
                               onClick={() => setShowProfileMenu(false)}
                               className="font-medium uppercase transition duration-200 hover:text-red-600"
                             >
-                              Post Blood
+                              Create Campaign
                             </Link>
                           </li>
                           <hr className="border-gray-200" />
                           <li className="relative p-2">
                             <Link
-                              href={`/admin/add-guardian`}
+                              href={`/bloods/publish`}
                               onClick={() => setShowProfileMenu(false)}
                               className="font-medium uppercase transition duration-200 hover:text-red-600"
                             >
-                              Add Guardian
+                              Publish Blood
                             </Link>
                           </li>
                           <hr className="border-gray-400" />
@@ -290,7 +310,7 @@ const Navbar = () => {
                       <li className="relative p-2">
                         <div
                           className="font-medium uppercase transition duration-200 hover:text-red-600"
-                          onClick={() => disconnect()}
+                          onClick={() => disconnectWallet()}
                         >
                           Disconnect
                         </div>

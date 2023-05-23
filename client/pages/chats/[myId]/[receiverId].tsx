@@ -1,84 +1,99 @@
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  addDoc,
+} from "firebase/firestore";
+import { firebaseConfig } from "@/firebase.config";
+import { useStateContext } from "@/context/state";
 import Head from "next/head";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
-import { auth, db } from "@/firebase.config";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import { shortAddress } from "@/utils";
-import GoogleButton from "react-google-button";
-import Link from "next/link";
-import Button from "@/components/atomic/Button";
+import { FiSend } from "react-icons/fi";
 
-function SignIn() {
-  const signInWithGoogle = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
-  };
+const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
 
-  return (
-    <div className="flex items-center justify-center h-80">
-      <GoogleButton onClick={signInWithGoogle} />
-    </div>
-  );
-}
+const Chat = () => {
+  const { address } = useStateContext();
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const scroll = useRef<any>();
 
-function SignOut() {
-  return (
-    auth.currentUser && (
-      <button
-        className="block rounded-full px-6 py-1 text-base transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left text-white"
-        onClick={() => auth.signOut()}
-      >
-        Sign Out
-      </button>
-    )
-  );
-}
-
-type Props = {};
-
-const Chat = (props: Props) => {
   const router = useRouter();
-  const { receiverID }: any = router.query || {
-    receiverID: "",
-  };
-  const [user] = useAuthState(auth as any);
-  const [messages, setMessages] = useState([]);
+  const { myId, receiverId } = router.query;
+
+  const currentUserID = address;
 
   useEffect(() => {
-    if (receiverID) {
-      const q = query(
-        collection(db, "vessel-vault-chats"),
-        // where("donorID", "in", [donorID, receiverID]),
-        // where("receiverID", "in", [donorID, receiverID]),
-        orderBy("timestamp")
-      );
+    if (!myId || !receiverId) return;
 
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        let messages: any = [];
-        querySnapshot.forEach((doc) => {
-          if (
-            doc.data() &&
-            (doc.data().receiverID === receiverID ||
-              doc.data().donorID === receiverID)
-          ) {
-            const alreadyPushed = messages.find(
-              (item: any) =>
-                item.receiverID === doc.data().receiverID ||
-                item.receiverID === doc.data().donorID
-            );
-            if (!alreadyPushed) {
-              messages.push({ ...doc.data(), id: doc.id });
-            }
-          }
-        });
-        setMessages(messages);
+    const messagesCollection = collection(
+      firestore,
+      `vessel-vault-chats/${myId}+${receiverId}/messages`
+    );
+    const querySnapshot = query(messagesCollection, orderBy("timestamp"));
+
+    const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
+      const messageList: any = [];
+      snapshot.forEach((doc) => {
+        messageList.push(doc.data());
       });
-      return () => unsubscribe();
+      setMessages(messageList);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [myId, receiverId]);
+
+  useEffect(() => {
+    if (address && myId) {
+      if (myId !== address) {
+        router.push(`/chats/${address}`);
+        return;
+      }
     }
-  }, [receiverID]);
+  }, [address, myId, router]);
+
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (newMessage.trim() === "") {
+      alert("Please enter a valid message");
+      return;
+    }
+
+    const messagesCollection = collection(
+      firestore,
+      `vessel-vault-chats/${myId}+${receiverId}/messages`
+    );
+
+    const messagesCollection2 = collection(
+      firestore,
+      `vessel-vault-chats/${receiverId}+${myId}/messages`
+    );
+
+    const message = {
+      from: currentUserID,
+      text: newMessage,
+      timestamp: new Date().getTime(),
+    };
+
+    try {
+      await addDoc(messagesCollection, message);
+
+      await addDoc(messagesCollection2, message);
+
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
 
   return (
     <div>
@@ -693,11 +708,10 @@ const Chat = (props: Props) => {
           </span>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 bg-white">
-          {!user && <SignIn />}
-          {user && (
-            <div className="flex-1 p-3 sm:p-6 flex flex-col h-[600px] border md:shadow-md rounded-md">
-              <div className="flex items-center justify-between pb-3 border-b-2 border-gray-200">
+        <div className="max-w-5xl mx-auto px-4">
+          {address && (
+            <div className="flex-1 p:2 sm:p-6 justify-between flex flex-col h-[600px] md:border md:shadow-md rounded-md">
+              <div className="flex sm:items-center justify-between pb-3 border-b-2 border-gray-200">
                 <div className="relative flex items-center space-x-4">
                   <div className="relative">
                     <Image
@@ -708,57 +722,91 @@ const Chat = (props: Props) => {
                       className="rounded-full order-1 bg-red-100 p-1"
                     />
                   </div>
-                  <div className="text-xl mt-1 flex items-center">
-                    <span className="text-gray-700 mr-3 font-bold">
-                      Messages
-                    </span>
+                  <div className="text-2xl mt-1 flex items-center">
+                    <span className="text-gray-700 mr-3">Name</span>
                   </div>
                 </div>
-                <div>
-                  <SignOut />
-                </div>
+                <div></div>
               </div>
-              <div className="flex flex-col">
-                {messages.length <= 0 && (
-                  <div className="py-4">No Messages yet.</div>
-                )}
+              <div
+                ref={scroll}
+                id="messages"
+                className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-red scrollbar-thumb-rounded scrollbar-track-red-lighter scrollbar-w-2 scrolling-touch"
+              >
                 {messages.length > 0 &&
-                  messages.map((message: any) => {
-                    return (
-                      <div
-                        key={message.uid}
-                        className="flex items-center space-x-4 justify-between border-b py-4"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="relative">
+                  messages.map((message) => {
+                    if (message.from === address) {
+                      return (
+                        <div
+                          key={message.timestamp}
+                          className={`chat-message ${message.timestamp}`}
+                        >
+                          <div className="flex items-end justify-end">
+                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-1 items-end">
+                              <div>
+                                <span className="px-4 py-2 rounded-lg inline-block rounded-br-none bg-red-500 text-white">
+                                  {message.text}
+                                </span>
+                              </div>
+                            </div>
                             <Image
-                              src={message.photoURL}
-                              alt={message.username}
-                              title={message.photoURL}
+                              src="/logo.png"
+                              alt={message.from}
+                              width={40}
+                              height={40}
+                              className="rounded-full order-2 bg-red-100 p-1"
+                            />
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={message.timestamp}
+                          className={`chat-message ${message.timestamp}`}
+                        >
+                          <div className="flex items-end">
+                            <div className="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-2 items-start">
+                              <div>
+                                <span className="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">
+                                  {message.text}
+                                </span>
+                              </div>
+                            </div>
+                            <Image
+                              src="/logo.png"
+                              alt={message.from}
                               width={40}
                               height={40}
                               className="rounded-full order-1 bg-red-100 p-1"
                             />
                           </div>
-                          <div className="md:text-xl mt-1 flex items-center">
-                            <span className="text-gray-700 mr-3">
-                              {shortAddress(message.donorID, 8, 5)}
-                            </span>
-                          </div>
                         </div>
-                        <Link href={`/chats/${receiverID}/${message.donorID}`}>
-                          <Button
-                            btnType="button"
-                            title={"Say Hi!"}
-                            styles={
-                              "block rounded-full px-6 py-1 text-base transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left"
-                            }
-                            handleClick={() => {}}
-                          />
-                        </Link>
-                      </div>
-                    );
+                      );
+                    }
                   })}
+              </div>
+              <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+                <form onSubmit={sendMessage} className="relative flex">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Write your message!"
+                    className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-5 bg-gray-200 rounded-md py-3"
+                  />
+                  <div className="absolute right-0 items-center inset-y-0 flex">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-red-600 hover:bg-red-500 focus:outline-none"
+                    >
+                      <span className="font-bold hidden sm:block mr-2">
+                        Send
+                      </span>
+                      <FiSend size={20} className="" />
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}

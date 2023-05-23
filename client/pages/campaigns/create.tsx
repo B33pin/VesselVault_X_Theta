@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
+import Head from "next/head";
+import ImageUploading from "react-images-uploading";
 import { useRouter } from "next/router";
+import { ethers } from "ethers";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { useCampaignContext } from "@/context/campaign";
 import Loader from "@/components/atomic/TransactionLoader";
 import FormField from "@/components/atomic/FormField";
-import axios from "axios";
-import { slugify } from "@/utils";
-import Head from "next/head";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import Image from "next/image";
+import { useStateContext } from "@/context/state";
+import { toast } from "react-hot-toast";
 
 type HandleFormFieldChange = (
   fieldName: string,
@@ -16,21 +18,23 @@ type HandleFormFieldChange = (
 
 const CreateCampaign = () => {
   const router = useRouter();
+  const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const { createCampaign } = useCampaignContext();
   const storage = new ThirdwebStorage();
+  const videoRef = React.useRef<any>();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     title: "",
     description: "",
     target: "",
     deadline: "",
-    thumbnail: "",
-    video: "",
+    image: null,
+    video: null,
   });
 
   const handleFormFieldChange: HandleFormFieldChange = (fieldName, e) => {
-    setForm((prev) => ({
+    setForm((prev: any) => ({
       ...prev,
       [fieldName]: e.target.value,
     }));
@@ -41,61 +45,26 @@ const CreateCampaign = () => {
     setIsLoading(true);
 
     try {
-      const campaignImageIPfs = await storage.upload(form.thumbnail);
-
-      // const res = await axios({
-      //   url: "https://api.thetavideoapi.com/upload",
-      //   method: "POST",
-      //   headers: {
-      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-      //   },
-      // });
-
-      // // Video ID
-      // const res3 = await axios({
-      //   method: "POST",
-      //   url: "https://api.thetavideoapi.com/video",
-      //   headers: {
-      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-      //     "Content-Type": "application/json",
-      //   },
-      //   data: JSON.stringify({
-      //     source_upload_id: res.data.body.uploads[0].id,
-      //     playback_policy: "public",
-      //   }),
-      // });
-
-      // // Video Status
-      // const res4 = await axios({
-      //   url: `https://api.thetavideoapi.com/video/${res3.data.body.videos[0].id}`,
-      //   method: "GET",
-      //   headers: {
-      //     "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-      //     "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-      //   },
-      // });
+      const campaignImageIPfs = await storage.upload(form.image[0]);
 
       await createCampaign({
+        id: "",
+        owner: address as string,
         title: form.title,
         description: form.description,
-        deadline: form.deadline,
-        slug: slugify(form.title),
-        target: ethers.utils.parseUnits(form.target, 18),
-        thumbnail: campaignImageIPfs,
-        video: campaignImageIPfs,
-        id: "",
-        owner: "",
-        address: "",
-        amountCollected: 0,
+        imageId: campaignImageIPfs,
+        videoId: campaignImageIPfs,
+        deadlineDate: form.deadline,
+        targetAmount: ethers.utils.parseUnits(form.target, 18),
         donators: [],
         donations: [],
       });
+      toast.success("Campaign created successful.");
+      router.push("/campaigns/explore");
     } catch (error: any) {
+      toast.error("Failed to create campaign.");
       console.log(error.message);
     }
-
     setIsLoading(false);
   };
 
@@ -717,7 +686,7 @@ const CreateCampaign = () => {
           <div className="bg-white shadow-lg rounded-md p-6 lg:p-10">
             <h2 className="text-2xl font-bold mb-4">Create a Campaign</h2>
             <p className="text-coolGray-600 font-normal mb-6">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Unleashing Possibilities: The Transformation Initiative
             </p>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -731,8 +700,8 @@ const CreateCampaign = () => {
               </div>
               <div className="mb-4">
                 <FormField
-                  labelName="Goal *"
-                  placeholder="ETH 0.50"
+                  labelName="Target Amount *"
+                  placeholder="TFUEL 100"
                   inputType="number"
                   value={form.target}
                   handleChange={(e) => handleFormFieldChange("target", e)}
@@ -743,8 +712,8 @@ const CreateCampaign = () => {
                   labelName="End Date *"
                   placeholder="End Date"
                   inputType="date"
-                  value={form.deadline}
-                  handleChange={(e) => handleFormFieldChange("deadline", e)}
+                  value={form.deadlineDate}
+                  handleChange={(e) => handleFormFieldChange("deadlineDate", e)}
                 />
               </div>
               <div className="mb-4">
@@ -756,34 +725,181 @@ const CreateCampaign = () => {
                   handleChange={(e) => handleFormFieldChange("description", e)}
                 />
               </div>
-              <div className="mb-4">
-                <FormField
-                  labelName="Campaign thumbnail *"
-                  placeholder="Place image URL of your campaign"
-                  inputType="file"
-                  accept="image/*"
-                  handleChange={(e: any) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      thumbnail: e.target.files[0],
-                    }))
-                  }
-                />
+              <div className="flex flex-wrap lg:gap-4">
+                <div className="mb-4 w-full lg:flex-1">
+                  <ImageUploading
+                    value={form.image}
+                    onChange={(imageList: any) => {
+                      setForm((prev: any) => ({
+                        ...prev,
+                        image: imageList,
+                      }));
+                    }}
+                    maxNumber={1}
+                    dataURLKey="data_url"
+                  >
+                    {({
+                      imageList,
+                      onImageUpload,
+                      onImageUpdate,
+                      onImageRemove,
+                      isDragging,
+                      dragProps,
+                    }) => (
+                      <div className="image-upload">
+                        <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                          Image *
+                        </span>
+                        <div className="w-full mt-[10px]">
+                          {imageList.length <= 0 && (
+                            <button
+                              type="button"
+                              onClick={onImageUpload}
+                              className={`flex justify-center items-baseline w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none ${
+                                isDragging ? "bg-red-200" : "bg-gray-200"
+                              }`}
+                              {...dragProps}
+                            >
+                              <div className="flex items-center justify-center w-full h-full space-x-2">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="w-6 h-6 text-gray-600"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                  />
+                                </svg>
+                                <span className="font-medium text-gray-600">
+                                  Drop image or
+                                  <span className="text-blue-600 underline ml-2">
+                                    browse
+                                  </span>
+                                </span>
+                              </div>
+                            </button>
+                          )}
+                          {imageList.map((image, index) => (
+                            <div key={index} className="image-item">
+                              <Image
+                                src={image["data_url"]}
+                                alt="Campaign Image"
+                                width={600}
+                                height={600}
+                                className="border rounded-md"
+                              />
+                              <div className="image-item__btn-wrapper">
+                                <button
+                                  type="button"
+                                  onClick={() => onImageUpdate(index)}
+                                  className="text-blue-500 underline mr-2"
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => onImageRemove(index)}
+                                  className="text-red-500 underline mr-2"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </ImageUploading>
+                </div>
+                <div className="mb-4 w-full lg:flex-1">
+                  {!form.video && (
+                    <div className="w-full">
+                      <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                        Video *
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          videoRef.current.click();
+                        }}
+                        className={`mt-[10px] flex justify-center items-baseline w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none 
+                    }`}
+                      >
+                        <div className="flex items-center justify-center w-full h-full space-x-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-6 h-6 text-gray-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+
+                          <span className="text-blue-600 underline ml-2">
+                            Upload video
+                            <input
+                              ref={videoRef}
+                              required
+                              hidden
+                              type="file"
+                              onChange={(e: any) => {
+                                setForm((prev: any) => ({
+                                  ...prev,
+                                  video: e.target.files[0],
+                                }));
+                              }}
+                              accept={"video/mp4,video/x-m4v,video/*"}
+                              className="w-full h-full bg-red"
+                            />
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                  {form.video && (
+                    <div className="w-full rounded-md overflow-hidden">
+                      <span className="font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
+                        Video *
+                      </span>
+                      <video
+                        className="mt-[10px] rounded-md overflow-hidden"
+                        width="100%"
+                        height="auto"
+                        style={{ maxWidth: "620px" }}
+                        controls
+                        src={URL.createObjectURL(form.video as any)}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev: any) => {
+                            return {
+                              ...prev,
+                              video: null,
+                            };
+                          })
+                        }
+                        className="text-red-500 underline mr-2"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="mb-4">
-                <FormField
-                  labelName="Campaign video *"
-                  placeholder="Place video of your campaign"
-                  inputType="file"
-                  accept="video/mp4,video/x-m4v,video/*"
-                  handleChange={(e: any) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      video: e.target.files[0],
-                    }))
-                  }
-                />
-              </div>
+
               <button
                 type="submit"
                 className="w-full inline-flex justify-center items-center border border-red-600 text-white rounded-full transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left px-8 py-3"

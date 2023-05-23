@@ -8,18 +8,18 @@ const HowItWorks = (props: Props) => {
     <section className="how-it-works pt-10 2xl:pt-20 pb-14 2xl:pb-24 relative">
       <div className="container">
         <div className="grid items-center grid-cols-1 lg:grid-cols-9 gap-6">
-          <div className="col-span-4 lg:order-12 xl:pl-10">
+          <div className="col-span-5 lg:order-12 xl:pl-10">
             <div className="mb-8 lg:mb-0">
               <div className="section-title mb-10">
-                <span className="label-before-2 inline-block relative pl-10 text-red-400 text-sm font-medium mb-2">
-                  PROCESS
+                <span className="label-before inline-block relative px-12 text-red-600 text-base mb-2">
+                  Process
                 </span>
-                <h2 className="text-coolGray-900 leading-10 text-3xl lg:text-4xl font-bold">
-                  Create and sell your NFTs
+                <h2 className="leading-10 text-3xl lg:text-4xl font-bold">
+                  How it Works
                 </h2>
               </div>
-              <div className="how-it-style flex items-center mb-10">
-                <div className="how-it-logo w-24	h-24 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
+              <div className="how-it-style flex items-center mb-10 flex-wrap md:flex-nowrap">
+                <div className="how-it-logo w-20	h-20 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
                   <svg
                     version="1.1"
                     width="44"
@@ -62,18 +62,21 @@ const HowItWorks = (props: Props) => {
                     </defs>
                   </svg>
                 </div>
-                <div className="how-it-work-content pl-6">
-                  <h4 className="how-it-work-title text-xl text-coolGray-900 font-medium mb-4">
-                    Set up Your Wallet
+                <div className="how-it-work-content md:pl-6 mt-5 md:mt-0">
+                  <h4 className="how-it-work-title text-xl text-gray-900 font-medium mb-4">
+                    Donor Registration
                   </h4>
-                  <p className="how-it-work-excerpt text-coolGray-600 font-normal">
-                    Once you’ve set up your wallet of choice, connect it by
-                    clicking the wallet icon in the top right corner.{" "}
+                  <p className="how-it-work-excerpt text-gray-600 font-normal">
+                    Every time an individual donates blood, they are enrolled in
+                    our system and awarded a social token, which can be used for
+                    governance purposes in the future. Donors can monitor the
+                    status of their blood donation by logging into our website
+                    with the provided ID.
                   </p>
                 </div>
               </div>
-              <div className="how-it-style flex items-center mb-10">
-                <div className="how-it-logo w-24	h-24 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
+              <div className="how-it-style flex items-center mb-10 flex-wrap md:flex-nowrap">
+                <div className="how-it-logo w-20	h-20 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
                   <svg
                     width="36"
                     height="37"
@@ -100,18 +103,20 @@ const HowItWorks = (props: Props) => {
                     </defs>
                   </svg>
                 </div>
-                <div className="how-it-work-content pl-6">
-                  <h4 className="how-it-work-title text-xl text-coolGray-900 font-medium mb-4">
-                    Create Your Collection
+                <div className="how-it-work-content md:pl-6 mt-5 md:mt-0">
+                  <h4 className="how-it-work-title text-xl text-gray-900 font-medium mb-4">
+                    Blood Pouch Matching
                   </h4>
-                  <p className="how-it-work-excerpt text-coolGray-600 font-normal">
-                    Upload your work (image, video, audio, or 3D art), add a
-                    title and description{" "}
+                  <p className="how-it-work-excerpt text-gray-600 font-normal">
+                    When someone requires blood, they can easily search for
+                    available blood pouches on the VesselVault platform. Our
+                    system matches their specific blood type and other
+                    requirements with the available donors in the database.
                   </p>
                 </div>
               </div>
-              <div className="how-it-style flex items-center">
-                <div className="how-it-logo w-24	h-24 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
+              <div className="how-it-style flex items-center mb-10 flex-wrap md:flex-nowrap">
+                <div className="how-it-logo w-20	h-20 flex flex-shrink-0	justify-center items-center shadow-xl rounded-full transition duration-500 hover:shadow-lg p-2">
                   <svg
                     width="34"
                     height="37"
@@ -155,19 +160,21 @@ const HowItWorks = (props: Props) => {
                     </defs>
                   </svg>
                 </div>
-                <div className="how-it-work-content pl-6">
-                  <h4 className="how-it-work-title text-xl text-coolGray-900 font-medium mb-4">
-                    List them for sale
+                <div className="how-it-work-content md:pl-6 mt-5 md:mt-0">
+                  <h4 className="how-it-work-title text-xl text-gray-900 font-medium mb-4">
+                    Blood Tracking
                   </h4>
-                  <p className="how-it-work-excerpt text-coolGray-600 font-normal">
-                    You choose how you want to sell your NFTs, and we help you
-                    sell them!{" "}
+                  <p className="how-it-work-excerpt text-gray-600 font-normal">
+                    Donors have access to the platform, where they can track the
+                    journey of the blood. They can see if their donated blood
+                    has reached someone in need, ensuring transparency and
+                    instilling a sense of fulfillment.
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div className="col-span-5 lg:order-1 xl:pr-10">
+          <div className="col-span-4 lg:order-1 xl:pr-10">
             <Image
               className="lg:max-w-full sm:max-w-xl"
               src={HowItWorksImg}

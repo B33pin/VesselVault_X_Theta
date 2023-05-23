@@ -2,137 +2,103 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { abi } from "@/utils/abi";
 
+declare let window: any;
+
 type ContextProps = {
   children: React.ReactNode;
 };
 
-type DefaultValue = {
-  address: string | undefined;
-  connect: () => void;
-  disconnect: () => void;
-  signer: any;
-  bloodDonationContract: any;
-  connectToContract: () => any;
+type ProviderValue = {
+  address: string | null;
+  balance: string | null;
+  connectWallet: () => Promise<void>;
+  connectBloodDonationContract: () => Promise<ethers.Contract | void>;
+  disconnectWallet: () => void;
 };
 
-const contextDefaultValue: DefaultValue = {
-  address: undefined,
-  connect: () => {},
-  signer: null,
-  disconnect: () => {},
-  connectToContract: () => {},
-  bloodDonationContract: null,
-};
+const StateContext = createContext<ProviderValue>({
+  address: null,
+  balance: null,
+  connectWallet: async () => {},
+  connectBloodDonationContract: async () => {},
+  disconnectWallet: () => {},
+});
 
-const StateContext = createContext(contextDefaultValue);
+export const StateContextProvider = ({ children }: ContextProps) => {
+  const [address, setAddress] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string | null>(null);
 
-export const StateContextProvider = ({
-  children,
-}: ContextProps): JSX.Element => {
-  const [address, setAddress] = useState("");
-  const [provider, setProvider] = useState<any>(null);
-  const [signer, setSigner] = useState<any>(null);
-  const [bloodDonationContract, setBloodDonationContract] = useState<any>(null);
+  const connectBloodDonationContract = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
 
-  const connect = async (): Promise<ethers.providers.Web3Provider | null> => {
-    // Check if the Ethereum provider is available
-    if (typeof window.ethereum === "undefined" || window.ethereum === null) {
-      console.error("No Ethereum provider found");
-      return null;
-    }
+    const contract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
+      abi,
+      signer
+    );
 
+    return contract;
+  };
+
+  const connectWallet = async () => {
     try {
-      await (window.ethereum as any).enable();
+      await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      // Create a Web3 provider using the current provider
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      setProvider(provider);
-
-      // Return the connected provider
       const signer = provider.getSigner();
-      setSigner(signer);
-
-      // Retrieve the user's Ethereum address
       const address = await signer.getAddress();
 
       setAddress(address);
 
-      setBloodDonationContract(
-        new ethers.Contract(
-          process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
-          abi,
-          signer
-        )
-      );
+      const balance = await provider.getBalance(address);
+      const etherBalance = ethers.utils.formatEther(balance);
+      setBalance(etherBalance);
 
-      return provider;
+      await connectBloodDonationContract();
+
+      window.ethereum.on("accountsChanged", function (accounts: string[]) {
+        setAddress(accounts[0]);
+      });
     } catch (error) {
       console.error("Failed to connect to wallet:", error);
-      return null;
     }
   };
 
-  const connectToContract = async () => {
-    if (typeof window.ethereum !== "undefined" || window.ethereum !== null) {
-      await (window.ethereum as any).request({ method: "eth_requestAccounts" });
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum as any
-      );
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string,
-        abi,
-        signer
-      );
-      return contract;
-    }
-  };
-
-  const disconnect = async () => {
-    if (provider && provider.provider && provider.provider._isProvider) {
-      provider.provider.removeAllListeners();
-    }
-    setProvider(null);
-    setAddress("");
-  };
-
-  const getUserAddress = async () => {
-    try {
-      // Get the signer from the provider
-      const signer = provider.getSigner();
-
-      // Retrieve the user's Ethereum address
-      const address = await signer.getAddress();
-
-      return address;
-    } catch (error) {
-      console.error("Failed to retrieve user address:", error);
-      return null;
+  const disconnectWallet = () => {
+    if (window.ethereum) {
+      window.ethereum.removeAllListeners();
+      setAddress(null);
     }
   };
 
   useEffect(() => {
-    if (!address && !provider) {
-      connect();
-    }
-
-    if (!address && provider) {
-      getUserAddress();
+    if (!window.ethereum) {
+      alert(
+        "Non-Ethereum browser detected. Please consider installing MetaMask!"
+      );
+      console.error(
+        "Non-Ethereum browser detected. Please consider installing MetaMask!"
+      );
+    } else {
+      connectWallet();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(address)
+  useEffect(() => {
+    connectWallet();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   return (
     <StateContext.Provider
       value={{
         address,
-        connect,
-        signer,
-        disconnect,
-        bloodDonationContract,
-        connectToContract,
+        balance,
+        connectWallet,
+        disconnectWallet,
+        connectBloodDonationContract,
       }}
     >
       {children}
