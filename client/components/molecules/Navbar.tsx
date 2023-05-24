@@ -76,6 +76,20 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 20) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("load", toggleVisibility);
+
+    return () => window.removeEventListener("load", toggleVisibility);
+  }, []);
+
   const createUserData = useCallback(
     async (address: string) => {
       address && createUser(address);

@@ -59,7 +59,7 @@ const Chat = () => {
   useEffect(() => {
     if (address && myId) {
       if (myId !== address) {
-        router.push(`/chats/${address}`);
+        router.push(`/history`);
         return;
       }
     }

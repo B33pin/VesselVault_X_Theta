@@ -1,10 +1,12 @@
 import Button from "@/components/atomic/Button";
 import Loader from "@/components/atomic/Loader";
+import ModalBloodPouch from "@/components/molecules/ModalBloodPouch";
 import { useDonationContext } from "@/context/donation";
 import { useStateContext } from "@/context/state";
 import { BloodStatus, BloodType, shortAddress } from "@/utils";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FiCopy } from "react-icons/fi";
@@ -12,11 +14,16 @@ import { FiCopy } from "react-icons/fi";
 type Props = {};
 
 const BloodRequest = (props: Props) => {
+  const router = useRouter();
   const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const [donatedHistory, setDonatedHistory] = useState([]);
   const [receivedHistory, setReceivedHistory] = useState([]);
   const { getMyPouches, getReceivedPouches } = useDonationContext();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBloodPouch, setSelectedBloodPouch] = useState(null);
+
+  const { bloodType, pouchId } = router.query;
 
   const fetchPouches = useCallback(async () => {
     setIsLoading(true);
@@ -676,6 +683,16 @@ const BloodRequest = (props: Props) => {
 
       {isLoading && <Loader />}
 
+      {showModal && (
+        <ModalBloodPouch
+          onClose={() => {
+            setSelectedBloodPouch(null);
+            setShowModal(false);
+          }}
+          bloodPouch={selectedBloodPouch}
+        />
+      )}
+
       <div className="z-20 relative pt-10 2xl:pt-20">
         <div className="max-w-5xl mx-auto px-4">
           {receivedHistory.length > 0 && (
@@ -734,7 +751,16 @@ const BloodRequest = (props: Props) => {
                               date.getMonth() + 1
                             }-${date.getDate()}`}
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="text-center flex gap-4 md:gap-5 items-center py-4">
+                            <button
+                              className="font-medium text-green-600 hover:underline"
+                              onClick={() => {
+                                setSelectedBloodPouch(blood);
+                                setShowModal(true);
+                              }}
+                            >
+                              View
+                            </button>
                             <Link
                               href={`/chats/${blood.receiverID}/${blood.donarID}`}
                             >
@@ -831,7 +857,17 @@ const BloodRequest = (props: Props) => {
                               <span>Pending Receiver</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-center">
+
+                          <td className="text-center flex gap-4 md:gap-5 items-center py-4">
+                            <button
+                              className="font-medium text-green-600 hover:underline"
+                              onClick={() => {
+                                setSelectedBloodPouch(blood);
+                                setShowModal(true);
+                              }}
+                            >
+                              View
+                            </button>
                             {blood.receiverID !==
                             "0x0000000000000000000000000000000000000000" ? (
                               <Link
@@ -847,7 +883,7 @@ const BloodRequest = (props: Props) => {
                                 />
                               </Link>
                             ) : (
-                              <span>Pending </span>
+                              <p>Pending</p>
                             )}
                           </td>
                         </tr>

@@ -43,6 +43,10 @@ export const StateContextProvider = ({ children }: ContextProps) => {
 
   const connectWallet = async () => {
     try {
+      if (!window.ethereum) {
+        throw new Error("MetaMask extension not found.");
+      }
+
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
       const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -50,6 +54,13 @@ export const StateContextProvider = ({ children }: ContextProps) => {
       const address = await signer.getAddress();
 
       setAddress(address);
+
+      const network = await provider.getNetwork();
+
+      if (network.name !== "privatenet") {
+        alert(`This dApp only supports the Theta mainnet.`);
+        return console.warn(`This dApp only supports the Theta mainnet.`);
+      }
 
       const balance = await provider.getBalance(address);
       const etherBalance = ethers.utils.formatEther(balance);
@@ -62,6 +73,9 @@ export const StateContextProvider = ({ children }: ContextProps) => {
       });
     } catch (error) {
       console.error("Failed to connect to wallet:", error);
+      alert(
+        "Failed to connect to wallet. Please make sure MetaMask is installed and unlocked."
+      );
     }
   };
 
@@ -74,12 +88,8 @@ export const StateContextProvider = ({ children }: ContextProps) => {
 
   useEffect(() => {
     if (!window.ethereum) {
-      alert(
-        "Non-Ethereum browser detected. Please consider installing MetaMask!"
-      );
-      console.error(
-        "Non-Ethereum browser detected. Please consider installing MetaMask!"
-      );
+      alert("MetaMask extension not found. Please install MetaMask!");
+      console.error("MetaMask extension not found. Please install MetaMask!");
     } else {
       connectWallet();
     }

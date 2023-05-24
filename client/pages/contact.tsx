@@ -680,7 +680,7 @@ const Contact = () => {
                   Address:
                 </h2>
                 <p className="text-gray-600 font-normal mb-6">
-                  Lalitpur -16, Nepal
+                  Kathmandu, Nepal 
                 </p>
                 <h2 className="text-xl text-gray-900 font-bold mb-2">Phone:</h2>
                 <p className="text-gray-600 font-normal mb-6">
@@ -692,7 +692,7 @@ const Contact = () => {
                 </p>
               </div>
               <div className="bg-white shadow-md rounded p-6 lg:p-10">
-                <h2 className="text-xl font-bold mb-4">Send us message</h2>
+                <h2 className="text-xl font-bold mb-4">Get In Touch</h2>
 
                 <form onSubmit={handleSubmit}>
                   <div className="mb-4">

@@ -1,5 +1,6 @@
 import Loader from "@/components/atomic/Loader";
 import TransactionLoader from "@/components/atomic/TransactionLoader";
+import ModalBloodPouch from "@/components/molecules/ModalBloodPouch";
 import { useDonationContext } from "@/context/donation";
 import { useStateContext } from "@/context/state";
 import { BloodStatus, BloodType, shortAddress } from "@/utils";
@@ -16,13 +17,41 @@ const BloodRequest = (props: Props) => {
   const { address } = useStateContext();
   const [isLoading, setIsLoading] = useState(false);
   const [bloods, setBloods] = useState([]);
+  const [filteredPouches, setFilteredPouches] = useState([]);
   const { getAvailablePouches, assignBloodReceiver } = useDonationContext();
   const [requestLoading, setRequestLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBloodPouch, setSelectedBloodPouch] = useState(null);
+
+  const { bloodType, pouchId } = router.query;
+
+  useEffect(() => {
+    if (bloodType && pouchId) {
+      const filtered = bloods.filter((pouch: any) => {
+        return pouch.bloodGroup == bloodType || pouch.pouchID == pouchId;
+      });
+
+      setFilteredPouches(filtered);
+    } else if (bloodType) {
+      const filtered = bloods.filter((pouch: any) => {
+        return pouch.bloodGroup == bloodType;
+      });
+
+      setFilteredPouches(filtered);
+    } else if (pouchId) {
+      const filtered = bloods.filter((pouch: any) => {
+        return pouch.pouchID == pouchId;
+      });
+
+      setFilteredPouches(filtered);
+    } else {
+      setFilteredPouches(bloods);
+    }
+  }, [bloodType, pouchId, bloods]);
 
   const fetchBloods = useCallback(async () => {
     setIsLoading(true);
     const data = await getAvailablePouches();
-
     setBloods(data);
     setIsLoading(false);
   }, [getAvailablePouches]);
@@ -30,6 +59,12 @@ const BloodRequest = (props: Props) => {
   useEffect(() => {
     fetchBloods();
   }, [fetchBloods]);
+
+  const clearURLQueries = () => {
+    const { protocol, host, pathname } = window.location;
+    const newURL = `${protocol}//${host}${pathname}`;
+    router.replace(newURL);
+  };
 
   const handleRequestBlood = async (pouchID: number) => {
     setRequestLoading(true);
@@ -682,17 +717,37 @@ const BloodRequest = (props: Props) => {
 
       {isLoading && <Loader />}
       {requestLoading && <TransactionLoader />}
+      {showModal && (
+        <ModalBloodPouch
+          onClose={() => {
+            setSelectedBloodPouch(null);
+            setShowModal(false);
+          }}
+          bloodPouch={selectedBloodPouch}
+        />
+      )}
 
       <div className="z-20 relative pt-10 2xl:pt-20">
         <div className="max-w-5xl mx-auto px-4">
-          {!isLoading && bloods.length === 0 && (
+          {Object.keys(router.query).length > 0 && (
+            <div className="mb-5 md:mb-10 text-center">
+              <button
+                onClick={() => clearURLQueries()}
+                className="underline text-blue-600 cursor-pointer"
+              >
+                Clear Filter
+              </button>
+            </div>
+          )}
+
+          {!isLoading && filteredPouches.length === 0 && (
             <p className="text-xl leading-[30px] text-gray-600 text-center w-full">
               We regret to inform you that at this time, we do not have any
               available blood units for request.
             </p>
           )}
 
-          {bloods.length > 0 && (
+          {filteredPouches.length > 0 && (
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
               <table className="w-full text-base text-left text-gray-500">
                 <thead className="text-base text-gray-700 uppercase bg-red-50">
@@ -710,7 +765,7 @@ const BloodRequest = (props: Props) => {
                       Status
                     </th>
                     <th scope="col" className="px-6 py-3">
-                      Publish Date
+                      Published By
                     </th>
                     <th scope="col" className="px-6 py-3">
                       <span className="sr-only">Edit</span>
@@ -718,7 +773,7 @@ const BloodRequest = (props: Props) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bloods.map((blood: any, index) => {
+                  {filteredPouches.map((blood: any, index) => {
                     if (blood.donarID !== address) {
                       return (
                         <tr
@@ -747,9 +802,18 @@ const BloodRequest = (props: Props) => {
                               {shortAddress(blood.organizationID)}
                             </Link>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="px-6 py-4 text-center flex items-center gap-2 lg:gap-3">
                             <button
-                              className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                              className="font-medium text-green-600 hover:underline"
+                              onClick={() => {
+                                setSelectedBloodPouch(blood);
+                                setShowModal(true);
+                              }}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="font-medium text-blue-600 hover:underline"
                               onClick={() => handleRequestBlood(blood.pouchID)}
                             >
                               Request

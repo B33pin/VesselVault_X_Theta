@@ -55,7 +55,10 @@ const Profile = (props: Props) => {
   return (
     <div>
       <Head>
-        <title>{user?.username && `${user?.username} | `} VesselVault</title>
+        <title>
+          {user?.username ? `${user?.username} | VesselVault` : "VesselVault"}
+        </title>
+
         <meta name="description" content={user.bio} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>

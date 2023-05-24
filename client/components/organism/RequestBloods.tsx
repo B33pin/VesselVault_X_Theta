@@ -58,7 +58,7 @@ const RequestBloods = (props: Props) => {
             }}
           >
             <SwiperSlide>
-              <Link href="/bloods/request?blood=1" className="p-1">
+              <Link href="/bloods/request?bloodType=0" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -90,7 +90,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=2" className="p-1">
+              <Link href="/bloods/request?bloodType=1" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -122,7 +122,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=3" className="p-1">
+              <Link href="/bloods/request?bloodType=2" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -154,7 +154,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=4" className="p-1">
+              <Link href="/bloods/request?bloodType=3" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -186,7 +186,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=5" className="p-1">
+              <Link href="/bloods/request?bloodType=4" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -218,7 +218,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=6" className="p-1">
+              <Link href="/bloods/request?bloodType=5" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -250,7 +250,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=7" className="p-1">
+              <Link href="/bloods/request?bloodType=6" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"
@@ -282,7 +282,7 @@ const RequestBloods = (props: Props) => {
               </Link>
             </SwiperSlide>
             <SwiperSlide>
-              <Link href="/bloods/request?blood=8" className="p-1">
+              <Link href="/bloods/request?bloodType=7" className="p-1">
                 <div className="relative hover:scale-105 duration-200">
                   <svg
                     className="w-full"

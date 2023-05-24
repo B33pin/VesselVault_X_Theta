@@ -8,7 +8,6 @@ type ContextProps = {
 };
 
 type BloodDetails = {
-  pouchID: number;
   donarID: string;
   bloodGroup: string;
   details: string;
@@ -31,7 +30,7 @@ function getBloodGroupValue(bloodGroup: string) {
 
 type DefaultValue = {
   addOrganization: (address: string, data: any) => Promise<void>;
-  addUserBloodDetails: (bloodDetails: BloodDetails) => Promise<void>;
+  addUserBloodDetails: (bloodDetails: BloodDetails) => Promise<any>;
   getAvailablePouches: () => Promise<any>;
   getReceivedPouches: (address: string) => Promise<any>;
   getMyPouches: (address: string) => Promise<any>;
@@ -40,7 +39,7 @@ type DefaultValue = {
 
 const contextDefaultValue: DefaultValue = {
   addOrganization: async () => {},
-  addUserBloodDetails: async () => {},
+  addUserBloodDetails: async () => "",
   getAvailablePouches: async () => [],
   getReceivedPouches: async () => [],
   getMyPouches: async () => [],
@@ -52,7 +51,7 @@ const DonationContext = createContext(contextDefaultValue);
 export const DonationContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
-  const { connectBloodDonationContract } = useStateContext();
+  const { connectBloodDonationContract, address } = useStateContext();
   const { addOrganizationProfile } = useUserContext();
 
   const addOrganization = async (address: string, data: any) => {
@@ -77,7 +76,7 @@ export const DonationContextProvider = ({
         bloodDetails.details
       );
       const data = await response.wait();
-      return data;
+      return data.events[1].args.pouchID;
     } catch (error) {
       console.error("Add Blood Error", error);
     }

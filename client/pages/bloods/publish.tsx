@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useQRCode } from "next-qrcode";
 import Button from "@/components/atomic/Button";
 import FormField from "@/components/atomic/FormField";
 import { useDonationContext } from "@/context/donation";
@@ -10,6 +9,7 @@ import { useStateContext } from "@/context/state";
 import { useUserContext } from "@/context/user";
 import TransactionLoader from "@/components/atomic/TransactionLoader";
 import { toast } from "react-hot-toast";
+import ModalBloodQRCode from "@/components/molecules/ModalBloodQRCode";
 
 type Props = {};
 
@@ -21,7 +21,6 @@ type HandleFormFieldChange = (
 ) => void;
 
 const AddBloods = (props: Props) => {
-  const { Canvas } = useQRCode();
   const router = useRouter();
   const { address } = useStateContext();
   const { isOrganization } = useUserContext();
@@ -31,27 +30,32 @@ const AddBloods = (props: Props) => {
     Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000
   );
   const [form, setForm] = useState({
-    pouchID: 0,
     donarID: "",
     bloodGroup: "O_positive",
     details: "",
   });
-  const canvasRef = useRef<any>();
   const [checked, setChecked] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
+  const [pouchId, setPouchId] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await addUserBloodDetails({
-        pouchID: form.pouchID,
+      const response = await addUserBloodDetails({
         donarID: form.donarID,
         bloodGroup: form.bloodGroup,
         details: form.details,
       });
       toast.success("Blood pouch publish successful.");
-      router.push("/bloods/request");
+      setShowQrCode(true);
+      setPouchId(response.toNumber());
+      setForm({
+        donarID: "",
+        bloodGroup: "O_positive",
+        details: "",
+      });
     } catch (error: any) {
       toast.error("Failed to publish blood pouch.");
       console.error(error.message);
@@ -702,6 +706,15 @@ const AddBloods = (props: Props) => {
       </div>
 
       {isLoading && <TransactionLoader />}
+      {showQrCode && (
+        <ModalBloodQRCode
+          text={pouchId}
+          onClose={() => {
+            setShowQrCode(false);
+            setPouchId(pouchId);
+          }}
+        />
+      )}
 
       <div className="container mx-auto relative z-20">
         <div className="section-title text-center">
@@ -731,14 +744,6 @@ const AddBloods = (props: Props) => {
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-wrap-reverse lg:gap-4">
                   <div className="mb-4 w-full lg:flex-1">
-                    <FormField
-                      labelName="Pouch ID *"
-                      placeholder="Blood Pound ID"
-                      inputType="number"
-                      disabled
-                      value={form.pouchID.toString()}
-                      handleChange={(e) => handleFormFieldChange("pouchID", e)}
-                    />
                     <div className="mt-4">
                       <span className="font-epilogue font-medium text-[14px] leading-[22px] text-[#808191] mb-[10px]">
                         Blood Group
@@ -757,41 +762,6 @@ const AddBloods = (props: Props) => {
                         <option value="O_positive">O+</option>
                         <option value="O_negative">O-</option>
                       </select>
-                    </div>
-                  </div>
-                  <div className="mb-4 w-full lg:w-[180px] p-1 text-center">
-                    <div className={`inline-block max-w-[180px]`}>
-                      <span ref={canvasRef}>
-                        <Canvas
-                          text={uniquePouchId.toString()}
-                          options={{
-                            level: "H",
-                            margin: 2,
-                            scale: 8,
-                            width: 180,
-                            color: {
-                              dark: "#DF2A2A",
-                              light: "#FEF0EE",
-                            },
-                          }}
-                          logo={{
-                            src: "https://next-qrcode.js.org/github.png",
-                            options: {
-                              width: 35,
-                              x: undefined,
-                              y: undefined,
-                            },
-                          }}
-                        />
-                      </span>
-                      <button
-                        className={`${
-                          checked ? "cursor-pointer" : "cursor-not-allowed"
-                        } text-sm underline`}
-                        type="button"
-                      >
-                        Download QR
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -829,10 +799,9 @@ const AddBloods = (props: Props) => {
 
                 <Button
                   btnType="submit"
+                  disabled={!checked}
                   title={isLoading ? "Loading" : "Publish Blood Report"}
-                  styles={`w-full inline-flex justify-center items-center border border-red-600 text-white rounded-full transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left px-8 py-3 ${
-                    isLoading ? "cursor-not-allowed" : "cursor-pointer"
-                  }`}
+                  styles={`w-full inline-flex justify-center items-center border border-red-600 text-white rounded-full transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-400 hover:from-red-400 hover:via-red-500 hover:to-red-600 bg-left px-8 py-3`}
                   handleClick={() => {}}
                 />
               </form>
