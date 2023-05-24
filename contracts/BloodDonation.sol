@@ -52,6 +52,18 @@ contract BloodDonation is ERC20 {
         BloodStatus status;
     }
 
+    event BloodPouchCreated(
+        uint256 pouchID,
+        address donorID,
+        BloodGroup bloodGroup,
+        address receiverID,
+        address organizationID,
+        string details,
+        uint256 publishDate,
+        uint256 receivedDate,
+        BloodStatus status
+    );
+
     mapping(uint256 => Campaign) private _campaigns;
     mapping(uint256 => BloodPouch) private _pouches;
     uint256 private _campaignCount;
@@ -134,7 +146,19 @@ contract BloodDonation is ERC20 {
         // Mint governance tokens to the donor
         _mint(_donorID, 100 * 10 ** decimals());
 
-        return pouchID;
+        emit BloodPouchCreated(
+            newPouch.pouchID,
+            newPouch.donorID,
+            newPouch.bloodGroup,
+            newPouch.receiverID,
+            newPouch.organizationID,
+            newPouch.details,
+            newPouch.publishDate,
+            newPouch.receivedDate,
+            newPouch.status
+        );
+
+        return newPouch.pouchID;
     }
 
     /**
