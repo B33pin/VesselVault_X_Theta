@@ -141,7 +141,7 @@ export const DonationContextProvider = ({
     });
   };
 
-  const assignBloodReceiver = async (pouchID: number, amount = "0.002") => {
+  const assignBloodReceiver = async (pouchID: number, amount = "20") => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
     const response = await contract.assignReceiver(pouchID, {

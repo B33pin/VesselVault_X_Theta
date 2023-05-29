@@ -103,10 +103,10 @@ const AddOrganization = () => {
         zipCode,
       });
 
-      toast.success("Organization added successfully.");
+      toast.success("Guardian added successfully.");
       router.push(`/profile/${address}`);
     } catch (error) {
-      toast.error("Failed to add organization.");
+      toast.error("Failed to add guardian.");
       console.error("Error", error);
     }
 
@@ -122,7 +122,7 @@ const AddOrganization = () => {
   return (
     <div>
       <Head>
-        <title>Add Organization | VesselVault</title>
+        <title>Add Guardian | VesselVault</title>
         <meta
           name="description"
           content="A Trustworthy and Transparent Blood Bank Tracking System on Theta Metachain"
@@ -736,7 +736,7 @@ const AddOrganization = () => {
         <div className="container mx-auto relative z-20">
           <div className="section-title text-center">
             <h2 className="text-coolGray-900 leading-tight text-4xl lg:text-6xl font-bold mb-4">
-              Add Organization
+              Add Guardian
             </h2>
             <div className="section-breadcrumb flex items-center justify-center">
               <Link
@@ -750,7 +750,7 @@ const AddOrganization = () => {
                 className="text-center transition duration-500 hover:text-red-600 pl-4 pr-6"
                 href="#"
               >
-                Organization
+                Guardian
               </Link>
             </div>
           </div>
@@ -758,7 +758,7 @@ const AddOrganization = () => {
         <div className="z-20 relative pt-10 2xl:pt-20">
           <div className="max-w-4xl mx-auto px-4">
             <div className="bg-white shadow-md rounded p-6 lg:p-10">
-              <h2 className="text-xl font-bold mb-4">Add Organization</h2>
+              <h2 className="text-xl font-bold mb-4">Add Guardian</h2>
 
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-wrap lg:gap-4">
@@ -856,7 +856,7 @@ const AddOrganization = () => {
 
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Address *"
+                    labelText="Guardian Address *"
                     placeholderText="0xfe....."
                     inputType="text"
                     inputValue={form.address}
@@ -872,8 +872,8 @@ const AddOrganization = () => {
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Name *"
-                    placeholderText="Your Organization Name"
+                    labelText="Guardian Name *"
+                    placeholderText="Your Guardian Name"
                     inputType="text"
                     inputValue={form.organizationName}
                     handleInputChange={(e) =>
@@ -883,8 +883,8 @@ const AddOrganization = () => {
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Description *"
-                    placeholderText="Write about organization"
+                    labelText="Guardian Description *"
+                    placeholderText="Write about guardian"
                     isTextArea
                     inputValue={form.organizationDetails}
                     handleInputChange={(e) =>
@@ -894,7 +894,7 @@ const AddOrganization = () => {
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Email *"
+                    labelText="Guardian Email *"
                     placeholderText="admin@red-cross.com"
                     inputType="email"
                     inputValue={form.email}
@@ -908,8 +908,8 @@ const AddOrganization = () => {
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Website Url *"
-                    placeholderText="Organization Url"
+                    labelText="Guardian Website Url *"
+                    placeholderText="Guardian Url"
                     inputType="url"
                     inputValue={form.website}
                     handleInputChange={(e) =>
@@ -922,8 +922,8 @@ const AddOrganization = () => {
                 </div>
                 <div className="mb-4">
                   <FormField
-                    labelText="Organization Phone Number *"
-                    placeholderText="Organization Phone Number"
+                    labelText="Guardian Phone Number *"
+                    placeholderText="Guardian Phone Number"
                     inputType="number"
                     inputValue={form.phoneNumber}
                     handleInputChange={(e) =>
@@ -969,7 +969,7 @@ const AddOrganization = () => {
                     isLoading ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
                 >
-                  {isLoading ? "Loading" : "Add Organization"}
+                  {isLoading ? "Loading" : "Add Guardian"}
                 </button>
               </form>
             </div>

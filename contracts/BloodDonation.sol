@@ -145,6 +145,7 @@ contract BloodDonation is ERC20 {
 
         // Mint governance tokens to the donor
         _mint(_donorID, 100 * 10 ** decimals());
+        
 
         emit BloodPouchCreated(
             newPouch.pouchID,
@@ -253,8 +254,8 @@ contract BloodDonation is ERC20 {
         require(_pouches[_pouchID].receiverID == address(0), "Pouch already has a receiver");
 
         // Transfer the received Ether to the receiver's address
-        payable(_pouches[_pouchID].receiverID).transfer(msg.value);
-
+        payable(_pouches[_pouchID].organizationID).transfer(msg.value);
+         _mint(_pouches[_pouchID].organizationID, 100 * 10 ** decimals());
         _pouches[_pouchID].receiverID = msg.sender;
         _pouches[_pouchID].status = BloodStatus.Received;
     }

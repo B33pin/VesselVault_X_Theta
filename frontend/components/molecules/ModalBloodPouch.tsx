@@ -55,7 +55,7 @@ const ModalBloodPouch = ({ bloodPouch, onClose }: ModalType) => {
                     </CopyToClipboard>
                   </li>
                   <li className="mb-1 flex items-center">
-                    <strong className="mr-2">Organization Id:</strong>{" "}
+                    <strong className="mr-2">Guardian Id:</strong>{" "}
                     <CopyToClipboard text={bloodPouch.donarID}>
                       <Link href={`/profile/${bloodPouch.organizationID}`}>
                         <span className="text-base transition duration-200 hover:text-red-600 flex items-center cursor-pointer">

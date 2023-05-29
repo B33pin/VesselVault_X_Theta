@@ -266,11 +266,11 @@ const Navbar = () => {
                             <>
                               <li className="relative p-2">
                                 <Link
-                                  href={`/admin/add-organization`}
+                                  href={`/admin/add-guardian`}
                                   onClick={() => setShowProfileMenu(false)}
                                   className="font-medium uppercase transition duration-200 hover:text-red-600"
                                 >
-                                  Add Organization
+                                  Add Guardian
                                 </Link>
                               </li>
                               <hr className="border-gray-200" />
