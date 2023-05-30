@@ -44,7 +44,7 @@ contract BloodDonation is ERC20 {
         uint256 pouchID;
         BloodGroup bloodGroup;
         address donorID;
-        address organizationID;
+        address guardianID;
         address receiverID;
         string details;
         uint256 publishDate;
@@ -57,7 +57,7 @@ contract BloodDonation is ERC20 {
         address donorID,
         BloodGroup bloodGroup,
         address receiverID,
-        address organizationID,
+        address guardianID,
         string details,
         uint256 publishDate,
         uint256 receivedDate,
@@ -69,13 +69,13 @@ contract BloodDonation is ERC20 {
     uint256 private _campaignCount;
     uint256 private _pouchCount;
     address private _isAdmin;
-    mapping(address => bool) private _isOrganization;
+    mapping(address => bool) private _isGuardian;
 
     /**
-     * @dev Modifier to only allow organization access
+     * @dev Modifier to only allow Guardian access
      */
-    modifier onlyOrganization() {
-        require(_isOrganization[msg.sender], "Caller is not an organization");
+    modifier onlyGuardian() {
+        require(_isGuardian[msg.sender], "Caller is not an guardian");
         _;
     }
 
@@ -84,16 +84,16 @@ contract BloodDonation is ERC20 {
      */
     constructor() ERC20("SOCIAL TOKEN", "SOCIAL") {
         _isAdmin = msg.sender;
-        _isOrganization[msg.sender] = true;
+        _isGuardian[msg.sender] = true;
     }
 
     /**
-     * @dev Function to check if an address is an organization
+     * @dev Function to check if an address is an guardian
      * @param _account The address to check
-     * @return A boolean indicating if the address is an organization
+     * @return A boolean indicating if the address is an guardian
      */
-    function isOrganization(address _account) public view returns (bool) {
-        return _isOrganization[_account];
+    function isGuardian(address _account) public view returns (bool) {
+        return _isGuardian[_account];
     }
 
     /**
@@ -106,12 +106,12 @@ contract BloodDonation is ERC20 {
     }
 
     /**
-     * @dev Function to add a new organization
+     * @dev Function to add a new guardian
      * @param _adminAddress The address of an admin
      */
-    function addOrganization(address _adminAddress) public {
-        require(msg.sender == _isAdmin, "Only admin can add organization");
-        _isOrganization[_adminAddress] = true;
+    function addGuardian(address _adminAddress) public {
+        require(msg.sender == _isAdmin, "Only admin can add guardian");
+        _isGuardian[_adminAddress] = true;
     }
 
     /**
@@ -125,7 +125,7 @@ contract BloodDonation is ERC20 {
         address _donorID,
         BloodGroup _bloodGroup,
         string memory _details
-    ) public onlyOrganization returns (uint256) {
+    ) public onlyGuardian returns (uint256) {
         uint256 pouchID = _pouchCount;
 
         BloodPouch memory newPouch = BloodPouch({
@@ -133,7 +133,7 @@ contract BloodDonation is ERC20 {
             donorID: _donorID,
             bloodGroup: _bloodGroup,
             receiverID: address(0),
-            organizationID: msg.sender,
+            guardianID: msg.sender,
             details: _details,
             publishDate: block.timestamp,
             receivedDate: 0,
@@ -145,14 +145,13 @@ contract BloodDonation is ERC20 {
 
         // Mint governance tokens to the donor
         _mint(_donorID, 100 * 10 ** decimals());
-        
 
         emit BloodPouchCreated(
             newPouch.pouchID,
             newPouch.donorID,
             newPouch.bloodGroup,
             newPouch.receiverID,
-            newPouch.organizationID,
+            newPouch.guardianID,
             newPouch.details,
             newPouch.publishDate,
             newPouch.receivedDate,
@@ -254,8 +253,8 @@ contract BloodDonation is ERC20 {
         require(_pouches[_pouchID].receiverID == address(0), "Pouch already has a receiver");
 
         // Transfer the received Ether to the receiver's address
-        payable(_pouches[_pouchID].organizationID).transfer(msg.value);
-         _mint(_pouches[_pouchID].organizationID, 100 * 10 ** decimals());
+        payable(_pouches[_pouchID].receiverID).transfer(msg.value);
+        _mint(_pouches[_pouchID].organizationID, 100 * 10 ** decimals());
         _pouches[_pouchID].receiverID = msg.sender;
         _pouches[_pouchID].status = BloodStatus.Received;
     }
@@ -279,7 +278,7 @@ contract BloodDonation is ERC20 {
         string memory _videoId,
         uint256 _targetAmount,
         uint256 _deadlineDate
-    ) public onlyOrganization returns (uint256) {
+    ) public onlyGuardian returns (uint256) {
         uint256 id = _campaignCount;
 
         Campaign memory newCampaign = Campaign({
@@ -347,10 +346,10 @@ contract BloodDonation is ERC20 {
     }
 
     /**
-     * @dev Function to get all campaigns created by the caller (organization)
+     * @dev Function to get all campaigns created by the caller (guardian)
      * @return An array of campaigns
      */
-    function getMyCampaigns() public view onlyOrganization returns (Campaign[] memory) {
+    function getMyCampaigns() public view onlyGuardian returns (Campaign[] memory) {
         Campaign[] memory activeCampaigns = new Campaign[](_campaignCount);
         uint256 activeCampaignCount = 0;
 
