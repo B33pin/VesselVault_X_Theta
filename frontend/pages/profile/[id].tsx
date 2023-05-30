@@ -222,7 +222,7 @@ const Profile = (props: Props) => {
                 <div className="flex lg:flex-nowrap items-start -mt-20">
                   <div className="hidden sm:block relative shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                     <div className="relative flex w-20 lg:w-32 ml-auto mr-auto mb-5">
-                      {guestUser.isOrganization && (
+                      {guestUser.isGuardian && (
                         <Image
                           width={100}
                           height={100}
@@ -230,10 +230,10 @@ const Profile = (props: Props) => {
                           src={storage.resolveScheme(
                             "ipfs://QmQSXDz9sgMkRSRobKCj8dB66t85HuQJYW1J9h3cghtTp8/0"
                           )}
-                          alt={guestUser.organizationName}
+                          alt={guestUser.guardianName}
                         />
                       )}
-                      {!guestUser.isOrganization && guestUser.profile && (
+                      {!guestUser.isGuardian && guestUser.profile && (
                         <Image
                           width={100}
                           height={100}
@@ -242,7 +242,7 @@ const Profile = (props: Props) => {
                           alt={guestUser.username}
                         />
                       )}
-                      {!guestUser.isOrganization && !guestUser.profile && (
+                      {!guestUser.isGuardian && !guestUser.profile && (
                         <Image
                           src={"/logo-large.png"}
                           alt={guestUser.username}
@@ -316,12 +316,12 @@ const Profile = (props: Props) => {
                       </a>
                     </div>
 
-                    {guestUser.isOrganization && (
+                    {guestUser.isGuardian && (
                       <p className="text-gray-600 leading-7 font-normal">
-                        {guestUser.organizationDetails}
+                        {guestUser.guardianDetails}
                       </p>
                     )}
-                    {!guestUser.isOrganization && guestUser.bio && (
+                    {!guestUser.isGuardian && guestUser.bio && (
                       <p className="text-gray-600 leading-7 font-normal">
                         {guestUser.bio}
                       </p>

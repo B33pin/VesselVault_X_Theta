@@ -215,16 +215,16 @@ const Profile = (props: Props) => {
               <div className="flex lg:flex-nowrap items-start -mt-20">
                 <div className="hidden sm:block relative shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="relative flex w-20 lg:w-32 ml-auto mr-auto mb-5">
-                    {user.isOrganization && (
+                    {user.isGuardian && (
                       <Image
                         width={100}
                         height={100}
                         className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
-                        src={storage.resolveScheme(user.organizationPhoto)}
-                        alt={user.organizationName}
+                        src={storage.resolveScheme(user.guardianPhoto)}
+                        alt={user.guardianName}
                       />
                     )}
-                    {!user.isOrganization && user.profile && (
+                    {!user.isGuardian && user.profile && (
                       <Image
                         width={100}
                         height={100}
@@ -233,7 +233,7 @@ const Profile = (props: Props) => {
                         alt={user.username}
                       />
                     )}
-                    {!user.isOrganization && !user.profile && (
+                    {!user.isGuardian && !user.profile && (
                       <Image
                         src={"/logo-large.png"}
                         alt={user.username}
@@ -315,12 +315,12 @@ const Profile = (props: Props) => {
                     </a>
                   </div>
 
-                  {user.isOrganization && (
+                  {user.isGuardian && (
                     <p className="text-gray-600 leading-7 font-normal">
-                      {user.organizationDetails}
+                      {user.guardianDetails}
                     </p>
                   )}
-                  {!user.isOrganization && user.bio && (
+                  {!user.isGuardian && user.bio && (
                     <p className="text-gray-600 leading-7 font-normal">
                       {user.bio}
                     </p>

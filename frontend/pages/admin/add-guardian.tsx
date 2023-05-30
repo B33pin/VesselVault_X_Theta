@@ -23,14 +23,14 @@ type HandleFormFieldChange = (
   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 ) => void;
 
-const AddOrganization = () => {
+const AddGuardian = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState<any>({
     address: "",
-    organizationName: "",
-    organizationDetails: "",
-    organizationPhoto: null,
+    guardianName: "",
+    guardianDetails: "",
+    guardianPhoto: null,
     email: "",
     website: "",
     phoneNumber: "",
@@ -39,7 +39,7 @@ const AddOrganization = () => {
   });
   const storage = new ThirdwebStorage();
   const { isAdmin } = useUserContext();
-  const { addOrganization } = useDonationContext();
+  const { addGuardian } = useDonationContext();
 
   const handleFormFieldChange: HandleFormFieldChange = (fieldName, e) => {
     setForm((prev: any) => ({
@@ -54,9 +54,9 @@ const AddOrganization = () => {
 
     const {
       address,
-      organizationName,
-      organizationDetails,
-      organizationPhoto,
+      guardianName,
+      guardianDetails,
+      guardianPhoto,
       email,
       website,
       phoneNumber,
@@ -66,10 +66,10 @@ const AddOrganization = () => {
 
     const isFormValid =
       address &&
-      organizationName &&
-      organizationDetails &&
-      organizationPhoto &&
-      organizationPhoto.length > 0 &&
+      guardianName &&
+      guardianDetails &&
+      guardianPhoto &&
+      guardianPhoto.length > 0 &&
       email &&
       website &&
       phoneNumber &&
@@ -90,12 +90,12 @@ const AddOrganization = () => {
     }
 
     try {
-      const campaignImageIPfs = await storage.upload(organizationPhoto[0]);
+      const campaignImageIPfs = await storage.upload(guardianPhoto[0]);
 
-      await addOrganization(address, {
-        organizationName,
-        organizationDetails,
-        organizationPhoto: campaignImageIPfs,
+      await addGuardian(address, {
+        guardianName,
+        guardianDetails,
+        guardianPhoto: campaignImageIPfs,
         email,
         website,
         phoneNumber,
@@ -764,11 +764,11 @@ const AddOrganization = () => {
                 <div className="flex flex-wrap lg:gap-4">
                   <div className="mb-4 w-full">
                     <ImageUploading
-                      value={form.organizationPhoto}
+                      value={form.guardianPhoto}
                       onChange={(imageList: any) => {
                         setForm((prev: any) => ({
                           ...prev,
-                          organizationPhoto: imageList,
+                          guardianPhoto: imageList,
                         }));
                       }}
                       maxNumber={1}
@@ -875,9 +875,9 @@ const AddOrganization = () => {
                     labelText="Guardian Name *"
                     placeholderText="Your Guardian Name"
                     inputType="text"
-                    inputValue={form.organizationName}
+                    inputValue={form.guardianName}
                     handleInputChange={(e) =>
-                      handleFormFieldChange("organizationName", e)
+                      handleFormFieldChange("guardianName", e)
                     }
                   />
                 </div>
@@ -886,9 +886,9 @@ const AddOrganization = () => {
                     labelText="Guardian Description *"
                     placeholderText="Write about guardian"
                     isTextArea
-                    inputValue={form.organizationDetails}
+                    inputValue={form.guardianDetails}
                     handleInputChange={(e) =>
-                      handleFormFieldChange("organizationDetails", e)
+                      handleFormFieldChange("guardianDetails", e)
                     }
                   />
                 </div>
@@ -980,4 +980,4 @@ const AddOrganization = () => {
   );
 };
 
-export default AddOrganization;
+export default AddGuardian;

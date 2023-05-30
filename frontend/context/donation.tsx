@@ -29,7 +29,7 @@ function getBloodGroupValue(bloodGroup: string) {
 }
 
 type DefaultValue = {
-  addOrganization: (address: string, data: any) => Promise<void>;
+  addGuardian: (address: string, data: any) => Promise<void>;
   addUserBloodDetails: (bloodDetails: BloodDetails) => Promise<any>;
   getAvailablePouches: () => Promise<any>;
   getReceivedPouches: (address: string) => Promise<any>;
@@ -38,7 +38,7 @@ type DefaultValue = {
 };
 
 const contextDefaultValue: DefaultValue = {
-  addOrganization: async () => {},
+  addGuardian: async () => {},
   addUserBloodDetails: async () => "",
   getAvailablePouches: async () => [],
   getReceivedPouches: async () => [],
@@ -52,14 +52,14 @@ export const DonationContextProvider = ({
   children,
 }: ContextProps): JSX.Element => {
   const { connectBloodDonationContract, address } = useStateContext();
-  const { addOrganizationProfile } = useUserContext();
+  const { addGuardianProfile } = useUserContext();
 
-  const addOrganization = async (address: string, data: any) => {
+  const addGuardian = async (address: string, data: any) => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
-    const response = await contract.addOrganization(address);
+    const response = await contract.addGuardian(address);
 
-    addOrganizationProfile(address, data);
+    addGuardianProfile(address, data);
 
     await response.wait();
   };
@@ -90,7 +90,7 @@ export const DonationContextProvider = ({
       return {
         pouchID: bloodData.pouchID.toNumber(),
         donarID: bloodData.donorID,
-        organizationID: bloodData.organizationID,
+        guardianID: bloodData.guardianID,
         bloodGroup: bloodData.bloodGroup,
         status: bloodData.status,
         details: bloodData.details,
@@ -109,7 +109,7 @@ export const DonationContextProvider = ({
       return {
         pouchID: bloodData.pouchID.toNumber(),
         donarID: bloodData.donorID,
-        organizationID: bloodData.organizationID,
+        guardianID: bloodData.guardianID,
         bloodGroup: bloodData.bloodGroup,
         status: bloodData.status,
         details: bloodData.details,
@@ -130,7 +130,7 @@ export const DonationContextProvider = ({
       return {
         pouchID: bloodData.pouchID.toNumber(),
         donarID: bloodData.donorID,
-        organizationID: bloodData.organizationID,
+        guardianID: bloodData.guardianID,
         bloodGroup: bloodData.bloodGroup,
         status: bloodData.status,
         details: bloodData.details,
@@ -141,7 +141,7 @@ export const DonationContextProvider = ({
     });
   };
 
-  const assignBloodReceiver = async (pouchID: number, amount = "20") => {
+  const assignBloodReceiver = async (pouchID: number, amount = "0.002") => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
     const response = await contract.assignReceiver(pouchID, {
@@ -155,7 +155,7 @@ export const DonationContextProvider = ({
   return (
     <DonationContext.Provider
       value={{
-        addOrganization,
+        addGuardian,
         addUserBloodDetails,
         getAvailablePouches,
         getReceivedPouches,

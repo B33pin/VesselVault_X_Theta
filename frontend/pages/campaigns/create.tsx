@@ -10,6 +10,7 @@ import FormField from "@/components/atomic/FormField";
 import Image from "next/image";
 import { useStateContext } from "@/context/state";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 type HandleFormFieldChange = (
   fieldName: string,
@@ -53,8 +54,7 @@ const CreateCampaign = () => {
       deadlineDate &&
       image &&
       image.length > 0 &&
-      video &&
-      video.length > 0;
+      video;
 
     if (!isFormValid) {
       return toast.error("Please fill all the forms.");
@@ -62,6 +62,49 @@ const CreateCampaign = () => {
 
     try {
       const campaignImageIPfs = await storage.upload(form.image[0]);
+
+      const response1 = await axios({
+        url: "https://api.thetavideoapi.com/upload",
+        method: "POST",
+        headers: {
+          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+        },
+      });
+
+      const response2 = await axios({
+        url: response1.data.body.uploads[0].presigned_url,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+        data: video,
+      });
+
+      // For Video ID
+      const response3 = await axios({
+        method: "POST",
+        url: "https://api.thetavideoapi.com/video",
+        headers: {
+          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify({
+          source_upload_id: response1.data.body.uploads[0].id,
+          playback_policy: "public",
+        }),
+      });
+
+      // For Video Status
+      const response4 = await axios({
+        url: `https://api.thetavideoapi.com/video/${response3.data.body.videos[0].id}`,
+        method: "GET",
+        headers: {
+          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
+          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
+        },
+      });
 
       await createCampaign({
         id: "",

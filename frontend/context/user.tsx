@@ -12,14 +12,14 @@ import { useStateContext } from "./state";
 type User = {
   id: string;
   username: string;
-  isOrganization: boolean;
+  isGuardian: boolean;
   bio: string;
   email: string;
   coverPhoto: string;
   profile: string;
-  organizationName: string;
-  organizationDetails: string;
-  organizationPhoto: string;
+  guardianName: string;
+  guardianDetails: string;
+  guardianPhoto: string;
   website: string;
   phoneNumber: string;
   country: string;
@@ -35,27 +35,27 @@ type ContextProps = {
 
 type UserContextValue = {
   user: User;
-  isOrganization: boolean;
+  isGuardian: boolean;
   isAdmin: boolean;
   createUser: (address: string) => Promise<void>;
-  addOrganizationProfile: (address: string, data: User) => Promise<void>;
+  addGuardianProfile: (address: string, data: User) => Promise<void>;
   getUserData: (address: string) => Promise<User>;
   getUserByAddress: (address: string) => Promise<User>;
   updateProfile: (data: User) => Promise<User>;
-  updateOrganizationProfile: (data: User) => Promise<User>;
+  updateGuardianProfile: (data: User) => Promise<User>;
 };
 
 const initialUserState: User = {
   id: "",
   username: "",
-  isOrganization: false,
+  isGuardian: false,
   bio: "",
   email: "",
   coverPhoto: "",
   profile: "",
-  organizationName: "",
-  organizationDetails: "",
-  organizationPhoto: "",
+  guardianName: "",
+  guardianDetails: "",
+  guardianPhoto: "",
   website: "",
   phoneNumber: "",
   country: "",
@@ -67,14 +67,14 @@ const initialUserState: User = {
 
 const UserContext = createContext<UserContextValue>({
   user: initialUserState,
-  isOrganization: false,
+  isGuardian: false,
   isAdmin: false,
   createUser: async () => {},
-  addOrganizationProfile: async () => {},
+  addGuardianProfile: async () => {},
   getUserData: async () => initialUserState,
   getUserByAddress: async () => initialUserState,
   updateProfile: async () => initialUserState,
-  updateOrganizationProfile: async () => initialUserState,
+  updateGuardianProfile: async () => initialUserState,
 });
 
 const createPolybaseInstance = () =>
@@ -92,7 +92,7 @@ const createPolybaseInstance = () =>
 export const UserContextProvider = ({ children }: ContextProps) => {
   const { address, connectBloodDonationContract } = useStateContext();
   const [user, setUser] = useState<User>(initialUserState);
-  const [isOrganization, setIsOrganization] = useState(false);
+  const [isGuardian, setIsGuardian] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   const createUser = async (address: string) => {
@@ -107,15 +107,15 @@ export const UserContextProvider = ({ children }: ContextProps) => {
     }
   };
 
-  const addOrganizationProfile = async (address: string, data: User) => {
+  const addGuardianProfile = async (address: string, data: User) => {
     const db = createPolybaseInstance();
     await db
       .collection("User")
       .record(address)
-      .call("addOrganization", [
-        data.organizationName,
-        data.organizationDetails,
-        data.organizationPhoto,
+      .call("addGuardian", [
+        data.guardianName,
+        data.guardianDetails,
+        data.guardianPhoto,
         data.email,
         data.website,
         data.phoneNumber,
@@ -147,7 +147,7 @@ export const UserContextProvider = ({ children }: ContextProps) => {
     return res.data;
   };
 
-  const updateOrganizationProfile = async (data: User) => {
+  const updateGuardianProfile = async (data: User) => {
     const db = createPolybaseInstance();
     const res = await db
       .collection("User")
@@ -157,7 +157,7 @@ export const UserContextProvider = ({ children }: ContextProps) => {
         data.bio,
         data.coverPhoto,
         data.profile,
-        data.organizationDetails,
+        data.guardianDetails,
         data.email,
         data.website,
         data.phoneNumber,
@@ -192,10 +192,10 @@ export const UserContextProvider = ({ children }: ContextProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
-  const checkIfOrganization = useCallback(async () => {
+  const checkIfGuardian = useCallback(async () => {
     const contract = await connectBloodDonationContract();
     if (!contract) throw new Error("Contract is not connected.");
-    setIsOrganization(await contract.isOrganization(address));
+    setIsGuardian(await contract.isGuardian(address));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
@@ -208,9 +208,9 @@ export const UserContextProvider = ({ children }: ContextProps) => {
 
   useEffect(() => {
     if (address) {
-      checkIfOrganization();
+      checkIfGuardian();
     }
-  }, [address, checkIfOrganization]);
+  }, [address, checkIfGuardian]);
 
   useEffect(() => {
     if (address) {
@@ -222,14 +222,14 @@ export const UserContextProvider = ({ children }: ContextProps) => {
     <UserContext.Provider
       value={{
         user,
-        isOrganization,
+        isGuardian,
         isAdmin,
         createUser,
-        addOrganizationProfile,
+        addGuardianProfile,
         getUserData,
         getUserByAddress,
         updateProfile,
-        updateOrganizationProfile,
+        updateGuardianProfile,
       }}
     >
       {children}

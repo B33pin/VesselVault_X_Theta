@@ -24,7 +24,7 @@ type HandleFormFieldChange = (
 const AddBloods = (props: Props) => {
   const router = useRouter();
   const { address } = useStateContext();
-  const { isOrganization } = useUserContext();
+  const { isGuardian } = useUserContext();
   const [isLoading, setIsLoading] = useState(false);
   const { addUserBloodDetails } = useDonationContext();
   const [uniquePouchId, setUniquePouchId] = useState(
@@ -85,10 +85,10 @@ const AddBloods = (props: Props) => {
   };
 
   useEffect(() => {
-    if (address && !isOrganization) {
+    if (address && !isGuardian) {
       router.push("/bloods/request");
     }
-  }, [isOrganization, router, address]);
+  }, [isGuardian, router, address]);
 
   useEffect(() => {
     setForm((prev) => {
@@ -751,7 +751,7 @@ const AddBloods = (props: Props) => {
           </div>
         </div>
 
-        {isOrganization && (
+        {isGuardian && (
           <div className="max-w-2xl mx-auto z-10 my-10">
             <div className="bg-white shadow-lg rounded-md p-6 lg:p-10">
               <form onSubmit={handleSubmit}>

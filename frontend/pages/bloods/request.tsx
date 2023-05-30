@@ -798,8 +798,8 @@ const BloodRequest = (props: Props) => {
                             {BloodStatus[blood.status as number]}
                           </td>
                           <td className="px-6 py-4">
-                            <Link href={`/profile/${blood.organizationID}`}>
-                              {shortAddress(blood.organizationID)}
+                            <Link href={`/profile/${blood.guardianID}`}>
+                              {shortAddress(blood.guardianID)}
                             </Link>
                           </td>
                           <td className="px-6 py-4 text-center flex items-center gap-2 lg:gap-3">

@@ -61,8 +61,6 @@ export const StateContextProvider = ({ children }: ContextProps) => {
 
       // const network = await provider.getNetwork();
 
-      // console.log(network)
-
       // if (network.name !== "privatenet") {
       //   alert(`This dApp only supports the Theta mainnet.`);
       //   return console.warn(`This dApp only supports the Theta mainnet.`);
@@ -74,9 +72,19 @@ export const StateContextProvider = ({ children }: ContextProps) => {
 
       await connectBloodDonationContract();
 
-      window.ethereum.on("accountsChanged", function (accounts: string[]) {
-        setAddress(accounts[0]);
-      });
+      window.ethereum.on(
+        "accountsChanged",
+        async function (accounts: string[]) {
+          const newAddress = accounts[0];
+          setAddress(newAddress);
+
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const newBalance = await provider.getBalance(newAddress);
+          const etherBalance = ethers.utils.formatEther(newBalance);
+
+          setBalance(etherBalance);
+        }
+      );
     } catch (error) {
       console.error("Failed to connect to wallet:", error);
       alert(

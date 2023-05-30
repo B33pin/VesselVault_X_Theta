@@ -40,7 +40,7 @@ const CampaignDetails = () => {
     { donator: string; donation: string }[]
   >([]);
   const [campaign, setCampaign] = useState<CampaignType | null>(null);
-  const [organizationData, setOrganizationData] = useState<any>(null);
+  const [guardianData, setGuardianData] = useState<any>(null);
   const storage = new ThirdwebStorage();
   const [days, hours, minutes, seconds] = useCountdown(
     campaign?.deadlineDate.toNumber()
@@ -81,7 +81,7 @@ const CampaignDetails = () => {
 
       setCampaign(campaignData);
       setDonators(donatorsData);
-      setOrganizationData(organizerData);
+      setGuardianData(organizerData);
       setIsLoading(false);
     };
 
@@ -808,13 +808,13 @@ const CampaignDetails = () => {
                   <div className="mt-[20px] flex flex-row items-center flex-wrap gap-[14px]">
                     <div className="w-[80px] h-[80px] flex items-center justify-center rounded-full bg-[#2c2f32] cursor-pointer">
                       <Link
-                        href={`/profile/${organizationData.id}`}
+                        href={`/profile/${guardianData.id}`}
                         className="text-blue-600 text-sm hover:underline"
                       >
-                        {organizationData ? (
+                        {guardianData ? (
                           <Image
                             src={storage.resolveScheme(
-                              organizationData.profile
+                              guardianData.profile
                             )}
                             alt="user"
                             width={120}
@@ -849,7 +849,7 @@ const CampaignDetails = () => {
                         </CopyToClipboard>
                       </h4>
                       <Link
-                        href={`/profile/${organizationData.id}`}
+                        href={`/profile/${guardianData.id}`}
                         className="text-blue-600 text-sm hover:underline"
                       >
                         View Profile

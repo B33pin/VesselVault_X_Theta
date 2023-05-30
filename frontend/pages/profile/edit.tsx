@@ -142,10 +142,10 @@ const EditProfile = () => {
         facebookLink: form.facebookLink,
         instagramLink: form.instagramLink,
         twitterLink: form.twitterLink,
-        isOrganization: false,
-        organizationName: "",
-        organizationDetails: "",
-        organizationPhoto: "",
+        isGuardian: false,
+        guardianName: "",
+        guardianDetails: "",
+        guardianPhoto: "",
         website: "",
       });
       toast.success("Profile updated successfully.");
@@ -318,16 +318,16 @@ const EditProfile = () => {
               <div className="flex lg:flex-nowrap items-start -mt-20">
                 <div className="hidden sm:block shadow rounded p-5 lg:p-10 bg-white transition hover:shadow-lg">
                   <div className="card-creator-author flex w-20 lg:w-32 ml-auto mr-auto relative mb-5">
-                    {user.isOrganization && (
+                    {user.isGuardian && (
                       <Image
                         width={100}
                         height={100}
                         className="w-20 h-20 lg:w-32 lg:h-32 object-cover rounded-full border-2 border-white"
-                        src={storage.resolveScheme(user.organizationPhoto)}
-                        alt={user.organizationName}
+                        src={storage.resolveScheme(user.guardianPhoto)}
+                        alt={user.guardianName}
                       />
                     )}
-                    {!user.isOrganization && user.profile && (
+                    {!user.isGuardian && user.profile && (
                       <Image
                         width={100}
                         height={100}
@@ -336,7 +336,7 @@ const EditProfile = () => {
                         alt={user.username}
                       />
                     )}
-                    {!user.isOrganization && !user.profile && (
+                    {!user.isGuardian && !user.profile && (
                       <Image
                         src={"/logo-large.png"}
                         alt={user.username}

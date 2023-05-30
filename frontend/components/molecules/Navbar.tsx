@@ -20,7 +20,7 @@ const Navbar = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { user, isOrganization, isAdmin } = useUserContext();
+  const { user, isGuardian, isAdmin } = useUserContext();
   const [isMenuActive, setIsMenuActive] = useState(false);
   const profileRef = useRef<HTMLUListElement | null | any>();
   const menuRef = useRef<HTMLUListElement | null | any>();
@@ -260,9 +260,9 @@ const Navbar = () => {
                         </Link>
                       </li>
                       <hr className="border-gray-400" />
-                      {isOrganization && (
+                      {isGuardian && (
                         <>
-                          {isAdmin && isOrganization && (
+                          {isAdmin && isGuardian && (
                             <>
                               <li className="relative p-2">
                                 <Link
