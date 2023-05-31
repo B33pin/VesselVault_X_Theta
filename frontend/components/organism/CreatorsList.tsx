@@ -44,19 +44,20 @@ const CreatorsList = (props: Props) => {
                 </div>
               </div>
             </div>
+
             <div className="bg-white rounded transition duration-200 border hover:shadow-lg group">
               <div className="relative p-5 rounded overflow-hidden">
                 <Image
                   className="rounded object-cover w-60 h-60 group-hover:scale-105 duration-200"
-                  src={Creator3}
-                  alt="Creator 3"
+                  src={Creator2}
+                  alt="Creator 2"
                   width={300}
                   height={300}
                 />
               </div>
               <div className="px-4 pb-6 pt-0 text-center">
                 <h2 className="text-gray-900 text-lg font-bold transition duration-500 mb-2">
-                  Aashika Dhakal
+                  Rohan Shakya
                 </h2>
                 <div className="flex flex-wrap items-center justify-center gap-5 pt-3">
                   <a className="flex items-center justify-center" href="#">
@@ -75,15 +76,15 @@ const CreatorsList = (props: Props) => {
               <div className="relative p-5 rounded overflow-hidden">
                 <Image
                   className="rounded object-cover w-60 h-60 group-hover:scale-105 duration-200"
-                  src={Creator2}
-                  alt="Creator 2"
+                  src={Creator3}
+                  alt="Creator 3"
                   width={300}
                   height={300}
                 />
               </div>
               <div className="px-4 pb-6 pt-0 text-center">
                 <h2 className="text-gray-900 text-lg font-bold transition duration-500 mb-2">
-                  Rohan Shakya
+                  Aashika Dhakal
                 </h2>
                 <div className="flex flex-wrap items-center justify-center gap-5 pt-3">
                   <a className="flex items-center justify-center" href="#">

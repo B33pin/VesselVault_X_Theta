@@ -493,42 +493,26 @@ const Footer = () => {
           </svg>
         </span>
       </div>
-      <div className="container mx-auto z-20 relative">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+      <div className="max-w-3xl mx-auto z-20 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           <div className="footer-widget">
             <h4 className="text-2xl text-gray-900 font-bold">My Account</h4>
             <ul className="footer-menu-list mt-2 lg:mt-5 block">
               <li className="mb-4 mr-4">
-                <a
+                <Link
                   className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="creator.html"
+                  href="/profile/view"
                 >
-                  Creator Dashboard
-                </a>
+                  View Account
+                </Link>
               </li>
               <li className="mb-4 mr-4">
-                <a
+                <Link
                   className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="wallet.html"
+                  href="/profile/edit"
                 >
-                  Wallet
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="create.html"
-                >
-                  Create Item
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="contact.html"
-                >
-                  My Account
-                </a>
+                  Edit Account
+                </Link>
               </li>
             </ul>
           </div>
@@ -536,77 +520,20 @@ const Footer = () => {
             <h4 className="text-2xl text-gray-900 font-bold">Web Links</h4>
             <ul className="footer-menu-list mt-2 lg:mt-5 block">
               <li className="mb-4 mr-4">
-                <a
+                <Link
                   className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="item-collection.html"
+                  href="/bloods/request"
                 >
-                  {" "}
-                  Collections
-                </a>
+                  Request Bloods
+                </Link>
               </li>
               <li className="mb-4 mr-4">
-                <a
+                <Link
                   className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="item-details.html"
+                  href="/campaigns/explore"
                 >
-                  Item Details
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="rankings.html"
-                >
-                  {" "}
-                  Rankings
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="creator-edit-profile.html"
-                >
-                  User Profile{" "}
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-widget">
-            <h4 className="text-2xl text-gray-900 font-bold">Community</h4>
-            <ul className="footer-menu-list mt-2 lg:mt-5 block">
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="blog-category.html"
-                >
-                  {" "}
-                  Blog Category
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="blog-author.html"
-                >
-                  Blog Author
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="#"
-                >
-                  {" "}
-                  Blog
-                </a>
-              </li>
-              <li className="mb-4 mr-4">
-                <a
-                  className="text-gray-600 font-normal transition duration-500 hover:text-red-400 my-4"
-                  href="blog-details.html"
-                >
-                  Blog Details{" "}
-                </a>
+                  Donate Campaigns
+                </Link>
               </li>
             </ul>
           </div>
@@ -615,19 +542,17 @@ const Footer = () => {
             <ul className="footer-menu-list mt-2 lg:mt-5 block">
               <li className="mb-4 mr-4">
                 <p className="text-gray-600 font-normal transition duration-500 hover:text-red-400">
-                  {" "}
-                  12 New Elephant Road, P.O. 1334 NY, United States
+                  Kathmandu, Nepal
                 </p>
               </li>
               <li className="mb-4 mr-4">
                 <p className="text-gray-600 font-normal transition duration-500 hover:text-red-400">
-                  P. 012 345 678 90
+                  +977 980000000
                 </p>
               </li>
               <li className="mb-4 mr-4">
                 <p className="text-gray-600 font-normal transition duration-500 hover:text-red-400">
-                  {" "}
-                  E. support@themeix.com
+                  support@vesselvault.com
                 </p>
               </li>
             </ul>
