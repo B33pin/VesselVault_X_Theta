@@ -51,10 +51,12 @@ const Contact = () => {
     const isFormValid = address && name && email && subject && message;
 
     if (!isFormValid) {
+      setIsLoading(false);
       return toast.error("Please fill all the forms.");
     }
 
     if (!isValidEmail(email)) {
+      setIsLoading(false);
       return toast.error("Please enter valid email.");
     }
 

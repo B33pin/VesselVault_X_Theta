@@ -71,7 +71,7 @@ const BloodRequest = (props: Props) => {
     try {
       const res = await assignBloodReceiver(pouchID);
       toast.success("Blood pouch request successful.");
-      router.push("/profile/history");
+      router.push("/bloods/history");
     } catch (error: any) {
       toast.error("Failed to request blood pouch.");
       console.error(error.message);

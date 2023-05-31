@@ -57,11 +57,12 @@ const CreateCampaign = () => {
       video;
 
     if (!isFormValid) {
+      setIsLoading(false);
       return toast.error("Please fill all the forms.");
     }
 
     try {
-      const campaignImageIPfs = await storage.upload(form.image[0]);
+      const campaignImageIPfs = await storage.upload(form.image[0].file);
 
       const response1 = await axios({
         url: "https://api.thetavideoapi.com/upload",
@@ -96,23 +97,13 @@ const CreateCampaign = () => {
         }),
       });
 
-      // For Video Status
-      const response4 = await axios({
-        url: `https://api.thetavideoapi.com/video/${response3.data.body.videos[0].id}`,
-        method: "GET",
-        headers: {
-          "x-tva-sa-id": process.env.NEXT_PUBLIC_THETA_ID,
-          "x-tva-sa-secret": process.env.NEXT_PUBLIC_THETA_SECRET,
-        },
-      });
-
       await createCampaign({
         id: "",
         owner: address as string,
         title: form.title,
         description: form.description,
         imageId: campaignImageIPfs,
-        videoId: campaignImageIPfs,
+        videoId: response3.data.body.videos[0].id,
         targetAmount: ethers.utils.parseUnits(form.target, 18),
         deadlineDate: form.deadlineDate,
         donators: [],

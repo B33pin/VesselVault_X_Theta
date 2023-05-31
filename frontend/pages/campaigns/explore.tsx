@@ -678,6 +678,7 @@ const Explore = (props: Props) => {
                 {!isLoading &&
                   campaigns.length > 0 &&
                   campaigns.map((campaign) => {
+                    console.log(campaign);
                     return (
                       <Link
                         key={campaign.id}

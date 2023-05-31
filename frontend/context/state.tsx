@@ -59,12 +59,12 @@ export const StateContextProvider = ({ children }: ContextProps) => {
 
       setAddress(address);
 
-      // const network = await provider.getNetwork();
+      const network = await provider.getNetwork();
 
-      // if (network.name !== "privatenet") {
-      //   alert(`This dApp only supports the Theta mainnet.`);
-      //   return console.warn(`This dApp only supports the Theta mainnet.`);
-      // }
+      if (network.name !== "sepolia") {
+        alert(`This dApp only supports the Sepolia mainnet.`);
+        return console.warn(`This dApp only supports the Sepolia mainnet.`);
+      }
 
       const balance = await provider.getBalance(address);
       const etherBalance = ethers.utils.formatEther(balance);

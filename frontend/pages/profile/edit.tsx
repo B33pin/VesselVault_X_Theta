@@ -80,11 +80,9 @@ const EditProfile = () => {
 
     const {
       username,
-      bio,
       email,
       country,
       profile,
-      coverPhoto,
       phoneNumber,
       zipCode,
       facebookLink,
@@ -96,10 +94,6 @@ const EditProfile = () => {
       username &&
       email &&
       country &&
-      profile &&
-      profile.length > 0 &&
-      coverPhoto &&
-      coverPhoto.length > 0 &&
       phoneNumber &&
       zipCode &&
       facebookLink &&
@@ -107,6 +101,7 @@ const EditProfile = () => {
       instagramLink;
 
     if (!isFormValid) {
+      setIsFormLoading(false);
       return toast.error("Please fill all the forms.");
     }
 
@@ -115,6 +110,7 @@ const EditProfile = () => {
       !isValidPhoneNumber(phoneNumber) ||
       !isValidZipCode(zipCode)
     ) {
+      setIsFormLoading(false);
       return toast.error("Please fill valid data.");
     }
 
@@ -123,10 +119,10 @@ const EditProfile = () => {
 
     try {
       if (form.profile) {
-        profilePhotoIPfs = await storage.upload(form.profile[0]);
+        profilePhotoIPfs = await storage.upload(form.profile[0].file);
       }
       if (form.coverPhoto) {
-        coverPhotoIPfs = await storage.upload(form.coverPhoto[0]);
+        coverPhotoIPfs = await storage.upload(form.coverPhoto[0].file);
       }
 
       updateProfile({

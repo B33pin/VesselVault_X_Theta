@@ -77,6 +77,7 @@ const AddGuardian = () => {
       zipCode;
 
     if (!isFormValid) {
+      setIsLoading(false);
       return toast.error("Please fill all the forms.");
     }
 
@@ -86,11 +87,12 @@ const AddGuardian = () => {
       !isValidPhoneNumber(phoneNumber) ||
       !isValidZipCode(zipCode)
     ) {
+      setIsLoading(false);
       return toast.error("Please fill valid data.");
     }
 
     try {
-      const campaignImageIPfs = await storage.upload(guardianPhoto[0]);
+      const campaignImageIPfs = await storage.upload(guardianPhoto[0].file);
 
       await addGuardian(address, {
         guardianName,

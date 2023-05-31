@@ -62,8 +62,8 @@ export const CampaignContextProvider = ({
       owner: campaign.owner,
       title: campaign.title,
       description: campaign.description,
-      image: campaign.imageId,
-      video: campaign.videoId,
+      imageId: campaign.imageId,
+      videoId: campaign.videoId,
       targetAmount: ethers.utils.formatEther(campaign.targetAmount.toString()),
       collectedAmount: ethers.utils.formatEther(
         campaign.collectedAmount.toString()

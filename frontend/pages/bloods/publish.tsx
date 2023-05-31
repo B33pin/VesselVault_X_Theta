@@ -48,10 +48,12 @@ const AddBloods = (props: Props) => {
     const isFormValid = donarID && bloodGroup && details;
 
     if (!isFormValid) {
+      setIsLoading(false);
       return toast.error("Please fill all the forms.");
     }
 
     if (!isValidAddress(donarID)) {
+      setIsLoading(false);
       return toast.error("Please fill valid data.");
     }
 
