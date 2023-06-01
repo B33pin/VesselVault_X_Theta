@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body::-webkit-scrollbar,
+#messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track,
+#messages::-webkit-scrollbar-track {
+  border-radius: 0;
+}
+
+body::-webkit-scrollbar-thumb,
+#messages::-webkit-scrollbar-thumb {
+  @apply bg-red-400 rounded;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.body-scroll {
+  overflow: auto;
+}
+
+.container {
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cursor-direction {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  z-index: 99999;
+  transition: transform 0.2s ease-in;
+}
+
+.readmore-btn span {
+  position: relative;
+  z-index: 3;
+}
+
+.readmore-btn::before {
+  content: "";
+  background-image: url(/images/section-arrow-icon.png);
+  display: block;
+  width: 12px;
+  height: 12px;
+  right: 0;
+  top: 5px;
+  position: absolute;
+  z-index: 2;
+}
+
+.readmore-btn::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 8px;
+  right: 0;
+  bottom: 2px;
+  position: absolute;
+  z-index: 1;
+  transition: 0.2s ease-in;
+  @apply bg-red-200;
+}
+
+.readmore-btn:hover:after {
+  height: 16px;
+}
+
+.label-before::before {
+  content: "";
+  width: 40px;
+  height: 1.5px;
+  display: block;
+  left: 0;
+  top: 16px;
+  position: absolute;
+  @apply bg-red-200;
+}
+
+.linear-gradient {
+  background: linear-gradient(
+    179.14deg,
+    rgba(32, 18, 63, 0) -7.14%,
+    #000000 87.01%
+  );
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8);
+}
+
+@-webkit-keyframes animate_1 {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(45%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes animate_1 {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(45%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@-webkit-keyframes animate_2 {
+  0% {
+    transform: rotate(0) translate(0, 0);
+    -webkit-transform: rotate(0) translate(0, 0);
+  }
+
+  50% {
+    transform: rotate(180deg) translate(4%, 4%);
+    -webkit-transform: rotate(180deg) translate(4%, 4%);
+  }
+
+  100% {
+    transform: rotate(0) translate(0, 0);
+    -webkit-transform: rotate(0) translate(0, 0);
+  }
+}
+
+@keyframes animate_2 {
+  0% {
+    transform: rotate(0) translate(0, 0);
+    -webkit-transform: rotate(0) translate(0, 0);
+  }
+
+  50% {
+    transform: rotate(180deg) translate(4%, 4%);
+    -webkit-transform: rotate(180deg) translate(4%, 4%);
+  }
+
+  100% {
+    transform: rotate(0) translate(0, 0);
+    -webkit-transform: rotate(0) translate(0, 0);
+  }
+}
+
+@-webkit-keyframes animate_3 {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-30%, 15%);
+  }
+
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes animate_3 {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-30%, 15%);
+  }
+
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-1 {
+  -webkit-animation: animate_1 backwards 8s ease-out infinite;
+  animation: animate_1 backwards 8s ease-out infinite;
+}
+
+.animate-2 {
+  -webkit-animation: animate_2 backwards 10s ease-out infinite;
+  animation: animate_2 backwards 10s ease-out infinite;
+}
+
+.animate-3 {
+  -webkit-animation: animate_3 backwards 7s ease-out infinite;
+  animation: animate_3 backwards 7s ease-out infinite;
+}
