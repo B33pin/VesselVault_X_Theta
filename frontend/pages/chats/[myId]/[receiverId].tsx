@@ -56,14 +56,14 @@ const Chat = () => {
     };
   }, [myId, receiverId]);
 
-  useEffect(() => {
-    if (address && myId) {
-      if (myId !== address) {
-        router.push(`/history`);
-        return;
-      }
-    }
-  }, [address, myId, router]);
+  // useEffect(() => {
+  //   if (address && myId) {
+  //     if (myId !== address) {
+  //       router.push(`/bloods/history`);
+  //       return;
+  //     }
+  //   }
+  // }, [address, myId, router]);
 
   const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

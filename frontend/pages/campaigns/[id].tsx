@@ -811,23 +811,15 @@ const CampaignDetails = () => {
                         href={`/profile/${guardianData.id}`}
                         className="text-blue-600 text-sm hover:underline"
                       >
-                        {guardianData ? (
+                        
                           <Image
-                            src={storage.resolveScheme(
-                              guardianData.profile
-                            )}
-                            alt="user"
-                            width={120}
-                            height={120}
-                            className="rounded-full object-contain"
-                          />
-                        ) : (
-                          <Image
-                            src={User}
+                            src={"/rcross.gif"}
+                            width={200}
+                            height={200}
                             alt="user"
                             className="rounded-full object-contain"
                           />
-                        )}
+                      
                       </Link>
                     </div>
                     <div>

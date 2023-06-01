@@ -778,11 +778,11 @@ const BloodRequest = (props: Props) => {
                       return (
                         <tr
                           key={index}
-                          className="bg-white hover:bg-gray-50 dark:hover:bg-gray-600"
+                          className="bg-white hover:bg-gray-50"
                         >
                           <th
                             scope="row"
-                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                           >
                             {blood.pouchID}
                           </th>
