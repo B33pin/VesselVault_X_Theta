@@ -34,12 +34,12 @@ export const validateAddress = (address: string) => {
 };
 
 export const BloodType: any = {
-  0: "AB+",
-  1: "AB-",
   2: "A+",
   3: "A-",
   4: "B+",
   5: "B-",
+  0: "AB+",
+  1: "AB-",
   6: "O+",
   7: "O-",
 };
